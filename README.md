@@ -1,1 +1,1 @@
-# jdk-symbolic-link
+# jdk-sym-link
