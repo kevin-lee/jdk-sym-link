@@ -1,5 +1,11 @@
 package jdksymlink
 
+import sys.process._
+import scala.io.StdIn
+import scala.language.postfixOps
+
+import data._
+
 /**
  * #############################################
  * ## Simple Scala script to create           ##
@@ -16,11 +22,6 @@ package jdksymlink
  * @since 2019-12-22
  */
 object JdkSymbolicLink extends App {
-  import sys.process._
-  import scala.io.StdIn
-  import scala.language.postfixOps
-
-  import data._
 
   def bold(text: String): String = s"$Bold$text$normal"
 
@@ -29,26 +30,28 @@ object JdkSymbolicLink extends App {
   def help(): Unit = printHelp(Nil)
 
   def printHelp(whatever: List[String]): Unit =
-    println(s"""
-               |Usage:
-               |${bold("ln-s-jdk")} [arguments]
-               |
-               |  ${bold("-l")}, ${bold("--list")}: list all JDK installed
-               |    e.g.)
-               |    # list JDKs
-               |    ln-s-jdk --list
-               |    ln-s-jdk -l
-               |
-               |  ${bold("-s")}, ${bold("--slink")} version_number: Create a new symbolic link to the default jdk (i.e. jdk# => actual folder).
-               |
-               |    # To set the default JDK for Java 9
-               |    ln-s-jdk --slink 9
-               |    ln-s-jdk -s 9
-               |
-               |    # To set the default JDK for Java 8
-               |    ln-s-jdk --slink 8
-               |    ln-s-jdk -s 8
-             """.stripMargin)
+    println(
+      s"""
+         |Usage:
+         |${bold("ln-s-jdk")} [arguments]
+         |
+         |  ${bold("-l")}, ${bold("--list")}: list all JDK installed
+         |    e.g.)
+         |    # list JDKs
+         |    ln-s-jdk --list
+         |    ln-s-jdk -l
+         |
+         |  ${bold("-s")}, ${bold("--slink")} version_number: Create a new symbolic link to the default jdk (i.e. jdk# => actual folder).
+         |
+         |    # To set the default JDK for Java 9
+         |    ln-s-jdk --slink 9
+         |    ln-s-jdk -s 9
+         |
+         |    # To set the default JDK for Java 8
+         |    ln-s-jdk --slink 8
+         |    ln-s-jdk -s 8
+         |""".stripMargin
+    )
 
   if (args.isEmpty) {
     help()
@@ -69,24 +72,28 @@ object JdkSymbolicLink extends App {
     case Some(_) =>
       println("Done\n")
     case None =>
-      println(s"""
-                 |Unknown args: ${args.mkString(" ")}
-                 |
-                 |  # To see available args please run
-                 |  ln-s-jdk --help
-                 |
-                 |  #or just
-                 |  ln-s-jdk
-             """.stripMargin)
+      println(
+        s"""
+           |Unknown args: ${args.mkString(" ")}
+           |
+           |  # To see available args please run
+           |  ln-s-jdk --help
+           |
+           |  #or just
+           |  ln-s-jdk
+           |""".stripMargin
+      )
       sys.exit(1)
   }
 
   def listAll(args: List[String]): Unit = {
-    println(s"""
-               |$$ ls -l $javaBaseDirPath
-               |
-               |${Process(s"ls -l", Option(javaBaseDir)) !!}
-           """.stripMargin)
+    println(
+      s"""
+         |$$ ls -l $javaBaseDirPath
+         |
+         |${Process(s"ls -l", Option(javaBaseDir)) !!}
+         |""".stripMargin
+    )
   }
 
   def slink(args: List[String]): Unit = {
@@ -133,11 +140,13 @@ object JdkSymbolicLink extends App {
     def askUserToSelectJdk(names: Vector[NameAndVersion]): Option[NameAndVersion] = {
       val listOfJdk = names.zipWithIndex.map { case ((name, split), index) => s"[$index] $name" }
 
-      println(s"""
-                 |Version(s) found:
-                 |${listOfJdk.mkString("\n")}
-                 |[c] Cancel
-             """.stripMargin)
+      println(
+        s"""
+           |Version(s) found:
+           |${listOfJdk.mkString("\n")}
+           |[c] Cancel
+           |""".stripMargin
+      )
 
       val length = listOfJdk.length
 
@@ -155,9 +164,12 @@ object JdkSymbolicLink extends App {
     println(askUserToSelectJdk(names).flatMap {
       case (name, ver) =>
 
-        println(s"""
-                   |You chose '$name'.
-                   |It will create a symbolic link to '$name' (i.e. jdk${ver.major} -> $name) and may ask you to enter your password.""".stripMargin)
+        println(
+          s"""
+             |You chose '$name'.
+             |It will create a symbolic link to '$name' (i.e. jdk${ver.major} -> $name) and may ask you to enter your password.
+             |""".stripMargin
+        )
         print("Would you like to proceed? (Yes / No) or (Y / N) ")
 
         StdIn.readLine() match {
@@ -170,12 +182,16 @@ object JdkSymbolicLink extends App {
             val result = s"ls -d $javaBaseDirPath/jdk$version" !(lsResultLogger) match {
               case 0 =>
                 if ((s"find $javaBaseDirPath -type l -iname jdk$version" !!).isEmpty) {
-                  println(s"\n'$javaBaseDirPath/jdk$version' already exists and it's not a symbolic link so nothing will be done.")
+                  println(
+                    s"\n'$javaBaseDirPath/jdk$version' already exists and it's not a symbolic link so nothing will be done."
+                  )
                   1
                 } else {
-                  println(s"""
-                             |$javaBaseDir $$ sudo rm jdk$version
-                             |$javaBaseDir $$ sudo ln -s $name jdk$version """.stripMargin)
+                  println(
+                    s"""
+                       |$javaBaseDir $$ sudo rm jdk$version
+                       |$javaBaseDir $$ sudo ln -s $name jdk$version """.stripMargin
+                  )
                   Process(s"sudo rm jdk$version", Option(javaBaseDir)) #&& Process(s"sudo ln -s $name jdk$version", Option(javaBaseDir)) !
                 }
               case _ =>
