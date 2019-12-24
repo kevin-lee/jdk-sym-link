@@ -1,13 +1,13 @@
 package jdksymlink
 
-import cats.effect._
-import cats.implicits._
+import java.io.File
 
+import cats.implicits._
+import cats.effect._
 import jdksymlink.data._
 
 import scala.language.postfixOps
 import scala.util.matching.Regex
-
 import sys.process._
 
 /**
@@ -33,6 +33,7 @@ object JdkSymbolicLinkextends extends App {
   def bold(text: String): String = s"$Bold$text$Normal"
 
   def isPositiveNumber(text: String): Boolean = text.matches("""[1-9][\d]*""")
+  def isNonNegativeNumber(text: String): Boolean = text.matches("""[\d]*""")
 
   def help(): IO[Unit] = printHelp(Nil)
 
@@ -60,9 +61,15 @@ object JdkSymbolicLinkextends extends App {
          |""".stripMargin
     )
 
-  val Command1s: Map[String, List[String] => IO[Unit]] = Map("l" -> listAll, "s" -> slink, "h" -> printHelp)
+  val Command1s: Map[String, List[String] => IO[Unit]] = Map(
+      "l" -> listAll(javaBaseDirPath, javaBaseDir)
+    , "s" -> slink, "h" -> printHelp
+    )
 
-  val Command2s: Map[String, List[String] => IO[Unit]] = Map("list" -> listAll, "slink" -> slink, "help" -> printHelp)
+  val Command2s: Map[String, List[String] => IO[Unit]] = Map(
+      "list" -> listAll(javaBaseDirPath, javaBaseDir)
+    , "slink" -> slink, "help" -> printHelp
+    )
 
   val argPatter: Regex = """([-]+)([\w]+)""".r
 
@@ -94,14 +101,16 @@ object JdkSymbolicLinkextends extends App {
     })
   }).unsafeRunSync()
 
-  def listAll(args: List[String]): IO[Unit] =
-    putStrLn(
-      s"""
-         |$$ ls -l $javaBaseDirPath
-         |
-         |${Process(s"ls -l", Option(javaBaseDir)) !!}
-         |""".stripMargin
-    )
+  def listAll(javaBaseDirPath: String, javaBaseDir: File)(args: List[String]): IO[Unit] =
+    for {
+      _ <- putStrLn(
+          s"""
+             |$$ ls -l $javaBaseDirPath
+             |""".stripMargin
+        )
+      list <- IO(Process(s"ls -l", Option(javaBaseDir)) !!)
+      _ <- putStrLn(s"$list\n")
+    } yield ()
 
   def slink(args: List[String]): IO[Unit] = {
 
@@ -128,7 +137,7 @@ object JdkSymbolicLinkextends extends App {
         .map(line => if (line.endsWith("/")) line.dropRight(1) else line)
         .map(extractVersion)
         .foldLeft(Vector[NameAndVersion]()) {
-          case (acc, Some(x@(_, VerStr(v, _, _)))) if v == version =>
+          case (acc, Some(x@(_, VerStr(v, _, _)))) if v === version =>
             acc :+ x
           case (acc, _) =>
             acc
@@ -142,7 +151,7 @@ object JdkSymbolicLinkextends extends App {
             case "c" | "C" =>
               IO(none)
             case _  =>
-              if (isPositiveNumber(choice) && choice.toInt < length)
+              if (isNonNegativeNumber(choice) && choice.toInt < length)
                 IO(choice.toInt.some)
               else
                 putStrLn("Please enter a number on the list: ") *> getAnswer(length)
@@ -160,8 +169,7 @@ object JdkSymbolicLinkextends extends App {
                |""".stripMargin
           )
         answer <- getAnswer(length)
-        nameAndVersion = answer.
-          map(names(_))
+        nameAndVersion <- IO(answer.map(names(_)))
       } yield nameAndVersion
     }
 
@@ -203,28 +211,29 @@ object JdkSymbolicLinkextends extends App {
 
 
   def lnSJdk(name: String, version: String): IO[String] = for {
-
     before <- IO(s"""${Process(s"ls -l", Option(javaBaseDir)) !!}""".stripMargin)
-
     lsResultLogger <- IO(ProcessLogger(
-        line => println(s"\n$line: It is found so will be removed and recreated."),
-        line => println(s"\n$line: So it is not found so it will be created.")
+        line => println(s"\n$line: It is found so will be removed and recreated.")
+      , line => println(s"\n$line: So it is not found so it will be created.")
       ))
-    jdkLinkAlreadyExists <- IO(s"ls -d $javaBaseDirPath/jdk$version" !(lsResultLogger)).map(_ === 0)
+    jdkLinkAlreadyExists <- IO((s"ls -d $javaBaseDirPath/jdk$version" !(lsResultLogger)) === 0)
     result <- if (jdkLinkAlreadyExists) {
-        if ((s"find $javaBaseDirPath -type l -iname jdk$version" !!).isEmpty) {
-          putStrLn(
-            s"\n'$javaBaseDirPath/jdk$version' already exists and it's not a symbolic link so nothing will be done."
-          ) *> IO(1)
-        } else {
-          putStrLn(
-            s"""
-               |$javaBaseDir $$ sudo rm jdk$version
-               |$javaBaseDir $$ sudo ln -s $name jdk$version """.stripMargin
-          ) *> IO(
-            Process(s"sudo rm jdk$version", Option(javaBaseDir)) #&& Process(s"sudo ln -s $name jdk$version", Option(javaBaseDir)) !
-          )
-        }
+        for {
+          isNonSymLink <- IO((s"find $javaBaseDirPath -type l -iname jdk$version" !!).isEmpty)
+          r <- if (isNonSymLink) {
+            putStrLn(
+              s"\n'$javaBaseDirPath/jdk$version' already exists and it's not a symbolic link so nothing will be done."
+            ) *> IO(1)
+          } else {
+            putStrLn(
+              s"""
+                 |$javaBaseDir $$ sudo rm jdk$version
+                 |$javaBaseDir $$ sudo ln -s $name jdk$version """.stripMargin
+            ) *> IO(
+              Process(s"sudo rm jdk$version", Option(javaBaseDir)) #&& Process(s"sudo ln -s $name jdk$version", Option(javaBaseDir)) !
+            )
+          }
+        } yield r
       } else {
         putStrLn(
           s"""

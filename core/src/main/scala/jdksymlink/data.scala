@@ -12,7 +12,7 @@ import scala.util.matching.Regex
  */
 object data {
   val javaBaseDirPath: String = "/Library/Java/JavaVirtualMachines"
-  lazy val javaBaseDir: File = new java.io.File(s"$javaBaseDirPath")
+  lazy val javaBaseDir: File = new File(s"$javaBaseDirPath")
 
   lazy val Bold: String = "\u001b[1m"
   lazy val Normal: String = "\u001b[0m"
