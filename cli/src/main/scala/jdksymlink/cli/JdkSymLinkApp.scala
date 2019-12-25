@@ -9,6 +9,7 @@ import Scalaz._
 import scalaz.effect._
 
 import jdksymlink.core.JdkSymLinkError
+import jdksymlink.core.data.JavaMajorVersion
 import jdksymlink.info.JdkSymLinkBuildInfo
 
 /**
@@ -19,12 +20,12 @@ object JdkSymLinkApp extends MainIO[JdkSymLinkArgs] {
 
   val listParser: Parse[JdkSymLinkArgs] = ValueParse(JdkSymLinkArgs.jdkListArgs)
 
-  val symLinkJdkParser: Parse[JdkSymLinkArgs] = JdkSymLinkArgs.symLinkArgs _ |*| {
-    flag[Int](
-        both('v', "java-version")
-      , metavar("<java-version>") |+| description("Java version e.g.) 8, 11, 13")
-      )
-    }
+  val symLinkJdkParser: Parse[JdkSymLinkArgs] =
+    JdkSymLinkArgs.symLinkArgs _ |*|
+      flag[Int](
+          both('v', "java-version")
+        , metavar("<java-version>") |+| description("Java version e.g.) 8, 11, 13")
+        ).map(JavaMajorVersion.apply)
 
   val rawCmd: Command[JdkSymLinkArgs] = Command(
       "jdk-sym-link"
