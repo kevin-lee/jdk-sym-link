@@ -22,6 +22,12 @@ object data {
   val From9Pattern: Regex = """[^-]+-(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:-[^\.]+)?\.jdk$""".r
   val From9PatternWithOnlyVersion: Regex = """^jdk-(\d+)\.jdk$""".r
 
+  final case class JavaMajorVersion(javaMajorVersion: Int) extends AnyVal
+  object JavaMajorVersion {
+    def render(javaMajorVersion: JavaMajorVersion): String =
+      javaMajorVersion.javaMajorVersion.toString
+  }
+
   type NameAndVersion = (String, VerStr)
 
   final case class VerStr(major: String, minor: Option[String], patch: Option[String])
