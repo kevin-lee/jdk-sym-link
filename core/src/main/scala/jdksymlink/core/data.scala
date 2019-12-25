@@ -1,4 +1,4 @@
-package jdksymlink
+package jdksymlink.core
 
 import java.io.File
 

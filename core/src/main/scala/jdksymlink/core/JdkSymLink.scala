@@ -1,10 +1,10 @@
-package jdksymlink
+package jdksymlink.core
 
 import java.io.File
 
 import cats.implicits._
 import cats.effect._
-import jdksymlink.data._
+import data._
 
 import scala.language.postfixOps
 import scala.util.matching.Regex
