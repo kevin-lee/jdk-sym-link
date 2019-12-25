@@ -1,4 +1,4 @@
-package jdksymlink
+package jdksymlink.cli
 
 import pirate._
 import Pirate._
@@ -6,9 +6,9 @@ import piratex._
 
 import scalaz._
 import Scalaz._
-
 import scalaz.effect._
 
+import jdksymlink.core.JdkSymLinkError
 import jdksymlink.info.JdkSymLinkBuildInfo
 
 /**

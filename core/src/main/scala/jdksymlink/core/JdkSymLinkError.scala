@@ -1,4 +1,4 @@
-package jdksymlink
+package jdksymlink.core
 
 /**
  * @author Kevin Lee
@@ -9,4 +9,3 @@ sealed trait JdkSymLinkError
 object JdkSymLinkError {
   def render(jdkSymLinkError: JdkSymLinkError): String = ???
 }
-

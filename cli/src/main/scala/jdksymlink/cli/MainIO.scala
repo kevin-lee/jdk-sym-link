@@ -1,12 +1,14 @@
-package jdksymlink
+package jdksymlink.cli
 
-import pirate.{Command, DefaultPrefs, ExitCode, Prefs, Runners}
+import pirate._
 
 import scalaz._
 import Scalaz._
+import scalaz.effect._
 
-import scalaz.effect.IO
- 
+import jdksymlink.core.JdkSymLinkError
+
+
 /**
  * @author Kevin Lee
  * @since 2019-12-09

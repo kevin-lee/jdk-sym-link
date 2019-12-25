@@ -1,4 +1,4 @@
-package jdksymlink
+package jdksymlink.cli
 
 /**
  * @author Kevin Lee
