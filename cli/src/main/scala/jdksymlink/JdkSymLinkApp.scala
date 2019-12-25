@@ -9,6 +9,7 @@ import Scalaz._
 
 import scalaz.effect._
 
+import jdksymlink.info.JdkSymLinkBuildInfo
 
 /**
  * @author Kevin Lee
@@ -40,7 +41,7 @@ object JdkSymLinkApp extends MainIO[JdkSymLinkArgs] {
         , "Create JDK symbolic link".some
         , symLinkJdkParser
         )
-      )) <* version("0.1.0") // TODO replace it with the value from BuildInfo plugin
+      )) <* version(JdkSymLinkBuildInfo.version)
     )
 
   val cmd: Command[JdkSymLinkArgs] =
