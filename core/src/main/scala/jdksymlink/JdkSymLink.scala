@@ -25,7 +25,7 @@ import sys.process._
  * @author Kevin Lee
  * @since 2019-12-22
  */
-object JdkSymbolicLinkextends extends App {
+object JdkSymLink extends App {
 
   val readLn: IO[String] = IO(scala.io.StdIn.readLine)
   def putStrLn(value: String): IO[Unit] = IO(println(value))
