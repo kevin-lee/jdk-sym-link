@@ -20,7 +20,7 @@ lazy val  hedgehogRepo: Resolver =
   "bintray-scala-hedgehog" at "https://dl.bintray.com/hedgehogqa/scala-hedgehog"
 
 lazy val  hedgehogLibs: Seq[ModuleID] = Seq(
-  "qa.hedgehog" %% "hedgehog-core" % hedgehogVersion % Test
+    "qa.hedgehog" %% "hedgehog-core" % hedgehogVersion % Test
   , "qa.hedgehog" %% "hedgehog-runner" % hedgehogVersion % Test
   , "qa.hedgehog" %% "hedgehog-sbt" % hedgehogVersion % Test
 )
@@ -28,7 +28,7 @@ lazy val  hedgehogLibs: Seq[ModuleID] = Seq(
 lazy val core = (project in file("core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
-    name := s"$ProjectNamePrefix-core"
+      name := s"$ProjectNamePrefix-core"
     , resolvers += hedgehogRepo
     , libraryDependencies ++= hedgehogLibs ++ Seq(
         "org.typelevel" %% "cats-core" % "2.1.0"
@@ -53,7 +53,7 @@ lazy val pirateUri = uri(s"https://github.com/Kevin-Lee/pirate.git#$pirateVersio
 lazy val cli = (project in file("cli"))
   .enablePlugins(JavaAppPackaging)
   .settings(
-    name := s"$ProjectNamePrefix-cli"
+      name := s"$ProjectNamePrefix-cli"
     , resolvers += hedgehogRepo
     , libraryDependencies ++= hedgehogLibs
     , testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
