@@ -11,6 +11,7 @@ import scala.util.matching.Regex
  * @since 2015-04-03
  */
 object data {
+
   val javaBaseDirPath: String = "/Library/Java/JavaVirtualMachines"
   lazy val javaBaseDir: File = new File(s"$javaBaseDirPath")
 

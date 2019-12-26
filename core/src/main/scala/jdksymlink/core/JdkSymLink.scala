@@ -4,7 +4,9 @@ import java.io.File
 
 import cats.implicits._
 import cats.effect._
-import data._
+
+import jdksymlink.core.data._
+import jdksymlink.effect._
 
 import scala.language.postfixOps
 import scala.util.matching.Regex
@@ -26,9 +28,6 @@ import sys.process._
  * @since 2019-12-22
  */
 object JdkSymLink extends App {
-
-  val readLn: IO[String] = IO(scala.io.StdIn.readLine)
-  def putStrLn(value: String): IO[Unit] = IO(println(value))
 
   def bold(text: String): String = s"$Bold$text$Normal"
 
@@ -85,7 +84,9 @@ object JdkSymLink extends App {
               if (isNonNegativeNumber(choice) && choice.toInt < length)
                 IO(choice.toInt.some)
               else
-                putStrLn("Please enter a number on the list: ") *> getAnswer(length)
+                putStrLn(
+                  """Please enter a number on the list:
+                    |(or [c] for cancellation)""".stripMargin) *> getAnswer(length)
           }
       } yield answer
 
