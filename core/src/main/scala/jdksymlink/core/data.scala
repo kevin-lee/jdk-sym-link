@@ -12,6 +12,16 @@ import scala.util.matching.Regex
  */
 object data {
 
+  sealed trait YesOrNo
+
+  object YesOrNo {
+    final case object Yes extends YesOrNo
+    final case object No extends YesOrNo
+
+    def yes: YesOrNo = Yes
+    def no: YesOrNo = No
+  }
+
   val javaBaseDirPath: String = "/Library/Java/JavaVirtualMachines"
   lazy val javaBaseDir: File = new File(s"$javaBaseDirPath")
 
@@ -70,4 +80,3 @@ object data {
 
   }
 }
-
