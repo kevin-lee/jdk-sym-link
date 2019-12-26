@@ -33,7 +33,7 @@ object JdkSymLink extends App {
   def bold(text: String): String = s"$Bold$text$Normal"
 
   def isPositiveNumber(text: String): Boolean = text.matches("""[1-9][\d]*""")
-  def isNonNegativeNumber(text: String): Boolean = text.matches("""[\d]*""")
+  def isNonNegativeNumber(text: String): Boolean = text.matches("""[\d]+""")
 
   val argPatter: Regex = """([-]+)([\w]+)""".r
 
