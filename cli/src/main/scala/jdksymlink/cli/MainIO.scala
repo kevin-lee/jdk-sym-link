@@ -37,7 +37,7 @@ trait MainIO[A] {
     codeOrA <- getArgs(args, command, prefs)
     errorOrResult <- codeOrA.fold[IO[JdkSymLinkError \/ Unit]](exitWithPirate, run)
     _ <- errorOrResult.fold(
-        err => putStrLn(JdkSymLinkError.render(err)) *>
+        err => putStrLnF[IO](JdkSymLinkError.render(err)) *>
           exitWith(ExitCode.Error)
       , IO(_)
       )

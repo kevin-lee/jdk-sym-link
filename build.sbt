@@ -25,15 +25,15 @@ lazy val  hedgehogLibs: Seq[ModuleID] = Seq(
   , "qa.hedgehog" %% "hedgehog-sbt" % hedgehogVersion % Test
 )
 
+val cats: ModuleID = "org.typelevel" %% "cats-core" % "2.1.0"
+val catsEffect: ModuleID = "org.typelevel" %% "cats-effect" % "2.0.0"
+
 lazy val core = (project in file("core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
       name := s"$ProjectNamePrefix-core"
     , resolvers += hedgehogRepo
-    , libraryDependencies ++= hedgehogLibs ++ Seq(
-        "org.typelevel" %% "cats-core" % "2.1.0"
-      , "org.typelevel" %% "cats-effect" % "2.0.0"
-      )
+    , libraryDependencies ++= hedgehogLibs ++ Seq(cats)
     , testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
     /* Build Info { */
     , buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
@@ -55,7 +55,7 @@ lazy val cli = (project in file("cli"))
   .settings(
       name := s"$ProjectNamePrefix-cli"
     , resolvers += hedgehogRepo
-    , libraryDependencies ++= hedgehogLibs
+    , libraryDependencies ++= hedgehogLibs ++ Seq(catsEffect)
     , testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
     , maintainer := "Kevin Lee <kevin.code@kevinlee.io>"
     , packageSummary := "JdkSymLink"
