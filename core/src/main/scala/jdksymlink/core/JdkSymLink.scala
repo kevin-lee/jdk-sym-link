@@ -26,7 +26,29 @@ import sys.process._
  * @author Kevin Lee
  * @since 2019-12-22
  */
+trait JdkSymLink[F[_]] {
+  def listAll(javaBaseDirPath: String, javaBaseDir: File): F[Unit]
+  def slink(javaMajorVersion: JavaMajorVersion): F[Unit]
+}
+
 object JdkSymLink {
+  def apply[F[_] : JdkSymLink] = implicitly[JdkSymLink[F]]
+
+  implicit val jdkSymLinkIO: JdkSymLink[IO] = JdkSymLinkIO
+
+}
+
+case object JdkSymLinkIO extends JdkSymLink[IO] {
+  def listAll(javaBaseDirPath: String, javaBaseDir: File): IO[Unit] =
+    for {
+      _ <- putStrLn(
+        s"""
+           |$$ ls -l $javaBaseDirPath
+           |""".stripMargin
+      )
+      list <- IO(Process(s"ls -l", Option(javaBaseDir)) !!)
+      _ <- putStrLn(s"$list\n")
+    } yield ()
 
   def slink(javaMajorVersion: JavaMajorVersion): IO[Unit] =
     for {
@@ -61,17 +83,6 @@ object JdkSymLink {
 
   def isPositiveNumber(text: String): Boolean = text.matches("""[1-9][\d]*""")
   def isNonNegativeNumber(text: String): Boolean = text.matches("""[\d]+""")
-
-  def listAll(javaBaseDirPath: String, javaBaseDir: File): IO[Unit] =
-    for {
-      _ <- putStrLn(
-          s"""
-             |$$ ls -l $javaBaseDirPath
-             |""".stripMargin
-        )
-      list <- IO(Process(s"ls -l", Option(javaBaseDir)) !!)
-      _ <- putStrLn(s"$list\n")
-    } yield ()
 
   def extractVersion(name: String): Option[NameAndVersion] = name match {
     case Before9Pattern(major, minor, patch) =>
