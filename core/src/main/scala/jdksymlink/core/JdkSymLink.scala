@@ -2,8 +2,8 @@ package jdksymlink.core
 
 import java.io.File
 
+import cats._
 import cats.implicits._
-import cats.effect._
 
 import jdksymlink.core.data._
 import jdksymlink.effect._
@@ -32,27 +32,37 @@ trait JdkSymLink[F[_]] {
 }
 
 object JdkSymLink {
-  def apply[F[_] : JdkSymLink] = implicitly[JdkSymLink[F]]
 
-  implicit val jdkSymLinkIO: JdkSymLink[IO] = JdkSymLinkIO
+  def apply[F[_] : JdkSymLink]: JdkSymLink[F] = implicitly[JdkSymLink[F]]
+
+  implicit def jdkSymLinkF[F[_]: Monad]: JdkSymLink[F] = MonadJdkSymLink(Monad[F])
 
 }
 
-case object JdkSymLinkIO extends JdkSymLink[IO] {
-  def listAll(javaBaseDirPath: String, javaBaseDir: File): IO[Unit] =
+case class MonadJdkSymLink[F[_]](EF: Monad[F]) extends JdkSymLink[F] {
+
+  implicit val M: Monad[F] = EF
+
+  private def fOf[A](a: A): F[A] = M.pure(a)
+
+  private def putStrLn(str: String): F[Unit] = putStrLnF[F](str)
+
+  private def readLn: F[String] = readLnF[F]
+
+  def listAll(javaBaseDirPath: String, javaBaseDir: File): F[Unit] =
     for {
       _ <- putStrLn(
         s"""
            |$$ ls -l $javaBaseDirPath
            |""".stripMargin
       )
-      list <- IO(Process(s"ls -l", Option(javaBaseDir)) !!)
+      list <- fOf(Process(s"ls -l", Option(javaBaseDir)) !!)
       _ <- putStrLn(s"$list\n")
     } yield ()
 
-  def slink(javaMajorVersion: JavaMajorVersion): IO[Unit] =
+  def slink(javaMajorVersion: JavaMajorVersion): F[Unit] =
     for {
-      jdkNameVersionPairs <- IO(names(javaMajorVersion))
+      jdkNameVersionPairs <- fOf(names(javaMajorVersion))
       maybeNameVersion <- askUserToSelectJdk(jdkNameVersionPairs)
       result <- maybeNameVersion match {
         case Some((name, ver)) =>
@@ -64,17 +74,17 @@ case object JdkSymLinkIO extends JdkSymLink[IO] {
                  |and may ask you to enter your password.
                  |""".stripMargin
             )
-            answer <- readYesOrNo("Would you like to proceed? (y / n) ")
+            answer <- readYesOrNoF[F]("Would you like to proceed? (y / n) ")
             s <- answer match {
               case YesOrNo.Yes  =>
                 lnSJdk(name, javaMajorVersion)
               case YesOrNo.No  =>
-                IO("\nCancelled.\n")
+                fOf("\nCancelled.\n")
             }
           } yield s
 
         case None =>
-          IO("\nCancelled.\n")
+          fOf("\nCancelled.\n")
       }
       _ <- putStrLn(result)
     } yield ()
@@ -109,15 +119,15 @@ case object JdkSymLinkIO extends JdkSymLink[IO] {
       }
       .sortBy(_._2)
 
-  def askUserToSelectJdk(names: Vector[NameAndVersion]): IO[Option[NameAndVersion]] = {
-    def getAnswer(length: Int): IO[Option[Int]] = for {
+  def askUserToSelectJdk(names: Vector[NameAndVersion]): F[Option[NameAndVersion]] = {
+    def getAnswer(length: Int): F[Option[Int]] = for {
       choice <- readLn
       answer <- choice match {
           case "c" | "C" =>
-            IO(none)
+            fOf(none)
           case _  =>
             if (isNonNegativeNumber(choice) && choice.toInt < length)
-              IO(choice.toInt.some)
+              fOf(choice.toInt.some)
             else
               putStrLn(
                 """Please enter a number on the list:
@@ -126,8 +136,8 @@ case object JdkSymLinkIO extends JdkSymLink[IO] {
     } yield answer
 
     for {
-      listOfJdk <- IO(names.zipWithIndex.map { case ((name, split), index) => s"[$index] $name" })
-      length <- IO(listOfJdk.length)
+      listOfJdk <- fOf(names.zipWithIndex.map { case ((name, split), index) => s"[$index] $name" })
+      length <- fOf(listOfJdk.length)
       _ <- putStrLn(
           s"""
              |Version(s) found:
@@ -136,30 +146,30 @@ case object JdkSymLinkIO extends JdkSymLink[IO] {
              |""".stripMargin
         )
       answer <- getAnswer(length)
-      nameAndVersion <- IO(answer.map(names(_)))
+      nameAndVersion <- fOf(answer.map(names(_)))
     } yield nameAndVersion
   }
 
-  def lnSJdk(name: String, javaMajorVersion: JavaMajorVersion): IO[String] = for {
-    before <- IO(s"""${Process(s"ls -l", Option(javaBaseDir)) !!}""".stripMargin)
-    lsResultLogger <- IO(ProcessLogger(
+  def lnSJdk(name: String, javaMajorVersion: JavaMajorVersion): F[String] = for {
+    before <- fOf(s"""${Process(s"ls -l", Option(javaBaseDir)) !!}""".stripMargin)
+    lsResultLogger <- fOf(ProcessLogger(
         line => println(s"\n$line: It is found so will be removed and recreated.")
       , line => println(s"\n$line: So it is not found so it will be created.")
       ))
-    jdkLinkAlreadyExists <- IO((s"ls -d $javaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}" !(lsResultLogger)) === 0)
+    jdkLinkAlreadyExists <- fOf((s"ls -d $javaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}" !(lsResultLogger)) === 0)
     result <- if (jdkLinkAlreadyExists) {
         for {
-          isNonSymLink <- IO((s"find $javaBaseDirPath -type l -iname jdk${JavaMajorVersion.render(javaMajorVersion)}" !!).isEmpty)
+          isNonSymLink <- fOf((s"find $javaBaseDirPath -type l -iname jdk${JavaMajorVersion.render(javaMajorVersion)}" !!).isEmpty)
           r <- if (isNonSymLink) {
             putStrLn(
               s"\n'$javaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}' already exists and it's not a symbolic link so nothing will be done."
-            ) *> IO(1)
+            ) *> fOf(1)
           } else {
             putStrLn(
               s"""
                  |$javaBaseDir $$ sudo rm jdk${JavaMajorVersion.render(javaMajorVersion)}
                  |$javaBaseDir $$ sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)} """.stripMargin
-            ) *> IO(
+            ) *> fOf(
               Process(s"sudo rm jdk${JavaMajorVersion.render(javaMajorVersion)}", Option(javaBaseDir)) #&& Process(s"sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)}", Option(javaBaseDir)) !
             )
           }
@@ -168,13 +178,13 @@ case object JdkSymLinkIO extends JdkSymLink[IO] {
         putStrLn(
           s"""
              |$javaBaseDir $$ sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)} """.stripMargin) *>
-          IO(Process(s"sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)}", Option(javaBaseDir)) !)
+          fOf(Process(s"sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)}", Option(javaBaseDir)) !)
       }
 
     r <- result match {
         case 0 =>
-          IO(Process(s"ls -l", Option(javaBaseDir)) !!).flatMap { after =>
-            IO(
+          fOf(Process(s"ls -l", Option(javaBaseDir)) !!).flatMap { after =>
+            fOf(
               s"""
                  |Done!
                  |
@@ -192,7 +202,7 @@ case object JdkSymLinkIO extends JdkSymLink[IO] {
           }
 
         case _ =>
-          IO("\nFailed: Creating a symbolic link to JDK has failed.\n")
+          fOf("\nFailed: Creating a symbolic link to JDK has failed.\n")
       }
   } yield r
 }

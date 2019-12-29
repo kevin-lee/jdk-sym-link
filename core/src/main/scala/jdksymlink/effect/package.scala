@@ -1,6 +1,8 @@
 package jdksymlink
 
-import cats.effect.IO
+import cats._
+import cats.implicits._
+
 import jdksymlink.core.data.YesOrNo
 
 /**
@@ -9,19 +11,19 @@ import jdksymlink.core.data.YesOrNo
  */
 package object effect {
 
-  val readLn: IO[String] = IO(scala.io.StdIn.readLine)
-  def putStrLn(value: String): IO[Unit] = IO(println(value))
+  def readLnF[F[_]: Monad]: F[String] = Monad[F].pure(scala.io.StdIn.readLine)
+  def putStrLnF[F[_]: Monad](value: String): F[Unit] = Monad[F].pure(println(value))
 
-  def readYesOrNo(prompt: String): IO[YesOrNo] = for {
-    _ <- putStrLn(prompt)
-    answer <- readLn
+  def readYesOrNoF[F[_]: Monad](prompt: String): F[YesOrNo] = for {
+    _ <- putStrLnF[F](prompt)
+    answer <- readLnF[F]
     yesOrN <-  answer match {
       case "y" | "Y" =>
-        IO(YesOrNo.yes)
+        Monad[F].pure(YesOrNo.yes)
       case "n" | "N" =>
-        IO(YesOrNo.no)
+        Monad[F].pure(YesOrNo.no)
       case _ =>
-        readYesOrNo(prompt)
+        readYesOrNoF[F](prompt)
     }
   } yield yesOrN
 

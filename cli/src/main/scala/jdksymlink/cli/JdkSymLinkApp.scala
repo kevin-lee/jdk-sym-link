@@ -56,10 +56,10 @@ object JdkSymLinkApp extends MainIO[JdkSymLinkArgs] {
   override def run(args: JdkSymLinkArgs): IO[JdkSymLinkError \/ Unit] =
     (args match {
       case JdkSymLinkArgs.JdkListArgs =>
-        JdkSymLinkBridge.listAll(javaBaseDirPath, javaBaseDir)
+        JdkSymLinkBridge.listAll[IO](javaBaseDirPath, javaBaseDir)
 
       case JdkSymLinkArgs.SymLinkArgs(javaVersion) =>
-        JdkSymLinkBridge.slink(javaVersion)
+        JdkSymLinkBridge.slink[IO](javaVersion)
     })
     .map(_.right)
 
