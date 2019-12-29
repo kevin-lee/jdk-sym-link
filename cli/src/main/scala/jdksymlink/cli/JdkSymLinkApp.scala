@@ -53,14 +53,14 @@ object JdkSymLinkApp extends MainIO[JdkSymLinkArgs] {
 
   override def command: Command[JdkSymLinkArgs] = cmd
 
-  override def run(args: JdkSymLinkArgs): IO[JdkSymLinkError \/ Unit] = IO(
+  override def run(args: JdkSymLinkArgs): IO[JdkSymLinkError \/ Unit] =
     (args match {
       case JdkSymLinkArgs.JdkListArgs =>
         JdkSymLink.listAll(javaBaseDirPath, javaBaseDir)
 
       case JdkSymLinkArgs.SymLinkArgs(javaVersion) =>
         JdkSymLink.slink(javaVersion)
-    }).unsafeRunSync()
-  ).map(_.right)
+    })
+    .map(_.right)
 
 }
