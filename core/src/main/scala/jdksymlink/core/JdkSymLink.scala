@@ -11,6 +11,8 @@ import jdksymlink.effect._
 import scala.language.postfixOps
 import sys.process._
 
+import Utils._
+
 /**
  * #############################################
  * ## Simple Scala script to create           ##
@@ -36,7 +38,7 @@ object JdkSymLink {
   def apply[F[_] : JdkSymLink]: JdkSymLink[F] = implicitly[JdkSymLink[F]]
 
   implicit def jdkSymLinkF[F[_]](implicit FM0: Monad[F]): JdkSymLink[F] = new JdkSymLinkF[F] {
-    override implicit def FM: Monad[F] = FM0
+    override implicit val FM: Monad[F] = FM0
   }
 
 }
@@ -91,42 +93,12 @@ trait JdkSymLinkF[F[_]] extends JdkSymLink[F] {
       _ <- putStrLn(result)
     } yield ()
 
-  def bold(text: String): String = s"$Bold$text$Normal"
-
-  def isPositiveNumber(text: String): Boolean = text.matches("""[1-9][\d]*""")
-  def isNonNegativeNumber(text: String): Boolean = text.matches("""[\d]+""")
-
-  def extractVersion(name: String): Option[NameAndVersion] = name match {
-    case Before9Pattern(major, minor, patch) =>
-      Some((name, VerStr(major, Option(minor), Option(patch))))
-    case From9Pattern(major, minor, patch) =>
-      Some((name, VerStr(major, Option(minor), Option(patch))))
-    case From9PatternWithOnlyVersion(major) =>
-      Some((name, VerStr(major, None, None)))
-    case Before9AdoptOpenJdkPattern(major) =>
-      Some((name, VerStr(major, None, None)))
-    case _ =>
-      None
-  }
-
-  def names(javaMajorVersion: JavaMajorVersion): Vector[(String, VerStr)] =
-    (Process(Seq("bash", "-c", "ls -d */"), Option(javaBaseDir)).lazyLines)
-      .map(line => if (line.endsWith("/")) line.dropRight(1) else line)
-      .map(extractVersion)
-      .foldLeft(Vector.empty[NameAndVersion]) {
-        case (acc, Some(x@(_, VerStr(v, _, _)))) if v === javaMajorVersion.javaMajorVersion.toString =>
-          acc :+ x
-        case (acc, _) =>
-          acc
-      }
-      .sortBy(_._2)
-
   def askUserToSelectJdk(names: Vector[NameAndVersion]): F[Option[NameAndVersion]] = {
     def getAnswer(length: Int): F[Option[Int]] = for {
       choice <- readLn
       answer <- choice match {
           case "c" | "C" =>
-            fOf(none)
+            fOf(none[Int])
           case _  =>
             if (isNonNegativeNumber(choice) && choice.toInt < length)
               fOf(choice.toInt.some)
