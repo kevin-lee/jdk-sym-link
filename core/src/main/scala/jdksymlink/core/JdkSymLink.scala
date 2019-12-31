@@ -35,15 +35,17 @@ object JdkSymLink {
 
   def apply[F[_] : JdkSymLink]: JdkSymLink[F] = implicitly[JdkSymLink[F]]
 
-  implicit def jdkSymLinkF[F[_]: Monad]: JdkSymLink[F] = MonadJdkSymLink(Monad[F])
+  implicit def jdkSymLinkF[F[_]](implicit FM0: Monad[F]): JdkSymLink[F] = new JdkSymLinkF[F] {
+    override implicit def FM: Monad[F] = FM0
+  }
 
 }
 
-case class MonadJdkSymLink[F[_]](EF: Monad[F]) extends JdkSymLink[F] {
+trait JdkSymLinkF[F[_]] extends JdkSymLink[F] {
 
-  implicit val M: Monad[F] = EF
+  implicit def FM: Monad[F]
 
-  private def fOf[A](a: A): F[A] = M.pure(a)
+  private def fOf[A](a: A): F[A] = FM.pure(a)
 
   private def putStrLn(str: String): F[Unit] = putStrLnF[F](str)
 
