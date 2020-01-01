@@ -60,6 +60,7 @@ lazy val cli = (project in file("cli"))
     , maintainer := "Kevin Lee <kevin.code@kevinlee.io>"
     , packageSummary := "JdkSymLink"
     , packageDescription := "A tool to create JDK symbolic links"
+    , executableScriptName := ProjectNamePrefix
   )
   .dependsOn(core, ProjectRef(pirateUri, "pirate"))
 
