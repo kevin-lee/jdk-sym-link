@@ -17,7 +17,7 @@ import jdksymlink.info.JdkSymLinkBuildInfo
  * @author Kevin Lee
  * @since 2019-12-24
  */
-object JdkSymLinkApp extends MainIO[JdkSymLinkArgs] {
+object JdkSymLinkApp extends MainIo[JdkSymLinkArgs] {
 
   val listParser: Parse[JdkSymLinkArgs] = ValueParse(JdkSymLinkArgs.jdkListArgs)
 

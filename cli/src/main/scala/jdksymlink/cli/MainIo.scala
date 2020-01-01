@@ -14,9 +14,7 @@ import scalaz._
  * @author Kevin Lee
  * @since 2019-12-09
  */
-trait MainIO[A] {
-
-  type SIO[X] = scalaz.effect.IO[X]
+trait MainIo[A] {
 
   def command: Command[A]
  
