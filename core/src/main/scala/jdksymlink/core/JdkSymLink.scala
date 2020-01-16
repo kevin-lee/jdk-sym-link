@@ -47,6 +47,7 @@ trait JdkSymLinkF[F[_]] extends JdkSymLink[F] {
 
   implicit def FM: Monad[F]
 
+  // FIXME: It is not referentially transparent to use pure.
   private def fOf[A](a: A): F[A] = FM.pure(a)
 
   private def putStrLn(str: String): F[Unit] = putStrLnF[F](str)
