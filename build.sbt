@@ -33,7 +33,7 @@ lazy val core = (project in file("core"))
   .settings(
       name := s"$ProjectNamePrefix-core"
     , resolvers += hedgehogRepo
-    , libraryDependencies ++= hedgehogLibs ++ Seq(cats)
+    , libraryDependencies ++= hedgehogLibs ++ Seq(cats, catsEffect)
     , testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
     /* Build Info { */
     , buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
@@ -55,7 +55,7 @@ lazy val cli = (project in file("cli"))
   .settings(
       name := s"$ProjectNamePrefix-cli"
     , resolvers += hedgehogRepo
-    , libraryDependencies ++= hedgehogLibs ++ Seq(catsEffect)
+    , libraryDependencies ++= hedgehogLibs
     , testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
     , maintainer := "Kevin Lee <kevin.code@kevinlee.io>"
     , packageSummary := "JdkSymLink"

@@ -37,7 +37,8 @@ object JdkSymLink {
 
   def apply[F[_] : JdkSymLink]: JdkSymLink[F] = implicitly[JdkSymLink[F]]
 
-  implicit def jdkSymLinkF[F[_]](implicit FM0: Monad[F]): JdkSymLink[F] = new JdkSymLinkF[F] {
+  implicit def jdkSymLinkF[F[_]](implicit FE0: Effect[F], FM0: Monad[F]): JdkSymLink[F] = new JdkSymLinkF[F] {
+    override implicit val FE: Effect[F] = FE0
     override implicit val FM: Monad[F] = FM0
   }
 
@@ -45,6 +46,7 @@ object JdkSymLink {
 
 trait JdkSymLinkF[F[_]] extends JdkSymLink[F] {
 
+  implicit def FE: Effect[F]
   implicit def FM: Monad[F]
 
   // FIXME: It is not referentially transparent to use pure.

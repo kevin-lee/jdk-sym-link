@@ -11,17 +11,17 @@ import jdksymlink.core.data.YesOrNo
  */
 package object effect {
 
-  def readLnF[F[_]: Monad]: F[String] = Monad[F].pure(scala.io.StdIn.readLine)
-  def putStrLnF[F[_]: Monad](value: String): F[Unit] = Monad[F].pure(println(value))
+  def readLnF[F[_] : Effect]: F[String] = Effect[F].effect(scala.io.StdIn.readLine)
+  def putStrLnF[F[_] : Effect](value: String): F[Unit] = Effect[F].effect(println(value))
 
-  def readYesOrNoF[F[_]: Monad](prompt: String): F[YesOrNo] = for {
+  def readYesOrNoF[F[_] : Effect : Monad](prompt: String): F[YesOrNo] = for {
     _ <- putStrLnF[F](prompt)
     answer <- readLnF[F]
     yesOrN <-  answer match {
       case "y" | "Y" =>
-        Monad[F].pure(YesOrNo.yes)
+        Effect[F].effect(YesOrNo.yes)
       case "n" | "N" =>
-        Monad[F].pure(YesOrNo.no)
+        Effect[F].effect(YesOrNo.no)
       case _ =>
         readYesOrNoF[F](prompt)
     }
