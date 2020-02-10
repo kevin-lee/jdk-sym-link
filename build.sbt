@@ -26,7 +26,7 @@ lazy val  hedgehogLibs: Seq[ModuleID] = Seq(
 )
 
 val cats: ModuleID = "org.typelevel" %% "cats-core" % "2.1.0"
-val catsEffect: ModuleID = "org.typelevel" %% "cats-effect" % "2.0.0"
+val catsEffect: ModuleID = "org.typelevel" %% "cats-effect" % "2.1.1"
 
 lazy val core = (project in file("core"))
   .enablePlugins(BuildInfoPlugin)
