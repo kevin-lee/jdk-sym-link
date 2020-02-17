@@ -24,3 +24,9 @@ object Effect {
   }
 
 }
+
+trait Effectful[F[_]] {
+  protected def EF: Effect[F]
+
+  def effect[A](a: => A): F[A] = EF.effect(a)
+}
