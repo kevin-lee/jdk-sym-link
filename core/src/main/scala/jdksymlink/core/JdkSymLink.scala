@@ -37,9 +37,9 @@ object JdkSymLink {
 
   def apply[F[_] : JdkSymLink]: JdkSymLink[F] = implicitly[JdkSymLink[F]]
 
-  implicit def jdkSymLinkF[F[_] : Effect : Monad]: JdkSymLink[F] = new JdkSymLink[F] with Effectful[F] {
+  implicit def jdkSymLinkF[F[_] : EffectConstructor : Monad]: JdkSymLink[F] = new JdkSymLink[F] with Effectful[F] {
 
-    override protected val EF: Effect[F] = Effect[F]
+    override protected val EF: EffectConstructor[F] = EffectConstructor[F]
     
     private def putStrLn(str: String): F[Unit] = putStrLnF[F](str)
 
