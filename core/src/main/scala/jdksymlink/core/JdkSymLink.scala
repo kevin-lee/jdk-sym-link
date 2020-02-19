@@ -41,19 +41,19 @@ object JdkSymLink {
 
     override protected val EF: EffectConstructor[F] = EffectConstructor[F]
     
-    private def putStrLn(str: String): F[Unit] = putStrLnF[F](str)
+    private def putStrLnF(str: String): F[Unit] = putStrLn[F](str)
 
-    private def readLn: F[String] = readLnF[F]
+    private def readLnF: F[String] = readLn[F]
 
     def listAll(javaBaseDirPath: String, javaBaseDir: File): F[Unit] =
       for {
-        _ <- putStrLn(
+        _ <- putStrLnF(
             s"""
                |$$ ls -l $javaBaseDirPath
                |""".stripMargin
           )
         list <- effect(Process(s"ls -l", Option(javaBaseDir)) !!)
-        _ <- putStrLn(s"$list\n")
+        _ <- putStrLnF(s"$list\n")
       } yield ()
 
     def slink(javaMajorVersion: JavaMajorVersion): F[Unit] =
@@ -63,14 +63,14 @@ object JdkSymLink {
         result <- maybeNameVersion match {
           case Some((name, ver)) =>
             for {
-              _ <- putStrLn(
+              _ <- putStrLnF(
                   s"""
                      |You chose '$name'.
                      |It will create a symbolic link to '$name' (i.e. jdk${ver.major} -> $name)
                      |and may ask you to enter your password.
                      |""".stripMargin
                 )
-              answer <- readYesOrNoF[F]("Would you like to proceed? (y / n) ")
+              answer <- readYesOrNo[F]("Would you like to proceed? (y / n) ")
               s <- answer match {
                   case YesOrNo.Yes  =>
                     lnSJdk(name, javaMajorVersion)
@@ -82,12 +82,12 @@ object JdkSymLink {
           case None =>
             effect("\nCancelled.\n")
         }
-        _ <- putStrLn(result)
+        _ <- putStrLnF(result)
       } yield ()
 
     def askUserToSelectJdk(names: Vector[NameAndVersion]): F[Option[NameAndVersion]] = {
       def getAnswer(length: Int): F[Option[Int]] = for {
-        choice <- readLn
+        choice <- readLnF
         answer <- choice match {
             case "c" | "C" =>
               effect(none[Int])
@@ -95,7 +95,7 @@ object JdkSymLink {
               if (isNonNegativeNumber(choice) && choice.toInt < length)
                 effect(choice.toInt.some)
               else
-                putStrLn(
+                putStrLnF(
                   """Please enter a number on the list:
                     |(or [c] for cancellation)""".stripMargin) *> getAnswer(length)
           }
@@ -104,7 +104,7 @@ object JdkSymLink {
       for {
         listOfJdk <- effect(names.zipWithIndex.map { case ((name, split), index) => s"[$index] $name" })
         length <- effect(listOfJdk.length)
-        _ <- putStrLn(
+        _ <- putStrLnF(
             s"""
                |Version(s) found:
                |${listOfJdk.mkString("\n")}
@@ -127,11 +127,11 @@ object JdkSymLink {
           for {
             isNonSymLink <- effect((s"find $javaBaseDirPath -type l -iname jdk${JavaMajorVersion.render(javaMajorVersion)}" !!).isEmpty)
             r <- if (isNonSymLink) {
-                putStrLn(
+                putStrLnF(
                   s"\n'$javaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}' already exists and it's not a symbolic link so nothing will be done."
-                ) *> effect(1)
+                ) *> pureEffect(1)
               } else {
-                putStrLn(
+                putStrLnF(
                   s"""
                      |$javaBaseDir $$ sudo rm jdk${JavaMajorVersion.render(javaMajorVersion)}
                      |$javaBaseDir $$ sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)} """.stripMargin
@@ -141,7 +141,7 @@ object JdkSymLink {
               }
           } yield r
         } else {
-          putStrLn(
+          putStrLnF(
             s"""
                |$javaBaseDir $$ sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)} """.stripMargin) *>
             effect(Process(s"sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)}", Option(javaBaseDir)) !)
@@ -168,7 +168,7 @@ object JdkSymLink {
             }
 
           case _ =>
-            effect("\nFailed: Creating a symbolic link to JDK has failed.\n")
+            pureEffect("\nFailed: Creating a symbolic link to JDK has failed.\n")
         }
     } yield r
   }
