@@ -11,22 +11,22 @@ import jdksymlink.core.data.YesOrNo
  */
 package object effect {
 
-  def readLnF[F[_] : EffectConstructor]: F[String] =
+  def readLn[F[_] : EffectConstructor]: F[String] =
     EffectConstructor[F].effect(scala.io.StdIn.readLine)
 
-  def putStrLnF[F[_] : EffectConstructor](value: String): F[Unit] =
+  def putStrLn[F[_] : EffectConstructor](value: String): F[Unit] =
     EffectConstructor[F].effect(println(value))
 
-  def readYesOrNoF[F[_] : EffectConstructor : Monad](prompt: String): F[YesOrNo] = for {
-    _ <- putStrLnF[F](prompt)
-    answer <- readLnF[F]
+  def readYesOrNo[F[_] : EffectConstructor : Monad](prompt: String): F[YesOrNo] = for {
+    _ <- putStrLn[F](prompt)
+    answer <- readLn[F]
     yesOrN <-  answer match {
       case "y" | "Y" =>
         EffectConstructor[F].effect(YesOrNo.yes)
       case "n" | "N" =>
         EffectConstructor[F].effect(YesOrNo.no)
       case _ =>
-        readYesOrNoF[F](prompt)
+        readYesOrNo[F](prompt)
     }
   } yield yesOrN
 
