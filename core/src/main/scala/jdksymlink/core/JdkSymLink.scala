@@ -37,23 +37,26 @@ object JdkSymLink {
 
   def apply[F[_] : JdkSymLink]: JdkSymLink[F] = implicitly[JdkSymLink[F]]
 
-  implicit def jdkSymLinkF[F[_] : EffectConstructor : Monad]: JdkSymLink[F] = new JdkSymLink[F] with Effectful[F] {
+  implicit def jdkSymLinkF[F[_] : EffectConstructor : ConsoleEffect : Monad]: JdkSymLink[F] =
+    new JdkSymLinkF[F]
+
+  final class JdkSymLinkF[F[_] : EffectConstructor : ConsoleEffect : Monad]
+    extends JdkSymLink[F]
+    with Effectful[F]
+    with ConsoleEffectful[F] {
 
     override protected val EF: EffectConstructor[F] = EffectConstructor[F]
-    
-    private def putStrLnF(str: String): F[Unit] = putStrLn[F](str)
-
-    private def readLnF: F[String] = readLn[F]
+    override protected def CF: ConsoleEffect[F] = ConsoleEffect[F]
 
     def listAll(javaBaseDirPath: String, javaBaseDir: File): F[Unit] =
       for {
-        _ <- putStrLnF(
+        _ <- putStrLn(
             s"""
                |$$ ls -l $javaBaseDirPath
                |""".stripMargin
           )
         list <- effect(Process(s"ls -l", Option(javaBaseDir)) !!)
-        _ <- putStrLnF(s"$list\n")
+        _ <- putStrLn(s"$list\n")
       } yield ()
 
     def slink(javaMajorVersion: JavaMajorVersion): F[Unit] =
@@ -63,14 +66,14 @@ object JdkSymLink {
         result <- maybeNameVersion match {
           case Some((name, ver)) =>
             for {
-              _ <- putStrLnF(
+              _ <- putStrLn(
                   s"""
                      |You chose '$name'.
                      |It will create a symbolic link to '$name' (i.e. jdk${ver.major} -> $name)
                      |and may ask you to enter your password.
                      |""".stripMargin
                 )
-              answer <- readYesOrNo[F]("Would you like to proceed? (y / n) ")
+              answer <- readYesOrNo("Would you like to proceed? (y / n) ")
               s <- answer match {
                   case YesOrNo.Yes  =>
                     lnSJdk(name, javaMajorVersion)
@@ -82,12 +85,12 @@ object JdkSymLink {
           case None =>
             effect("\nCancelled.\n")
         }
-        _ <- putStrLnF(result)
+        _ <- putStrLn(result)
       } yield ()
 
     def askUserToSelectJdk(names: Vector[NameAndVersion]): F[Option[NameAndVersion]] = {
       def getAnswer(length: Int): F[Option[Int]] = for {
-        choice <- readLnF
+        choice <- readLn
         answer <- choice match {
             case "c" | "C" =>
               effect(none[Int])
@@ -95,7 +98,7 @@ object JdkSymLink {
               if (isNonNegativeNumber(choice) && choice.toInt < length)
                 effect(choice.toInt.some)
               else
-                putStrLnF(
+                putStrLn(
                   """Please enter a number on the list:
                     |(or [c] for cancellation)""".stripMargin) *> getAnswer(length)
           }
@@ -104,7 +107,7 @@ object JdkSymLink {
       for {
         listOfJdk <- effect(names.zipWithIndex.map { case ((name, split), index) => s"[$index] $name" })
         length <- effect(listOfJdk.length)
-        _ <- putStrLnF(
+        _ <- putStrLn(
             s"""
                |Version(s) found:
                |${listOfJdk.mkString("\n")}
@@ -127,11 +130,11 @@ object JdkSymLink {
           for {
             isNonSymLink <- effect((s"find $javaBaseDirPath -type l -iname jdk${JavaMajorVersion.render(javaMajorVersion)}" !!).isEmpty)
             r <- if (isNonSymLink) {
-                putStrLnF(
+                putStrLn(
                   s"\n'$javaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}' already exists and it's not a symbolic link so nothing will be done."
                 ) *> pureEffect(1)
               } else {
-                putStrLnF(
+                putStrLn(
                   s"""
                      |$javaBaseDir $$ sudo rm jdk${JavaMajorVersion.render(javaMajorVersion)}
                      |$javaBaseDir $$ sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)} """.stripMargin
@@ -141,7 +144,7 @@ object JdkSymLink {
               }
           } yield r
         } else {
-          putStrLnF(
+          putStrLn(
             s"""
                |$javaBaseDir $$ sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)} """.stripMargin) *>
             effect(Process(s"sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)}", Option(javaBaseDir)) !)

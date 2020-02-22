@@ -4,9 +4,10 @@ import cats.effect._
 import cats.implicits._
 
 import jdksymlink.core.JdkSymLinkError
-import jdksymlink.effect._
+import jdksymlink.effect.ConsoleEffect
 
 import pirate.{ExitCode => PirateExitCode, _}
+
 import scalaz._
 
 
@@ -35,7 +36,7 @@ trait MainIo[A] {
     codeOrA <- getArgs(args, command, prefs)
     errorOrResult <- codeOrA.fold[IO[JdkSymLinkError \/ Unit]](exitWithPirate, run)
     _ <- errorOrResult.fold(
-        err => putStrLn[IO](JdkSymLinkError.render(err)) *>
+        err => ConsoleEffect[IO].putStrLn(JdkSymLinkError.render(err)) *>
           exitWith(ExitCode.Error)
       , IO(_)
       )
