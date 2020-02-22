@@ -28,13 +28,23 @@ lazy val  hedgehogLibs: Seq[ModuleID] = Seq(
 val cats: ModuleID = "org.typelevel" %% "cats-core" % "2.1.0"
 val catsEffect: ModuleID = "org.typelevel" %% "cats-effect" % "2.1.1"
 
-lazy val core = (project in file("core"))
+lazy val pirateVersion = "44486bc961b52ba889f0b8f2b23f719d0ed8ba99"
+lazy val pirateUri = uri(s"https://github.com/Kevin-Lee/pirate.git#$pirateVersion")
+
+def subProject(projectName: String, path: File): Project =
+  Project(projectName, path)
+    .settings(
+        name := s"$ProjectNamePrefix-$projectName"
+      , addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
+      , resolvers += hedgehogRepo
+      , testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
+      , libraryDependencies ++= hedgehogLibs
+    )
+
+lazy val core = subProject("core", file("core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
-      name := s"$ProjectNamePrefix-core"
-    , resolvers += hedgehogRepo
-    , libraryDependencies ++= hedgehogLibs ++ Seq(cats, catsEffect)
-    , testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
+      libraryDependencies ++= Seq(cats, catsEffect)
     /* Build Info { */
     , buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
     , buildInfoObject := "JdkSymLinkBuildInfo"
@@ -47,17 +57,10 @@ lazy val core = (project in file("core"))
 
   )
 
-lazy val pirateVersion = "44486bc961b52ba889f0b8f2b23f719d0ed8ba99"
-lazy val pirateUri = uri(s"https://github.com/Kevin-Lee/pirate.git#$pirateVersion")
-
-lazy val cli = (project in file("cli"))
+lazy val cli = subProject("cli", file("cli"))
   .enablePlugins(JavaAppPackaging)
   .settings(
-      name := s"$ProjectNamePrefix-cli"
-    , resolvers += hedgehogRepo
-    , libraryDependencies ++= hedgehogLibs
-    , testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
-    , maintainer := "Kevin Lee <kevin.code@kevinlee.io>"
+      maintainer := "Kevin Lee <kevin.code@kevinlee.io>"
     , packageSummary := "JdkSymLink"
     , packageDescription := "A tool to create JDK symbolic links"
     , executableScriptName := ProjectNamePrefix
