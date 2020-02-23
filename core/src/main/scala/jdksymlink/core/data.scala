@@ -23,7 +23,7 @@ object data {
   }
 
   val javaBaseDirPath: String = "/Library/Java/JavaVirtualMachines"
-  lazy val javaBaseDir: File = new File(s"$javaBaseDirPath")
+  lazy val javaBaseDirFile: File = new File(s"$javaBaseDirPath")
 
   lazy val Bold: String = "\u001b[1m"
   lazy val Normal: String = "\u001b[0m"

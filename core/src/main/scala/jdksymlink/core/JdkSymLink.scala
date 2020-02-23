@@ -40,13 +40,12 @@ object JdkSymLink {
   implicit def jdkSymLinkF[F[_] : EffectConstructor : ConsoleEffect : Monad]: JdkSymLink[F] =
     new JdkSymLinkF[F]
 
-  final class JdkSymLinkF[F[_] : EffectConstructor : ConsoleEffect : Monad]
-    extends JdkSymLink[F]
+  final class JdkSymLinkF[F[_] : Monad](
+    override implicit protected val EF: EffectConstructor[F]
+  , override implicit protected val CF: ConsoleEffect[F]
+  ) extends JdkSymLink[F]
     with Effectful[F]
     with ConsoleEffectful[F] {
-
-    override protected val EF: EffectConstructor[F] = EffectConstructor[F]
-    override protected val CF: ConsoleEffect[F] = ConsoleEffect[F]
 
     def listAll(javaBaseDirPath: String, javaBaseDir: File): F[Unit] =
       for {
@@ -120,7 +119,8 @@ object JdkSymLink {
     }
 
     def lnSJdk(name: String, javaMajorVersion: JavaMajorVersion): F[String] = for {
-      before <- effect(s"""${Process(s"ls -l", Option(javaBaseDir)) !!}""".stripMargin)
+      javaBaseDir <- pureEffect(javaBaseDirFile.some)
+      before <- effect(s"""${Process(s"ls -l", javaBaseDir) !!}""".stripMargin)
       lsResultLogger <- effect(ProcessLogger(
           line => println(s"\n$line: It is found so will be removed and recreated.")
         , line => println(s"\n$line: So it is not found so it will be created.")
@@ -136,44 +136,46 @@ object JdkSymLink {
               } else {
                 putStrLn(
                   s"""
-                     |$javaBaseDir $$ sudo rm jdk${JavaMajorVersion.render(javaMajorVersion)}
-                     |$javaBaseDir $$ sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)} """.stripMargin
+                     |$javaBaseDirFile $$ sudo rm jdk${JavaMajorVersion.render(javaMajorVersion)}
+                     |$javaBaseDirFile $$ sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)} """.stripMargin
                 ) *> effect(
-                  Process(s"sudo rm jdk${JavaMajorVersion.render(javaMajorVersion)}", Option(javaBaseDir)) #&& Process(s"sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)}", Option(javaBaseDir)) !
+                  Process(s"sudo rm jdk${JavaMajorVersion.render(javaMajorVersion)}", javaBaseDir) #&& Process(s"sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)}", javaBaseDir) !
                 )
               }
           } yield r
         } else {
           putStrLn(
             s"""
-               |$javaBaseDir $$ sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)} """.stripMargin) *>
-            effect(Process(s"sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)}", Option(javaBaseDir)) !)
+               |$javaBaseDirFile $$ sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)} """.stripMargin) *>
+            effect(Process(s"sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)}", javaBaseDir) !)
         }
 
       r <- result match {
           case 0 =>
-            effect(Process(s"ls -l", Option(javaBaseDir)) !!).flatMap { after =>
-              effect(
-                s"""
-                   |Done!
-                   |
-                   |# Before
-                   |--------------------------------------
-                   |$before
-                   |======================================
-                   |
-                   |# After
-                   |--------------------------------------
-                   |$after
-                   |======================================
-                   |""".stripMargin
-              )
-            }
+            effect(Process(s"ls -l", javaBaseDir) !!)
+              .flatMap(after => toResultString(before, after))
 
           case _ =>
             pureEffect("\nFailed: Creating a symbolic link to JDK has failed.\n")
         }
     } yield r
+
+    def toResultString(before: String, after: String): F[String] =
+      effect(
+        s"""
+           |Done!
+           |
+           |# Before
+           |--------------------------------------
+           |$before
+           |======================================
+           |
+           |# After
+           |--------------------------------------
+           |$after
+           |======================================
+           |""".stripMargin
+      )
   }
 
 }

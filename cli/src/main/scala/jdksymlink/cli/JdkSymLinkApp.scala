@@ -10,7 +10,7 @@ import Scalaz._
 import cats.effect._
 
 import jdksymlink.core.{JdkSymLink, JdkSymLinkError}
-import jdksymlink.core.data.{JavaMajorVersion, javaBaseDir, javaBaseDirPath}
+import jdksymlink.core.data.{JavaMajorVersion, javaBaseDirFile, javaBaseDirPath}
 import jdksymlink.info.JdkSymLinkBuildInfo
 
 /**
@@ -56,7 +56,7 @@ object JdkSymLinkApp extends MainIo[JdkSymLinkArgs] {
   override def run(args: JdkSymLinkArgs): IO[JdkSymLinkError \/ Unit] =
     (args match {
       case JdkSymLinkArgs.JdkListArgs =>
-        JdkSymLink[IO].listAll(javaBaseDirPath, javaBaseDir)
+        JdkSymLink[IO].listAll(javaBaseDirPath, javaBaseDirFile)
 
       case JdkSymLinkArgs.SymLinkArgs(javaVersion) =>
         JdkSymLink[IO].slink(javaVersion)
