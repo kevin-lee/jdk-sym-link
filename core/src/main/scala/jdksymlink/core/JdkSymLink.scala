@@ -46,7 +46,7 @@ object JdkSymLink {
     with ConsoleEffectful[F] {
 
     override protected val EF: EffectConstructor[F] = EffectConstructor[F]
-    override protected def CF: ConsoleEffect[F] = ConsoleEffect[F]
+    override protected val CF: ConsoleEffect[F] = ConsoleEffect[F]
 
     def listAll(javaBaseDirPath: String, javaBaseDir: File): F[Unit] =
       for {
