@@ -78,7 +78,7 @@ object ConsoleEffect {
 
 trait Effectful[F[_]] {
 
-  protected def EF: EffectConstructor[F]
+  implicit protected def EF: EffectConstructor[F]
 
   def effect[A](a: => A): F[A] = EF.effect(a)
 
@@ -90,7 +90,7 @@ trait Effectful[F[_]] {
 
 trait ConsoleEffectful[F[_]] {
 
-  protected def CF: ConsoleEffect[F]
+  implicit protected def CF: ConsoleEffect[F]
 
   def readLn: F[String] = CF.readLn
 

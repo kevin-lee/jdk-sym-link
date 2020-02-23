@@ -29,7 +29,7 @@ object Utils {
   }
 
   def names(javaMajorVersion: JavaMajorVersion): Vector[(String, VerStr)] =
-    (Process(Seq("bash", "-c", "ls -d */"), Option(javaBaseDir)).lazyLines)
+    (Process(Seq("bash", "-c", "ls -d */"), Option(javaBaseDirFile)).lazyLines)
       .map(line => if (line.endsWith("/")) line.dropRight(1) else line)
       .map(extractVersion)
       .foldLeft(Vector.empty[NameAndVersion]) {
