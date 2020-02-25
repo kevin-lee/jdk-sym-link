@@ -72,11 +72,11 @@ object JdkSymLink {
                      |and may ask you to enter your password.
                      |""".stripMargin
                 )
-              answer <- readYesOrNo("Would you like to proceed? (y / n) ")
+              answer <- readYesNo("Would you like to proceed? (y / n) ")
               s <- answer match {
-                  case YesOrNo.Yes  =>
+                  case YesNo.Yes  =>
                     lnSJdk(name, javaMajorVersion)
-                  case YesOrNo.No  =>
+                  case YesNo.No  =>
                     effect("\nCancelled.\n")
                 }
             } yield s

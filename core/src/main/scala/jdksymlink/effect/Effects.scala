@@ -4,8 +4,6 @@ import cats._
 import cats.implicits._
 import cats.effect._
 
-import jdksymlink.core.data.YesOrNo
-
 /**
  * @author Kevin Lee
  * @since 2020-01-22
@@ -45,7 +43,9 @@ trait ConsoleEffect[F[_]] {
 
   def putStrLn(value: String): F[Unit]
 
-  def readYesOrNo(prompt: String): F[YesOrNo]
+  def putErrStrLn(value: String): F[Unit]
+
+  def readYesNo(prompt: String): F[YesNo]
 }
 
 object ConsoleEffect {
@@ -58,18 +58,21 @@ object ConsoleEffect {
       EffectConstructor[F].effect(scala.io.StdIn.readLine)
 
     override def putStrLn(value: String): F[Unit] =
-      EffectConstructor[F].effect(println(value))
+      EffectConstructor[F].effect(Console.out.println(value))
 
-    override def readYesOrNo(prompt: String): F[YesOrNo] = for {
+    override def putErrStrLn(value: String): F[Unit] =
+      EffectConstructor[F].effect(Console.err.println(value))
+
+    override def readYesNo(prompt: String): F[YesNo] = for {
       _ <- putStrLn(prompt)
       answer <- readLn
       yesOrN <-  answer match {
         case "y" | "Y" =>
-          EffectConstructor[F].effect(YesOrNo.yes)
+          EffectConstructor[F].pureEffect(YesNo.yes)
         case "n" | "N" =>
-          EffectConstructor[F].effect(YesOrNo.no)
+          EffectConstructor[F].pureEffect(YesNo.no)
         case _ =>
-          readYesOrNo(prompt)
+          readYesNo(prompt)
       }
     } yield yesOrN
 
@@ -96,6 +99,8 @@ trait ConsoleEffectful[F[_]] {
 
   def putStrLn(value: String): F[Unit] = CF.putStrLn(value)
 
-  def readYesOrNo(prompt: String): F[YesOrNo] = CF.readYesOrNo(prompt)
+  def putErrStrLn(value: String): F[Unit] = CF.putErrStrLn(value)
+
+  def readYesNo(prompt: String): F[YesNo] = CF.readYesNo(prompt)
 
 }
