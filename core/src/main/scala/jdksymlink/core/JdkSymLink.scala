@@ -37,15 +37,13 @@ object JdkSymLink {
 
   def apply[F[_] : JdkSymLink]: JdkSymLink[F] = implicitly[JdkSymLink[F]]
 
-  implicit def jdkSymLinkF[F[_] : EffectConstructor : ConsoleEffect : Monad]: JdkSymLink[F] =
+  implicit def jdkSymLinkF[F[_] : Monad : EffectConstructor : ConsoleEffect]: JdkSymLink[F] =
     new JdkSymLinkF[F]
 
-  final class JdkSymLinkF[F[_] : Monad](
-    override implicit protected val EF: EffectConstructor[F]
-  , override implicit protected val CF: ConsoleEffect[F]
-  ) extends JdkSymLink[F]
-    with Effectful[F]
-    with ConsoleEffectful[F] {
+  final class JdkSymLinkF[F[_] : Monad : EffectConstructor : ConsoleEffect]
+    extends JdkSymLink[F]
+    with Effectful
+    with ConsoleEffectful {
 
     def listAll(javaBaseDirPath: String, javaBaseDir: File): F[Unit] =
       for {
@@ -77,12 +75,12 @@ object JdkSymLink {
                   case YesNo.Yes  =>
                     lnSJdk(name, javaMajorVersion)
                   case YesNo.No  =>
-                    effect("\nCancelled.\n")
+                    pureEffect("\nCancelled.\n")
                 }
             } yield s
 
           case None =>
-            effect("\nCancelled.\n")
+            pureEffect("\nCancelled.\n")
         }
         _ <- putStrLn(result)
       } yield ()
