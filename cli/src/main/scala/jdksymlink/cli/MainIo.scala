@@ -3,8 +3,9 @@ package jdksymlink.cli
 import cats.effect._
 import cats.implicits._
 
+import effectie.cats.ConsoleEffect
+
 import jdksymlink.core.JdkSymLinkError
-import jdksymlink.effect.ConsoleEffect
 
 import pirate.{ExitCode => PirateExitCode, _}
 
