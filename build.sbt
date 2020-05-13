@@ -25,6 +25,10 @@ lazy val  hedgehogLibs: Seq[ModuleID] = Seq(
   , "qa.hedgehog" %% "hedgehog-sbt" % hedgehogVersion % Test
 )
 
+val EffectieVersion = "0.4.0"
+lazy val effectieCatsEffect: ModuleID = "io.kevinlee" %% "effectie-cats-effect" % EffectieVersion
+lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % EffectieVersion
+
 val cats: ModuleID = "org.typelevel" %% "cats-core" % "2.1.0"
 val catsEffect: ModuleID = "org.typelevel" %% "cats-effect" % "2.1.1"
 
@@ -44,7 +48,7 @@ def subProject(projectName: String, path: File): Project =
 lazy val core = subProject("core", file("core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
-      libraryDependencies ++= Seq(cats, catsEffect)
+      libraryDependencies ++= Seq(cats, catsEffect, effectieCatsEffect, effectieScalazEffect)
     /* Build Info { */
     , buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
     , buildInfoObject := "JdkSymLinkBuildInfo"

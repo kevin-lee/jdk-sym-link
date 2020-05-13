@@ -2,16 +2,20 @@ package jdksymlink.core
 
 import java.io.File
 
+import Utils._
+
 import cats._
 import cats.implicits._
 
+import effectie.ConsoleEffectful._
+import effectie.Effectful._
+import effectie.YesNo
+import effectie.cats.{ConsoleEffect, EffectConstructor}
+
 import jdksymlink.core.data._
-import jdksymlink.effect._
 
 import scala.language.postfixOps
 import sys.process._
-
-import Utils._
 
 /**
  * #############################################
@@ -41,9 +45,7 @@ object JdkSymLink {
     new JdkSymLinkF[F]
 
   final class JdkSymLinkF[F[_] : Monad : EffectConstructor : ConsoleEffect]
-    extends JdkSymLink[F]
-    with Effectful
-    with ConsoleEffectful {
+    extends JdkSymLink[F] {
 
     def listAll(javaBaseDirPath: String, javaBaseDir: File): F[Unit] =
       for {
@@ -52,13 +54,13 @@ object JdkSymLink {
                |$$ ls -l $javaBaseDirPath
                |""".stripMargin
           )
-        list <- effect(Process(s"ls -l", Option(javaBaseDir)) !!)
+        list <- effectOf(Process(s"ls -l", Option(javaBaseDir)) !!)
         _ <- putStrLn(s"$list\n")
       } yield ()
 
     def slink(javaMajorVersion: JavaMajorVersion): F[Unit] =
       for {
-        jdkNameVersionPairs <- effect(names(javaMajorVersion))
+        jdkNameVersionPairs <- effectOf(names(javaMajorVersion))
         maybeNameVersion <- askUserToSelectJdk(jdkNameVersionPairs)
         result <- maybeNameVersion match {
           case Some((name, ver)) =>
@@ -75,12 +77,12 @@ object JdkSymLink {
                   case YesNo.Yes  =>
                     lnSJdk(name, javaMajorVersion)
                   case YesNo.No  =>
-                    pureEffect("\nCancelled.\n")
+                    effectOfPure("\nCancelled.\n")
                 }
             } yield s
 
           case None =>
-            pureEffect("\nCancelled.\n")
+            effectOfPure("\nCancelled.\n")
         }
         _ <- putStrLn(result)
       } yield ()
@@ -90,10 +92,10 @@ object JdkSymLink {
         choice <- readLn
         answer <- choice match {
             case "c" | "C" =>
-              effect(none[Int])
+              effectOf(none[Int])
             case _  =>
               if (isNonNegativeNumber(choice) && choice.toInt < length)
-                effect(choice.toInt.some)
+                effectOf(choice.toInt.some)
               else
                 putStrLn(
                   """Please enter a number on the list:
@@ -102,8 +104,8 @@ object JdkSymLink {
       } yield answer
 
       for {
-        listOfJdk <- effect(names.zipWithIndex.map { case ((name, split), index) => s"[$index] $name" })
-        length <- effect(listOfJdk.length)
+        listOfJdk <- effectOf(names.zipWithIndex.map { case ((name, split), index) => s"[$index] $name" })
+        length <- effectOf(listOfJdk.length)
         _ <- putStrLn(
             s"""
                |Version(s) found:
@@ -112,31 +114,31 @@ object JdkSymLink {
                |""".stripMargin
           )
         answer <- getAnswer(length)
-        nameAndVersion <- effect(answer.map(names(_)))
+        nameAndVersion <- effectOf(answer.map(names(_)))
       } yield nameAndVersion
     }
 
     def lnSJdk(name: String, javaMajorVersion: JavaMajorVersion): F[String] = for {
-      javaBaseDir <- pureEffect(javaBaseDirFile.some)
-      before <- effect(s"""${Process(s"ls -l", javaBaseDir) !!}""".stripMargin)
-      lsResultLogger <- effect(ProcessLogger(
+      javaBaseDir <- effectOfPure(javaBaseDirFile.some)
+      before <- effectOf(s"""${Process(s"ls -l", javaBaseDir) !!}""".stripMargin)
+      lsResultLogger <- effectOf(ProcessLogger(
           line => println(s"\n$line: It is found so will be removed and recreated.")
         , line => println(s"\n$line: So it is not found so it will be created.")
         ))
-      jdkLinkAlreadyExists <- effect((s"ls -d $javaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}" !(lsResultLogger)) === 0)
+      jdkLinkAlreadyExists <- effectOf((s"ls -d $javaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}" !(lsResultLogger)) === 0)
       result <- if (jdkLinkAlreadyExists) {
           for {
-            isNonSymLink <- effect((s"find $javaBaseDirPath -type l -iname jdk${JavaMajorVersion.render(javaMajorVersion)}" !!).isEmpty)
+            isNonSymLink <- effectOf((s"find $javaBaseDirPath -type l -iname jdk${JavaMajorVersion.render(javaMajorVersion)}" !!).isEmpty)
             r <- if (isNonSymLink) {
                 putStrLn(
                   s"\n'$javaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}' already exists and it's not a symbolic link so nothing will be done."
-                ) *> pureEffect(1)
+                ) *> effectOfPure(1)
               } else {
                 putStrLn(
                   s"""
                      |$javaBaseDirFile $$ sudo rm jdk${JavaMajorVersion.render(javaMajorVersion)}
                      |$javaBaseDirFile $$ sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)} """.stripMargin
-                ) *> effect(
+                ) *> effectOf(
                   Process(s"sudo rm jdk${JavaMajorVersion.render(javaMajorVersion)}", javaBaseDir) #&& Process(s"sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)}", javaBaseDir) !
                 )
               }
@@ -145,21 +147,21 @@ object JdkSymLink {
           putStrLn(
             s"""
                |$javaBaseDirFile $$ sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)} """.stripMargin) *>
-            effect(Process(s"sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)}", javaBaseDir) !)
+            effectOf(Process(s"sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)}", javaBaseDir) !)
         }
 
       r <- result match {
           case 0 =>
-            effect(Process(s"ls -l", javaBaseDir) !!)
+            effectOf(Process(s"ls -l", javaBaseDir) !!)
               .flatMap(after => toResultString(before, after))
 
           case _ =>
-            pureEffect("\nFailed: Creating a symbolic link to JDK has failed.\n")
+            effectOfPure("\nFailed: Creating a symbolic link to JDK has failed.\n")
         }
     } yield r
 
     def toResultString(before: String, after: String): F[String] =
-      effect(
+      effectOf(
         s"""
            |Done!
            |
