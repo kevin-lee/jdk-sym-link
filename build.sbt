@@ -29,8 +29,8 @@ val EffectieVersion = "0.4.0"
 lazy val effectieCatsEffect: ModuleID = "io.kevinlee" %% "effectie-cats-effect" % EffectieVersion
 lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % EffectieVersion
 
-val cats: ModuleID = "org.typelevel" %% "cats-core" % "2.1.0"
-val catsEffect: ModuleID = "org.typelevel" %% "cats-effect" % "2.1.1"
+val cats: ModuleID = "org.typelevel" %% "cats-core" % "2.1.1"
+val catsEffect: ModuleID = "org.typelevel" %% "cats-effect" % "2.1.3"
 
 lazy val pirateVersion = "44486bc961b52ba889f0b8f2b23f719d0ed8ba99"
 lazy val pirateUri = uri(s"https://github.com/Kevin-Lee/pirate.git#$pirateVersion")
