@@ -14,7 +14,7 @@ ThisBuild / scmInfo :=
     , "https://github.com/Kevin-Lee/jdk-symbolic-link.git"
   ))
 
-lazy val  hedgehogVersion: String = "64eccc9ca7dbe7a369208a14a97a25d7ccbbda67"
+lazy val  hedgehogVersion: String = "0.6.1"
 
 lazy val  hedgehogRepo: Resolver =
   "bintray-scala-hedgehog" at "https://dl.bintray.com/hedgehogqa/scala-hedgehog"
@@ -25,14 +25,16 @@ lazy val  hedgehogLibs: Seq[ModuleID] = Seq(
   , "qa.hedgehog" %% "hedgehog-sbt" % hedgehogVersion % Test
 )
 
-val EffectieVersion = "0.4.0"
+lazy val justSysProcess = "io.kevinlee" %% "just-sysprocess" % "0.3.0"
+
+val EffectieVersion = "1.8.1"
 lazy val effectieCatsEffect: ModuleID = "io.kevinlee" %% "effectie-cats-effect" % EffectieVersion
 lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % EffectieVersion
 
-val cats: ModuleID = "org.typelevel" %% "cats-core" % "2.1.1"
-val catsEffect: ModuleID = "org.typelevel" %% "cats-effect" % "2.1.3"
+val cats: ModuleID = "org.typelevel" %% "cats-core" % "2.3.1"
+val catsEffect: ModuleID = "org.typelevel" %% "cats-effect" % "2.3.1"
 
-lazy val pirateVersion = "44486bc961b52ba889f0b8f2b23f719d0ed8ba99"
+lazy val pirateVersion = "b3a0a3eff3a527dff542133aaf0fd935aa2940fc"
 lazy val pirateUri = uri(s"https://github.com/Kevin-Lee/pirate.git#$pirateVersion")
 
 def subProject(projectName: String, path: File): Project =
@@ -48,7 +50,7 @@ def subProject(projectName: String, path: File): Project =
 lazy val core = subProject("core", file("core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
-      libraryDependencies ++= Seq(cats, catsEffect, effectieCatsEffect, effectieScalazEffect)
+      libraryDependencies ++= Seq(cats, catsEffect, effectieCatsEffect, effectieScalazEffect, justSysProcess)
     /* Build Info { */
     , buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
     , buildInfoObject := "JdkSymLinkBuildInfo"

@@ -7,8 +7,8 @@ import Utils._
 import cats._
 import cats.implicits._
 
-import effectie.ConsoleEffectful._
-import effectie.Effectful._
+import effectie.cats.ConsoleEffectful._
+import effectie.cats.Effectful._
 import effectie.YesNo
 import effectie.cats.{ConsoleEffect, EffectConstructor}
 
@@ -77,12 +77,12 @@ object JdkSymLink {
                   case YesNo.Yes  =>
                     lnSJdk(name, javaMajorVersion)
                   case YesNo.No  =>
-                    effectOfPure("\nCancelled.\n")
+                    pureOf("\nCancelled.\n")
                 }
             } yield s
 
           case None =>
-            effectOfPure("\nCancelled.\n")
+            pureOf("\nCancelled.\n")
         }
         _ <- putStrLn(result)
       } yield ()
@@ -119,7 +119,7 @@ object JdkSymLink {
     }
 
     def lnSJdk(name: String, javaMajorVersion: JavaMajorVersion): F[String] = for {
-      javaBaseDir <- effectOfPure(javaBaseDirFile.some)
+      javaBaseDir <- pureOf(javaBaseDirFile.some)
       before <- effectOf(s"""${Process(s"ls -l", javaBaseDir) !!}""".stripMargin)
       lsResultLogger <- effectOf(ProcessLogger(
           line => println(s"\n$line: It is found so will be removed and recreated.")
@@ -132,7 +132,7 @@ object JdkSymLink {
             r <- if (isNonSymLink) {
                 putStrLn(
                   s"\n'$javaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}' already exists and it's not a symbolic link so nothing will be done."
-                ) *> effectOfPure(1)
+                ) *> pureOf(1)
               } else {
                 putStrLn(
                   s"""
@@ -156,7 +156,7 @@ object JdkSymLink {
               .flatMap(after => toResultString(before, after))
 
           case _ =>
-            effectOfPure("\nFailed: Creating a symbolic link to JDK has failed.\n")
+            pureOf("\nFailed: Creating a symbolic link to JDK has failed.\n")
         }
     } yield r
 
