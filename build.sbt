@@ -1,92 +1,176 @@
-val ProjectNamePrefix = "jdk-sym-link"
-val ProjectVersion = "0.1.0"
-val ProjectScalaVersion = "2.13.1"
+import SbtProjectInfo._
+import just.semver.SemVer
+
+lazy val props =
+  new {
+    val GitHubUsername      = "Kevin-Lee"
+    val RepoName            = "jdk-sym-link"
+    val ProjectNamePrefix   = RepoName
+    val ProjectVersion      = SbtProjectInfo.ProjectVersion
+    val ProjectScalaVersion = "2.13.3"
+
+    val effectieVersion = "1.8.1"
+    val refinedVersion  = "0.9.19"
+
+    val hedgehogVersion        = "0.6.1"
+    val hedgehogRepo: Resolver = "bintray-scala-hedgehog" at "https://dl.bintray.com/hedgehogqa/scala-hedgehog"
+
+    val pirateVersion = "b3a0a3eff3a527dff542133aaf0fd935aa2940fc"
+    val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
+
+    val IncludeTest: String = "compile->compile;test->test"
+  }
 
 ThisBuild / organization := "io.kevinlee"
-ThisBuild / version := ProjectVersion
-ThisBuild / scalaVersion := ProjectScalaVersion
-ThisBuild / developers   := List(
+ThisBuild / version := props.ProjectVersion
+ThisBuild / scalaVersion := props.ProjectScalaVersion
+ThisBuild / developers := List(
   Developer("Kevin-Lee", "Kevin Lee", "kevin.code@kevinlee.io", url("https://github.com/Kevin-Lee"))
 )
 ThisBuild / scmInfo :=
-  Some(ScmInfo(
-    url("https://github.com/Kevin-Lee/jdk-symbolic-link")
-    , "https://github.com/Kevin-Lee/jdk-symbolic-link.git"
-  ))
+  Some(
+    ScmInfo(
+      url("https://github.com/Kevin-Lee/jdk-symbolic-link"),
+      "https://github.com/Kevin-Lee/jdk-symbolic-link.git",
+    )
+  )
 
-lazy val  hedgehogVersion: String = "0.6.1"
+lazy val libs =
+  new {
 
-lazy val  hedgehogRepo: Resolver =
-  "bintray-scala-hedgehog" at "https://dl.bintray.com/hedgehogqa/scala-hedgehog"
-
-lazy val  hedgehogLibs: Seq[ModuleID] = Seq(
-    "qa.hedgehog" %% "hedgehog-core" % hedgehogVersion % Test
-  , "qa.hedgehog" %% "hedgehog-runner" % hedgehogVersion % Test
-  , "qa.hedgehog" %% "hedgehog-sbt" % hedgehogVersion % Test
-)
-
-lazy val justSysProcess = "io.kevinlee" %% "just-sysprocess" % "0.3.0"
-
-val EffectieVersion = "1.8.1"
-lazy val effectieCatsEffect: ModuleID = "io.kevinlee" %% "effectie-cats-effect" % EffectieVersion
-lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % EffectieVersion
-
-val cats: ModuleID = "org.typelevel" %% "cats-core" % "2.3.1"
-val catsEffect: ModuleID = "org.typelevel" %% "cats-effect" % "2.3.1"
-
-lazy val pirateVersion = "b3a0a3eff3a527dff542133aaf0fd935aa2940fc"
-lazy val pirateUri = uri(s"https://github.com/Kevin-Lee/pirate.git#$pirateVersion")
-
-def subProject(projectName: String, path: File): Project =
-  Project(projectName, path)
-    .settings(
-        name := s"$ProjectNamePrefix-$projectName"
-      , addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
-      , resolvers += hedgehogRepo
-      , testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
-      , libraryDependencies ++= hedgehogLibs
+    lazy val hedgehogLibs: Seq[ModuleID] = Seq(
+      "qa.hedgehog" %% "hedgehog-core"   % props.hedgehogVersion % Test,
+      "qa.hedgehog" %% "hedgehog-runner" % props.hedgehogVersion % Test,
+      "qa.hedgehog" %% "hedgehog-sbt"    % props.hedgehogVersion % Test,
     )
 
-lazy val core = subProject("core", file("core"))
+    lazy val justSysProcess = "io.kevinlee" %% "just-sysprocess" % "0.3.0"
+
+    lazy val newtype = "io.estatico" %% "newtype" % "0.4.4"
+
+    lazy val refined = Seq(
+      "eu.timepit" %% "refined" % props.refinedVersion
+    )
+
+    lazy val catsAndCatsEffect = Seq(
+      "org.typelevel" %% "cats-core"    % "2.3.1",
+      "org.typelevel" %% "cats-effect"  % "2.3.1",
+      "eu.timepit"    %% "refined-cats" % props.refinedVersion,
+    )
+
+    lazy val effectie = Seq(
+      "io.kevinlee" %% "effectie-cats-effect"   % props.effectieVersion,
+      "io.kevinlee" %% "effectie-scalaz-effect" % props.effectieVersion,
+    )
+
+  }
+
+lazy val core = projectCommonSettings("core", ProjectName("core"), file("core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
-      libraryDependencies ++= Seq(cats, catsEffect, effectieCatsEffect, effectieScalazEffect, justSysProcess)
-    /* Build Info { */
-    , buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
-    , buildInfoObject := "JdkSymLinkBuildInfo"
-    , buildInfoPackage := "jdksymlink.info"
-    , buildInfoOptions += BuildInfoOption.ToJson
+    libraryDependencies ++= Seq(libs.justSysProcess) ++ libs.catsAndCatsEffect ++ libs.effectie
+    /* Build Info { */,
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoObject := "JdkSymLinkBuildInfo",
+    buildInfoPackage := "jdksymlink.info",
+    buildInfoOptions += BuildInfoOption.ToJson
     /* } Build Info */
-    /* publish { */
-    , licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
+    /* publish { */,
+    licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
     /* } publish */
 
   )
 
-lazy val cli = subProject("cli", file("cli"))
+lazy val cli = projectCommonSettings("cli", ProjectName("cli"), file("cli"))
   .enablePlugins(JavaAppPackaging)
   .settings(
-      maintainer := "Kevin Lee <kevin.code@kevinlee.io>"
-    , packageSummary := "JdkSymLink"
-    , packageDescription := "A tool to create JDK symbolic links"
-    , executableScriptName := ProjectNamePrefix
+    maintainer := "Kevin Lee <kevin.code@kevinlee.io>",
+    packageSummary := "JdkSymLink",
+    packageDescription := "A tool to create JDK symbolic links",
+    executableScriptName := props.ProjectNamePrefix,
   )
-  .dependsOn(core, ProjectRef(pirateUri, "pirate"))
+  .dependsOn(core, ProjectRef(props.pirateUri, "pirate"))
 
 lazy val jdkSymLink = (project in file("."))
   .enablePlugins(DevOopsGitReleasePlugin)
   .settings(
-      name := ProjectNamePrefix
-    , addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
-    , addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
+    name := props.ProjectNamePrefix,
     /* GitHub Release { */
-    , devOopsPackagedArtifacts := List(
-        s"core/target/scala-*/${name.value}*.jar"
-      , s"cli/target/universal/${name.value}*.zip"
-      , s"cli/target/universal/${name.value}*.tgz"
-      , s"cli/target/${name.value}*.deb"
-    )
+    devOopsPackagedArtifacts := List(
+      s"core/target/scala-*/${name.value}*.jar",
+      s"cli/target/universal/${name.value}*.zip",
+      s"cli/target/universal/${name.value}*.tgz",
+      s"cli/target/${name.value}*.deb",
+    ),
     /* } GitHub Release */
   )
+  .settings(noPublish)
   .aggregate(core, cli)
 
+def prefixedProjectName(name: String) = s"${props.RepoName}${if (name.isEmpty)
+  ""
+else
+  s"-$name"}"
+
+def scalacOptionsPostProcess(scalaSemVer: SemVer, options: Seq[String]): Seq[String] =
+  scalaSemVer match {
+    case SemVer(SemVer.Major(2), SemVer.Minor(13), SemVer.Patch(patch), _, _) =>
+      ((if (patch >= 3) {
+          options.distinct.filterNot(_ == "-Xlint:nullary-override")
+        } else {
+          options.distinct
+        }) ++ Seq("-Ymacro-annotations", "-language:implicitConversions")).distinct
+    case _: SemVer                                                            =>
+      options.distinct
+  }
+
+def projectCommonSettings(id: String, projectName: ProjectName, file: File): Project =
+  Project(id, file)
+    .settings(
+      name := prefixedProjectName(projectName.projectName),
+      addCompilerPlugin("org.typelevel" % "kind-projector"     % "0.11.2" cross CrossVersion.full),
+      addCompilerPlugin("com.olegpy"   %% "better-monadic-for" % "0.3.1"),
+      scalacOptions := scalacOptionsPostProcess(
+        SemVer.parseUnsafe(scalaVersion.value),
+        scalacOptions.value,
+      ),
+      resolvers ++= Seq(
+        Resolver.sonatypeRepo("releases"),
+        props.hedgehogRepo,
+      ),
+      libraryDependencies ++=
+        libs.hedgehogLibs ++ Seq(libs.newtype) ++ libs.refined
+      /* } WartRemover and scalacOptions */,
+      testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
+
+      /* Ammonite-REPL { */,
+      libraryDependencies ++=
+        (scalaBinaryVersion.value match {
+          case "2.13" =>
+            Seq("com.lihaoyi" % "ammonite" % "2.3.8-4-88785969" % Test cross CrossVersion.full)
+          case _      =>
+            Seq.empty[ModuleID]
+        }),
+      sourceGenerators in Test +=
+        (scalaBinaryVersion.value match {
+          case "2.13" =>
+            task {
+              val file = (sourceManaged in Test).value / "amm.scala"
+              IO.write(file, """object amm extends App { ammonite.Main.main(args) }""")
+              Seq(file)
+            }
+          case _      =>
+            task(Seq.empty[File])
+        }),
+      /* } Ammonite-REPL */
+
+    )
+
+lazy val noPublish: SettingsDefinition = Seq(
+  publish := {},
+  publishLocal := {},
+  publishArtifact := false,
+  skip in sbt.Keys.`package` := true,
+  skip in packagedArtifacts := true,
+  skip in publish := true,
+)
