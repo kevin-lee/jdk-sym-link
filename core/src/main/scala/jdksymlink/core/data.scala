@@ -48,8 +48,38 @@ object data {
                 0
               case ((None, None), (Some(_), Some(_))) =>
                 -1
+              case ((None, None), (None, Some(_))) =>
+                -1
+              case ((None, None), (Some(_), None)) =>
+                -1
               case ((Some(_), Some(_)), (None, None)) =>
                 1
+              case ((None, Some(_)), (None, None)) =>
+                1
+              case ((Some(_), None), (None, None)) =>
+                1
+              case ((Some(_), None), (None, Some(_))) =>
+                1
+              case  ((None, Some(_)), (Some(_), None)) =>
+                -1
+              case ((None, Some(_)), (Some(_), Some(_))) =>
+                -1
+              case ((Some(major1), None), (Some(major2), Some(_))) =>
+                val m = major1.toInt.compareTo(major2.toInt)
+                if (m === 0)
+                  -1
+                else
+                  m
+              case ((Some(_), Some(_)), (None, Some(_))) =>
+                1
+              case ((Some(major1), Some(_)), (Some(major2), None)) =>
+                val m = major1.toInt.compareTo(major2.toInt)
+                if (m === 0)
+                  1
+                else
+                  m
+              case ((None, Some(minor1)), (None, Some(minor2))) =>
+                minor1.toInt.compareTo(minor2.toInt)
               case ((Some(major1), None), (Some(major2), None)) =>
                 major1.toInt.compare(major2.toInt)
               case ((Some(major1), Some(minor1)), (Some(major2), Some(minor2))) =>

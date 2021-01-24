@@ -7,7 +7,7 @@ lazy val props =
     val RepoName            = "jdk-sym-link"
     val ProjectNamePrefix   = RepoName
     val ProjectVersion      = SbtProjectInfo.ProjectVersion
-    val ProjectScalaVersion = "2.13.3"
+    val ProjectScalaVersion = "2.13.4"
 
     val effectieVersion = "1.8.1"
     val refinedVersion  = "0.9.19"
