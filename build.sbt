@@ -9,10 +9,10 @@ lazy val props =
     val ProjectVersion      = SbtProjectInfo.ProjectVersion
     val ProjectScalaVersion = "2.13.4"
 
-    val effectieVersion = "1.8.1"
-    val refinedVersion  = "0.9.19"
+    val effectieVersion = "1.9.0"
+    val refinedVersion  = "0.9.21"
 
-    val hedgehogVersion        = "0.6.1"
+    val hedgehogVersion        = "0.6.3"
     val hedgehogRepo: Resolver = "bintray-scala-hedgehog" at "https://dl.bintray.com/hedgehogqa/scala-hedgehog"
 
     val pirateVersion = "b3a0a3eff3a527dff542133aaf0fd935aa2940fc"
@@ -53,8 +53,8 @@ lazy val libs =
     )
 
     lazy val catsAndCatsEffect = Seq(
-      "org.typelevel" %% "cats-core"    % "2.3.1",
-      "org.typelevel" %% "cats-effect"  % "2.3.1",
+      "org.typelevel" %% "cats-core"    % "2.4.2",
+      "org.typelevel" %% "cats-effect"  % "2.3.3",
       "eu.timepit"    %% "refined-cats" % props.refinedVersion,
     )
 
