@@ -37,13 +37,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_AUTH_TOKEN }}
         run: |
           echo "Run] sbt GitHub release"
-          echo -e "sbt -J-Xmx2048m \\n  ++${{ matrix.scala.version }}! \\n  clean \\n  test \\n  universal:packageBin \\n  universal:packageZipTarball \\n  debian:packageBin\n  devOopsGitHubRelease \\n  devOopsGitHubReleaseUploadArtifacts"
+          echo -e "sbt -J-Xmx2048m \\n  ++${{ matrix.scala.version }}! \\n  clean \\n  test \\n  universal:packageBin \\n  universal:packageZipTarball \\n  debian:packageBin \\n  devOopsGitHubRelease \\n  devOopsGitHubReleaseUploadArtifacts"
           sbt -J-Xmx2048m \
             ++${{ matrix.scala.version }}! \
             clean \
             test \
             universal:packageBin \
             universal:packageZipTarball \
-            debian:packageBin
+            debian:packageBin \
             devOopsGitHubRelease \
             devOopsGitHubReleaseUploadArtifacts
