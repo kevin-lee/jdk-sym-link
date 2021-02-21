@@ -60,7 +60,6 @@ object JdkSymLinkApp extends MainIo[JdkSymLinkArgs] {
 
       case JdkSymLinkArgs.SymLinkArgs(javaVersion) =>
         JdkSymLink[IO].slink(javaVersion)
-    })
-    .map(_.right)
+    }).map(\/.fromEither)
 
 }
