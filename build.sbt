@@ -97,7 +97,6 @@ lazy val jdkSymLink = (project in file("."))
     name := props.ProjectNamePrefix,
     /* GitHub Release { */
     devOopsPackagedArtifacts := List(
-      s"core/target/scala-*/${name.value}*.jar",
       s"cli/target/universal/${name.value}*.zip",
       s"cli/target/universal/${name.value}*.tgz",
       s"cli/target/${name.value}*.deb",
