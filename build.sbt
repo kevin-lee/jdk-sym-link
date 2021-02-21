@@ -92,7 +92,7 @@ lazy val cli = projectCommonSettings("cli", ProjectName("cli"), file("cli"))
   .dependsOn(core, ProjectRef(props.pirateUri, "pirate"))
 
 lazy val jdkSymLink = (project in file("."))
-  .enablePlugins(DevOopsGitReleasePlugin)
+  .enablePlugins(DevOopsGitHubReleasePlugin)
   .settings(
     name := props.ProjectNamePrefix,
     /* GitHub Release { */
