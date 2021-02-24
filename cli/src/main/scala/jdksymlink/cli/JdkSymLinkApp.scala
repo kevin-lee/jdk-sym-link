@@ -23,9 +23,8 @@ object JdkSymLinkApp extends MainIo[JdkSymLinkArgs] {
 
   val symLinkJdkParser: Parse[JdkSymLinkArgs] =
     JdkSymLinkArgs.symLinkArgs _ |*|
-      flag[Int](
-          both('v', "java-version")
-        , metavar("<java-version>") |+| description("Java version e.g.) 8, 11, 13")
+      argument[Int](
+          metavar("<java-version>") |+| description("Java version e.g.) 8, 11, 13")
         ).map(JavaMajorVersion.apply)
 
   val rawCmd: Command[JdkSymLinkArgs] = Command(
