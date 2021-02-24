@@ -24,14 +24,15 @@ object JdkSymLinkError {
 
   def render(jdkSymLinkError: JdkSymLinkError): String = jdkSymLinkError match {
     case LsFailure(errorCode, message, commands) =>
-      s"""${Console.RED}ErrorCode${Console.RESET}: ${errorCode.toString}
-         |${Console.RED}Error${Console.RESET}: $message
+      s"""${Shell.red("ErrorCode")}: ${errorCode.toString}
+         |${Shell.red("Error")}: $message
          |  when running ${commands.mkString("[", ", ", "]")}
          |""".stripMargin
 
     case PathExistsAndNoSymLink(path, message, commands) =>
-      s"""${Console.RED}Failed to run ${commands.mkString(" ")}
-         |Error${Console.RESET}: $message
+      s"""${Shell.red(
+      s"""Failed to run ${commands.mkString(" ")}
+         |Error""".stripMargin)}: $message
          |  when running ${commands.mkString("[", ", ", "]")}
          |""".stripMargin
 
@@ -42,11 +43,11 @@ object JdkSymLinkError {
       val stackTrace = out.toString
       throwable match {
         case ex: IOException =>
-          s"""${Console.RED}Error${Console.RESET} when running ${commands.mkString("[", ", ", "]")}:
+          s"""${Shell.red("Error")} when running ${commands.mkString("[", ", ", "]")}:
              |  - ${ex.getMessage}
              |""".stripMargin
         case _ =>
-          s"""${Console.RED}Error${Console.RESET} when running ${commands.mkString("[", ", ", "]")}:
+          s"""${Shell.red("Error")} when running ${commands.mkString("[", ", ", "]")}:
              |$stackTrace
              |""".stripMargin
 
