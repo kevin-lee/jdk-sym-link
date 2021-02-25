@@ -151,7 +151,8 @@ object Shell {
 
   }
 
-  def applyColorAndReset(text: String)(color: Color): String = s"${color.toAnsi}$text${Color.reset}"
+  def applyColorAndReset(text: String)(color: Color): String =
+    s"${color.toAnsi}$text${Color.reset.toAnsi}"
 
   def bold(text: String): String  = applyColorAndReset(text)(Color.bold)
   def red(text: String): String   = applyColorAndReset(text)(Color.red)
