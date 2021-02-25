@@ -5,7 +5,7 @@ set -eu
 app_original_executable_name=jdk-sym-link
 app_executable_name=jdkslink
 app_name=jdk-sym-link-cli
-app_version=${1:-0.2.0}
+app_version=${1:-0.2.1}
 versioned_app_name="${app_name}-${app_version}"
 app_zip_file="${versioned_app_name}.zip"
 download_url="https://github.com/Kevin-Lee/jdk-sym-link/releases/download/v${app_version}/${app_zip_file}"
