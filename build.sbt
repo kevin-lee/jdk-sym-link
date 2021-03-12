@@ -86,7 +86,7 @@ lazy val libs =
       "qa.hedgehog" %% "hedgehog-sbt"    % props.hedgehogVersion % Test,
     )
 
-    lazy val justSysProcess = "io.kevinlee" %% "just-sysprocess" % "0.3.0"
+    lazy val justSysProcess = "io.kevinlee" %% "just-sysprocess" % "0.5.0"
 
     lazy val newtype = "io.estatico" %% "newtype" % "0.4.4"
 
