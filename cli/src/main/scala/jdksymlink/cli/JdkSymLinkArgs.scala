@@ -10,7 +10,7 @@ sealed trait JdkSymLinkArgs
 
 object JdkSymLinkArgs {
 
-  final case object JdkListArgs extends JdkSymLinkArgs
+  case object JdkListArgs extends JdkSymLinkArgs
   final case class SymLinkArgs(javaMajorVersion: JavaMajorVersion) extends JdkSymLinkArgs
 
   def jdkListArgs: JdkSymLinkArgs = JdkListArgs

@@ -18,7 +18,9 @@ ThisBuild / scmInfo :=
 lazy val core = projectCommonSettings("core", ProjectName("core"), file("core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
-    libraryDependencies ++= Seq(libs.justSysProcess) ++ libs.catsAndCatsEffect ++ libs.effectie
+    libraryDependencies ++=
+      (Seq(libs.justSysProcess) ++ libs.catsAndCatsEffect  ++ libs.effectie)
+        .map(_.withDottyCompat(scalaVersion.value))
     /* Build Info { */,
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoObject := "JdkSymLinkBuildInfo",
@@ -64,17 +66,26 @@ lazy val props =
     val RepoName            = "jdk-sym-link"
     val ProjectNamePrefix   = RepoName
     val ProjectVersion      = SbtProjectInfo.ProjectVersion
-    val ProjectScalaVersion = "2.13.4"
+    val ProjectScalaVersion = "3.0.0-RC1"
 
     val effectieVersion = "1.9.0"
     val refinedVersion  = "0.9.21"
 
     val hedgehogVersion        = "0.6.5"
 
-    val pirateVersion = "b3a0a3eff3a527dff542133aaf0fd935aa2940fc"
+    val pirateVersion = "78d5406f68962bb3077cf5394967c771b64f14cb"
     val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     val IncludeTest: String = "compile->compile;test->test"
+
+    lazy val scala3cLanguageOptions = "-language:" + List(
+      "dynamics",
+      "existentials",
+      "higherKinds",
+      "reflectiveCalls",
+      "experimental.macros",
+      "implicitConversions"
+    ).mkString(",")
   }
 
 lazy val libs =
@@ -106,6 +117,15 @@ lazy val libs =
 
   }
 
+lazy val scala3cLanguageOptions = "-language:" + List(
+  "dynamics",
+  "existentials",
+  "higherKinds",
+  "reflectiveCalls",
+  "experimental.macros",
+  "implicitConversions"
+).mkString(",")
+
 def prefixedProjectName(name: String) = s"${props.RepoName}${if (name.isEmpty)
   ""
 else
@@ -119,6 +139,8 @@ def scalacOptionsPostProcess(scalaSemVer: SemVer, options: Seq[String]): Seq[Str
         } else {
           options.distinct
         }) ++ Seq("-Ymacro-annotations", "-language:implicitConversions")).distinct
+    case SemVer(SemVer.Major(3), SemVer.Minor(0), SemVer.Patch(_), _, _) =>
+      Seq(scala3cLanguageOptions)
     case _: SemVer                                                            =>
       options.distinct
   }
@@ -127,8 +149,6 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
   Project(id, file)
     .settings(
       name := prefixedProjectName(projectName.projectName),
-      addCompilerPlugin("org.typelevel" % "kind-projector"     % "0.11.2" cross CrossVersion.full),
-      addCompilerPlugin("com.olegpy"   %% "better-monadic-for" % "0.3.1"),
       scalacOptions := scalacOptionsPostProcess(
         SemVer.parseUnsafe(scalaVersion.value),
         scalacOptions.value,
@@ -136,32 +156,8 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
       resolvers ++= Seq(
         Resolver.sonatypeRepo("releases"),
       ),
-      libraryDependencies ++=
-        libs.hedgehogLibs ++ Seq(libs.newtype) ++ libs.refined
-      /* } WartRemover and scalacOptions */,
+      libraryDependencies ++= libs.hedgehogLibs ++ libs.refined,
       testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
-
-      /* Ammonite-REPL { */,
-      libraryDependencies ++=
-        (scalaBinaryVersion.value match {
-          case "2.13" =>
-            Seq("com.lihaoyi" % "ammonite" % "2.3.8-4-88785969" % Test cross CrossVersion.full)
-          case _      =>
-            Seq.empty[ModuleID]
-        }),
-      sourceGenerators in Test +=
-        (scalaBinaryVersion.value match {
-          case "2.13" =>
-            task {
-              val file = (sourceManaged in Test).value / "amm.scala"
-              IO.write(file, """object amm extends App { ammonite.Main.main(args) }""")
-              Seq(file)
-            }
-          case _      =>
-            task(Seq.empty[File])
-        }),
-      /* } Ammonite-REPL */
-
     )
 
 lazy val noPublish: SettingsDefinition = Seq(

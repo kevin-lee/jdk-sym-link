@@ -23,19 +23,25 @@ object data {
   val From9Pattern: Regex = """[^-]+-(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:-[^\.]+)?\.jdk$""".r
   val From9PatternWithOnlyVersion: Regex = """^jdk-(\d+)\.jdk$""".r
 
-  final case class JavaMajorVersion(value: Int) extends AnyVal
+  opaque type JavaMajorVersion = Int
   object JavaMajorVersion {
+    def apply(javaMajorVersion: Int): JavaMajorVersion = javaMajorVersion
+    
+    extension (javaMajorVersion: JavaMajorVersion) {
+      def value: Int = javaMajorVersion
+    }
     def render(javaMajorVersion: JavaMajorVersion): String =
       javaMajorVersion.value.toString
   }
-
+  
+  
   type NameAndVersion = (String, VerStr)
 
   final case class VerStr(major: String, minor: Option[String], patch: Option[String])
 
   object VerStr {
 
-    implicit object VerStrOrdering extends Ordering[VerStr] {
+    given Ordering[VerStr] with {
       def compare(x: VerStr, y: VerStr): Int = (x, y) match {
         case (VerStr(v1, m1, mn1), VerStr(v2, m2, mn2)) =>
           val v = v1.toInt.compare(v2.toInt)

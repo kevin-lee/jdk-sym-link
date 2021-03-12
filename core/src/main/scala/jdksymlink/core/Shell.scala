@@ -145,7 +145,7 @@ object Shell {
         AnsiColor.INVISIBLE
     }
 
-    implicit final class ColorOps(val color: Color) extends AnyVal {
+    extension (color: Color) {
       def toAnsi: String = Color.render(color)
     }
 

@@ -37,12 +37,9 @@ trait JdkSymLink[F[_]] {
 
 object JdkSymLink {
 
-  def apply[F[_]: JdkSymLink]: JdkSymLink[F] = implicitly[JdkSymLink[F]]
+  def apply[F[_]: JdkSymLink]: JdkSymLink[F] = summon[JdkSymLink[F]]
 
-  implicit def jdkSymLinkF[F[_]: Monad: EffectConstructor: ConsoleEffect]: JdkSymLink[F] =
-    new JdkSymLinkF[F]
-
-  final class JdkSymLinkF[F[_]: Monad: EffectConstructor: ConsoleEffect] extends JdkSymLink[F] {
+  given jdkSymLinkF[F[_]: Monad: EffectConstructor: ConsoleEffect]: JdkSymLink[F] with {
 
     def listAll(javaBaseDirPath: String, javaBaseDir: File): F[Either[JdkSymLinkError, Unit]] =
       (for {
