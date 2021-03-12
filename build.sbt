@@ -1,26 +1,6 @@
 import SbtProjectInfo._
 import just.semver.SemVer
 
-lazy val props =
-  new {
-    val GitHubUsername      = "Kevin-Lee"
-    val RepoName            = "jdk-sym-link"
-    val ProjectNamePrefix   = RepoName
-    val ProjectVersion      = SbtProjectInfo.ProjectVersion
-    val ProjectScalaVersion = "2.13.4"
-
-    val effectieVersion = "1.9.0"
-    val refinedVersion  = "0.9.21"
-
-    val hedgehogVersion        = "0.6.3"
-    val hedgehogRepo: Resolver = "bintray-scala-hedgehog" at "https://dl.bintray.com/hedgehogqa/scala-hedgehog"
-
-    val pirateVersion = "b3a0a3eff3a527dff542133aaf0fd935aa2940fc"
-    val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
-
-    val IncludeTest: String = "compile->compile;test->test"
-  }
-
 ThisBuild / organization := "io.kevinlee"
 ThisBuild / version := props.ProjectVersion
 ThisBuild / scalaVersion := props.ProjectScalaVersion
@@ -34,36 +14,6 @@ ThisBuild / scmInfo :=
       "https://github.com/Kevin-Lee/jdk-symbolic-link.git",
     )
   )
-
-lazy val libs =
-  new {
-
-    lazy val hedgehogLibs: Seq[ModuleID] = Seq(
-      "qa.hedgehog" %% "hedgehog-core"   % props.hedgehogVersion % Test,
-      "qa.hedgehog" %% "hedgehog-runner" % props.hedgehogVersion % Test,
-      "qa.hedgehog" %% "hedgehog-sbt"    % props.hedgehogVersion % Test,
-    )
-
-    lazy val justSysProcess = "io.kevinlee" %% "just-sysprocess" % "0.3.0"
-
-    lazy val newtype = "io.estatico" %% "newtype" % "0.4.4"
-
-    lazy val refined = Seq(
-      "eu.timepit" %% "refined" % props.refinedVersion
-    )
-
-    lazy val catsAndCatsEffect = Seq(
-      "org.typelevel" %% "cats-core"    % "2.4.2",
-      "org.typelevel" %% "cats-effect"  % "2.3.3",
-      "eu.timepit"    %% "refined-cats" % props.refinedVersion,
-    )
-
-    lazy val effectie = Seq(
-      "io.kevinlee" %% "effectie-cats-effect"   % props.effectieVersion,
-      "io.kevinlee" %% "effectie-scalaz-effect" % props.effectieVersion,
-    )
-
-  }
 
 lazy val core = projectCommonSettings("core", ProjectName("core"), file("core"))
   .enablePlugins(BuildInfoPlugin)
@@ -105,6 +55,55 @@ lazy val jdkSymLink = (project in file("."))
   )
   .settings(noPublish)
   .aggregate(core, cli)
+
+lazy val props =
+  new {
+    val GitHubUsername      = "Kevin-Lee"
+    val RepoName            = "jdk-sym-link"
+    val ProjectNamePrefix   = RepoName
+    val ProjectVersion      = SbtProjectInfo.ProjectVersion
+    val ProjectScalaVersion = "2.13.4"
+
+    val effectieVersion = "1.9.0"
+    val refinedVersion  = "0.9.21"
+
+    val hedgehogVersion        = "0.6.3"
+    val hedgehogRepo: Resolver = "bintray-scala-hedgehog" at "https://dl.bintray.com/hedgehogqa/scala-hedgehog"
+
+    val pirateVersion = "b3a0a3eff3a527dff542133aaf0fd935aa2940fc"
+    val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
+
+    val IncludeTest: String = "compile->compile;test->test"
+  }
+
+lazy val libs =
+  new {
+
+    lazy val hedgehogLibs: Seq[ModuleID] = Seq(
+      "qa.hedgehog" %% "hedgehog-core"   % props.hedgehogVersion % Test,
+      "qa.hedgehog" %% "hedgehog-runner" % props.hedgehogVersion % Test,
+      "qa.hedgehog" %% "hedgehog-sbt"    % props.hedgehogVersion % Test,
+    )
+
+    lazy val justSysProcess = "io.kevinlee" %% "just-sysprocess" % "0.3.0"
+
+    lazy val newtype = "io.estatico" %% "newtype" % "0.4.4"
+
+    lazy val refined = Seq(
+      "eu.timepit" %% "refined" % props.refinedVersion
+    )
+
+    lazy val catsAndCatsEffect = Seq(
+      "org.typelevel" %% "cats-core"    % "2.4.2",
+      "org.typelevel" %% "cats-effect"  % "2.3.3",
+    )
+
+    lazy val effectie = Seq(
+      "io.kevinlee" %% "effectie-cats-effect"   % props.effectieVersion,
+      "io.kevinlee" %% "effectie-scalaz-effect" % props.effectieVersion,
+    )
+
+  }
 
 def prefixedProjectName(name: String) = s"${props.RepoName}${if (name.isEmpty)
   ""
