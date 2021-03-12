@@ -1,7 +1,7 @@
 package jdksymlink.cli
 
 import cats.effect._
-import cats.implicits._
+import cats.syntax.all._
 
 import effectie.cats.ConsoleEffect
 

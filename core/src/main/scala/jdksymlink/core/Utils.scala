@@ -1,6 +1,6 @@
 package jdksymlink.core
 
-import cats.implicits._
+import cats.syntax.all._
 
 import data._
 

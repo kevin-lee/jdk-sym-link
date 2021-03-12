@@ -31,6 +31,8 @@ lazy val core = projectCommonSettings("core", ProjectName("core"), file("core"))
 
   )
 
+lazy val pirate = ProjectRef(props.pirateUri, "pirate")
+
 lazy val cli = projectCommonSettings("cli", ProjectName("cli"), file("cli"))
   .enablePlugins(JavaAppPackaging)
   .settings(
@@ -39,7 +41,7 @@ lazy val cli = projectCommonSettings("cli", ProjectName("cli"), file("cli"))
     packageDescription := "A tool to create JDK symbolic links",
     executableScriptName := props.ProjectNamePrefix,
   )
-  .dependsOn(core, ProjectRef(props.pirateUri, "pirate"))
+  .dependsOn(core, pirate)
 
 lazy val jdkSymLink = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin)
@@ -67,8 +69,7 @@ lazy val props =
     val effectieVersion = "1.9.0"
     val refinedVersion  = "0.9.21"
 
-    val hedgehogVersion        = "0.6.3"
-    val hedgehogRepo: Resolver = "bintray-scala-hedgehog" at "https://dl.bintray.com/hedgehogqa/scala-hedgehog"
+    val hedgehogVersion        = "0.6.5"
 
     val pirateVersion = "b3a0a3eff3a527dff542133aaf0fd935aa2940fc"
     val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
@@ -134,7 +135,6 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
       ),
       resolvers ++= Seq(
         Resolver.sonatypeRepo("releases"),
-        props.hedgehogRepo,
       ),
       libraryDependencies ++=
         libs.hedgehogLibs ++ Seq(libs.newtype) ++ libs.refined
