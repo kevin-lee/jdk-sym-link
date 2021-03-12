@@ -2,7 +2,7 @@ package jdksymlink.core
 
 import java.io.File
 
-import cats.implicits._
+import cats.syntax.all._
 
 import scala.util.matching.Regex
 
