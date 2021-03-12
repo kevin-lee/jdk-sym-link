@@ -12,21 +12,21 @@ import scala.util.matching.Regex
  */
 object data {
 
-  val javaBaseDirPath: String = "/Library/Java/JavaVirtualMachines"
-  lazy val javaBaseDirFile: File = new File(s"$javaBaseDirPath")
+  final val JavaBaseDirPath: String = "/Library/Java/JavaVirtualMachines"
+  lazy val javaBaseDirFile: File = new File(JavaBaseDirPath)
 
-  lazy val Bold: String = "\u001b[1m"
-  lazy val Normal: String = "\u001b[0m"
+  final val Bold: String = "\u001b[1m"
+  final val Normal: String = "\u001b[0m"
 
   val Before9Pattern: Regex = """[^-]+1\.(\d)\.(\d)_(\d+)\.jdk$""".r
   val Before9AdoptOpenJdkPattern: Regex = """adoptopenjdk-(\d+)\.jdk$""".r
   val From9Pattern: Regex = """[^-]+-(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:-[^\.]+)?\.jdk$""".r
   val From9PatternWithOnlyVersion: Regex = """^jdk-(\d+)\.jdk$""".r
 
-  final case class JavaMajorVersion(javaMajorVersion: Int) extends AnyVal
+  final case class JavaMajorVersion(value: Int) extends AnyVal
   object JavaMajorVersion {
     def render(javaMajorVersion: JavaMajorVersion): String =
-      javaMajorVersion.javaMajorVersion.toString
+      javaMajorVersion.value.toString
   }
 
   type NameAndVersion = (String, VerStr)

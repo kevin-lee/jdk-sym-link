@@ -33,7 +33,7 @@ object Utils {
       .map(line => if (line.endsWith("/")) line.dropRight(1) else line)
       .map(extractVersion)
       .foldLeft(Vector.empty[NameAndVersion]) {
-        case (acc, Some(x@(_, VerStr(v, _, _)))) if v === javaMajorVersion.javaMajorVersion.toString =>
+        case (acc, Some(x@(_, VerStr(v, _, _)))) if v === javaMajorVersion.value.toString =>
           acc :+ x
         case (acc, _) =>
           acc

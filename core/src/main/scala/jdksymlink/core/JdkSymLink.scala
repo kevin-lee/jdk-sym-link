@@ -144,17 +144,17 @@ object JdkSymLink {
         )
       )
       jdkLinkAlreadyExists <- eitherTRight(
-        (s"ls -d $javaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}" ! (lsResultLogger)) === 0
+        (s"ls -d $JavaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}" ! (lsResultLogger)) === 0
       )
       result               <-
         if (jdkLinkAlreadyExists) {
           for {
             isNonSymLink <- eitherTRight(
-              (s"find $javaBaseDirPath -type l -iname jdk${JavaMajorVersion.render(javaMajorVersion)}" !!).isEmpty
+              (s"find $JavaBaseDirPath -type l -iname jdk${JavaMajorVersion.render(javaMajorVersion)}" !!).isEmpty
             )
             r            <-
               if (isNonSymLink) {
-                val path = s"$javaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}"
+                val path = s"$JavaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}"
                 eitherTLeftPure[List[String]](
                   JdkSymLinkError.pathExistsAndNoSymLink(
                     path,
