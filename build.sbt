@@ -19,7 +19,7 @@ lazy val core = projectCommonSettings("core", ProjectName("core"), file("core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
     libraryDependencies ++=
-      (Seq(libs.justSysProcess) ++ libs.catsAndCatsEffect  ++ libs.effectie)
+      (Seq(libs.justSysProcess) ++ libs.catsAndCatsEffect ++ libs.effectie)
         .map(_.withDottyCompat(scalaVersion.value))
     /* Build Info { */,
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
@@ -50,8 +50,7 @@ lazy val cli = projectCommonSettings("cli", ProjectName("cli"), file("cli"))
 //      s"-H:ReflectionConfigurationFiles=${ (sourceDirectory.value / "graal" / "reflect-config.json").getCanonicalPath }",
 //      "--allow-incomplete-classpath",
 //      "--report-unsupported-elements-at-runtime",
-    )
-    
+    ),
   )
   .dependsOn(core, pirate)
 
@@ -61,7 +60,7 @@ lazy val jdkSymLink = (project in file("."))
     name := props.ProjectNamePrefix,
     /* GitHub Release { */
     devOopsPackagedArtifacts := List(
-      "cli/target/native-image/jdk-slink",
+      "cli/target/native-image/jdk-slink"
     ),
     /* } GitHub Release */
   )
@@ -79,21 +78,22 @@ lazy val props =
     val effectieVersion = "1.9.0"
     val refinedVersion  = "0.9.21"
 
-    val hedgehogVersion        = "0.6.5"
+    val hedgehogVersion = "0.6.5"
 
     val pirateVersion = "78d5406f68962bb3077cf5394967c771b64f14cb"
     val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     val IncludeTest: String = "compile->compile;test->test"
 
-    lazy val scala3cLanguageOptions = "-language:" + List(
-      "dynamics",
-      "existentials",
-      "higherKinds",
-      "reflectiveCalls",
-      "experimental.macros",
-      "implicitConversions"
-    ).mkString(",")
+    lazy val scala3cLanguageOptions =
+      "-language:" + List(
+        "dynamics",
+        "existentials",
+        "higherKinds",
+        "reflectiveCalls",
+        "experimental.macros",
+        "implicitConversions",
+      ).mkString(",")
   }
 
 lazy val libs =
@@ -114,8 +114,8 @@ lazy val libs =
     )
 
     lazy val catsAndCatsEffect = Seq(
-      "org.typelevel" %% "cats-core"    % "2.4.2",
-      "org.typelevel" %% "cats-effect"  % "2.3.3",
+      "org.typelevel" %% "cats-core"   % "2.4.2",
+      "org.typelevel" %% "cats-effect" % "2.3.3",
     )
 
     lazy val effectie = Seq(
@@ -125,14 +125,15 @@ lazy val libs =
 
   }
 
-lazy val scala3cLanguageOptions = "-language:" + List(
-  "dynamics",
-  "existentials",
-  "higherKinds",
-  "reflectiveCalls",
-  "experimental.macros",
-  "implicitConversions"
-).mkString(",")
+lazy val scala3cLanguageOptions =
+  "-language:" + List(
+    "dynamics",
+    "existentials",
+    "higherKinds",
+    "reflectiveCalls",
+    "experimental.macros",
+    "implicitConversions",
+  ).mkString(",")
 
 def prefixedProjectName(name: String) = s"${props.RepoName}${if (name.isEmpty)
   ""
@@ -147,7 +148,7 @@ def scalacOptionsPostProcess(scalaSemVer: SemVer, options: Seq[String]): Seq[Str
         } else {
           options.distinct
         }) ++ Seq("-Ymacro-annotations", "-language:implicitConversions")).distinct
-    case SemVer(SemVer.Major(3), SemVer.Minor(0), SemVer.Patch(_), _, _) =>
+    case SemVer(SemVer.Major(3), SemVer.Minor(0), SemVer.Patch(_), _, _)      =>
       Seq(scala3cLanguageOptions)
     case _: SemVer                                                            =>
       options.distinct
@@ -161,11 +162,8 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
         SemVer.parseUnsafe(scalaVersion.value),
         scalacOptions.value,
       ),
-      resolvers ++= Seq(
-        Resolver.sonatypeRepo("releases"),
-      ),
       libraryDependencies ++= libs.hedgehogLibs ++ libs.refined,
-      testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
+      testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework")),
     )
 
 lazy val noPublish: SettingsDefinition = Seq(
