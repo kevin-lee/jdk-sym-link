@@ -36,12 +36,22 @@ lazy val core = projectCommonSettings("core", ProjectName("core"), file("core"))
 lazy val pirate = ProjectRef(props.pirateUri, "pirate")
 
 lazy val cli = projectCommonSettings("cli", ProjectName("cli"), file("cli"))
-  .enablePlugins(JavaAppPackaging)
+  .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
     maintainer := "Kevin Lee <kevin.code@kevinlee.io>",
     packageSummary := "JdkSymLink",
     packageDescription := "A tool to create JDK symbolic links",
     executableScriptName := props.ProjectNamePrefix,
+    nativeImageOptions ++= Seq(
+      "--verbose",
+      "--no-fallback",
+      "-H:+ReportExceptionStackTraces",
+      "--initialize-at-build-time",
+//      s"-H:ReflectionConfigurationFiles=${ (sourceDirectory.value / "graal" / "reflect-config.json").getCanonicalPath }",
+//      "--allow-incomplete-classpath",
+//      "--report-unsupported-elements-at-runtime",
+    )
+    
   )
   .dependsOn(core, pirate)
 
@@ -51,9 +61,7 @@ lazy val jdkSymLink = (project in file("."))
     name := props.ProjectNamePrefix,
     /* GitHub Release { */
     devOopsPackagedArtifacts := List(
-      s"cli/target/universal/${name.value}*.zip",
-      s"cli/target/universal/${name.value}*.tgz",
-      s"cli/target/${name.value}*.deb",
+      "cli/target/native-image/jdk-slink",
     ),
     /* } GitHub Release */
   )

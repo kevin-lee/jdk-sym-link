@@ -5,9 +5,17 @@ on:
     branches:
       - "**"
 
-  pull_request:
-    branches:
-      - main
+#  pull_request:
+#    branches:
+#      - main
+
+env:
+  CLI_SCALA_VERSION: "3.0.0-RC1"
+  CLI_SCALA_BINARY_VERSION: "3.0.0-RC1"
+  GRAALVM_VERSION: "21.0.0.2"
+  GRAALVM_JAVA_VERSION: "java11"
+  GRAALVM_ARCH: "amd64"
+  GRAALVM_BIN_DIR_NAME: "native-image"
 
 jobs:
 
@@ -67,8 +75,46 @@ jobs:
           java -version
           .github/workflows/sbt-build-all.sh ${{ matrix.scala.version }}
 
-#      - name: Build cli
-#        run: |
-#          sbt -J-Xmx2048m "; project cli; ++2.13.1!; clean; universal:packageBin; universal:packageZipTarball; debian:packageBin"
-#          ls -ld cli/target/jdk-symbolic-link-cli*
-#          ls -ld cli/target/universal/jdk-symbolic-link-cli*
+  graalvm-build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest]
+        run-binary: [jdk-sym-link-cli]
+    steps:
+
+      - uses: actions/checkout@v2
+      - uses: olafurpg/setup-scala@v10
+        with:
+          java-version: "graalvm-ce-java11@"
+      - name: Cache SBT
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.cache/coursier
+            ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-
+
+      - name: "GraalVM Build for Scala ${{ env.CLI_SCALA_VERSION }} - ${{ github.run_number }}"
+        env:
+          CURRENT_BRANCH_NAME: ${{ github.ref }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          sbt \
+            -J-Xmx2048m \
+            ++${{ env.CLI_SCALA_VERSION }}! \
+            clean \
+            test \
+            nativeImage
+
+          rm -f */target/scala-*/*.jar
+
+          ls -lGh cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
+
+          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
+          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} list --help"
+          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} slink --help"
