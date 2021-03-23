@@ -15,9 +15,6 @@ object data {
   final val JavaBaseDirPath: String = "/Library/Java/JavaVirtualMachines"
   lazy val javaBaseDirFile: File = new File(JavaBaseDirPath)
 
-  final val Bold: String = "\u001b[1m"
-  final val Normal: String = "\u001b[0m"
-
   val Before9Pattern: Regex = """[^-]+1\.(\d)\.(\d)_(\d+)\.jdk$""".r
   val Before9AdoptOpenJdkPattern: Regex = """adoptopenjdk-(\d+)\.jdk$""".r
   val From9Pattern: Regex = """[^-]+-(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:-[^\.]+)?\.jdk$""".r
