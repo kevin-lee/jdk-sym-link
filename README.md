@@ -1,5 +1,7 @@
 # jdk-sym-link
 
+JDK symbolic link creator for macOS.
+
 ## How to install
 
 ```shell
