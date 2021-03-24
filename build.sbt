@@ -60,7 +60,7 @@ lazy val jdkSymLink = (project in file("."))
     name := props.ProjectNamePrefix,
     /* GitHub Release { */
     devOopsPackagedArtifacts := List(
-      "cli/target/native-image/jdk-slink"
+      "cli/target/native-image/jdk-sym-link-cli"
     ),
     /* } GitHub Release */
   )
