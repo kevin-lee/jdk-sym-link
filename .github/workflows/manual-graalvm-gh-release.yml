@@ -1,4 +1,4 @@
-name: Release
+name: "[M] GraalVM Native Image - GH Release"
 
 on:
   push:
