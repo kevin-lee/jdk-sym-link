@@ -1,9 +1,7 @@
 name: "[M] GraalVM Native Image - GH Release"
 
 on:
-  push:
-    tags:
-      - '*'
+  workflow_dispatch:
 
 env:
   CLI_SCALA_VERSION: "3.0.0-RC1"
