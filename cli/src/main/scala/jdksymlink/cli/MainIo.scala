@@ -19,9 +19,9 @@ import scalaz._
 trait MainIo[A] {
 
   def command: Command[A]
- 
+
   def run(a: A): IO[JdkSymLinkError \/ Unit]
- 
+
   def prefs: Prefs = DefaultPrefs()
 
   def exitWith[X](exitCode: ExitCode): IO[X] =
@@ -37,12 +37,11 @@ trait MainIo[A] {
     codeOrA <- getArgs(args, command, prefs)
     errorOrResult <- codeOrA.fold[IO[JdkSymLinkError \/ Unit]](exitWithPirate, run)
     _ <- errorOrResult.fold(
-        err => ConsoleEffect[IO].putStrLn(JdkSymLinkError.render(err)) *>
-          exitWith(ExitCode.Error)
+      err => ConsoleEffect[IO].putStrLn(JdkSymLinkError.render(err)) *>
+        exitWith(ExitCode.Error)
       , IO(_)
-      )
+    )
   } yield ())
-  .unsafeRunSync()
-
+    .unsafeRunSync()
 
 }

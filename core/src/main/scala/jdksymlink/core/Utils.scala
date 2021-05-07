@@ -28,7 +28,7 @@ object Utils {
       None
   }
 
-  def names(javaMajorVersion: JavaMajorVersion): Vector[(String, VerStr)] =
+  def names(javaMajorVersion: JavaMajorVersion): Vector[NameAndVersion] =
     (Process(Seq("bash", "-c", "ls -d */"), Option(javaBaseDirFile)).lazyLines)
       .map(line => if (line.endsWith("/")) line.dropRight(1) else line)
       .map(extractVersion)
@@ -38,6 +38,6 @@ object Utils {
         case (acc, _) =>
           acc
       }
-      .sortBy(_._2)
+      .sortBy((name, version) => version)
 
 }
