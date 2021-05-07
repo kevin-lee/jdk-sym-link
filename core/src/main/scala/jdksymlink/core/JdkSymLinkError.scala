@@ -1,18 +1,20 @@
 package jdksymlink.core
 
+import data.Eql
 import java.io.{IOException, PrintWriter, StringWriter}
 
 /** @author Kevin Lee
   * @since 2019-12-25
   */
-sealed trait JdkSymLinkError
+enum JdkSymLinkError derives Eql {
+
+  case LsFailure(errorCode: Int, message: String, commands: List[String])
+  case PathExistsAndNoSymLink(path: String, message: String, commands: List[String])
+  case CommandFailure(throwable: Throwable, commands: List[String])
+
+}
 
 object JdkSymLinkError {
-
-  final case class LsFailure(errorCode: Int, message: String, commands: List[String])            extends JdkSymLinkError
-  final case class PathExistsAndNoSymLink(path: String, message: String, commands: List[String]) extends JdkSymLinkError
-  final case class CommandFailure(throwable: Throwable, commands: List[String])                  extends JdkSymLinkError
-
   def lsFailure(errorCode: Int, message: String, commands: List[String]): JdkSymLinkError =
     LsFailure(errorCode, message, commands)
 

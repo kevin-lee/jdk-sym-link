@@ -1,20 +1,14 @@
 package jdksymlink.cli
 
-import jdksymlink.core.data.JavaMajorVersion
+import jdksymlink.core.data.{Eql, JavaMajorVersion}
 
 /**
  * @author Kevin Lee
  * @since 2019-12-24
  */
-sealed trait JdkSymLinkArgs
+enum JdkSymLinkArgs derives Eql {
 
-object JdkSymLinkArgs {
-
-  case object JdkListArgs extends JdkSymLinkArgs
-  final case class SymLinkArgs(javaMajorVersion: JavaMajorVersion) extends JdkSymLinkArgs
-
-  def jdkListArgs: JdkSymLinkArgs = JdkListArgs
-  def symLinkArgs(javaMajorVersion: JavaMajorVersion): JdkSymLinkArgs = SymLinkArgs(javaMajorVersion)
+  case JdkListArgs
+  case SymLinkArgs(javaMajorVersion: JavaMajorVersion)
 
 }
-

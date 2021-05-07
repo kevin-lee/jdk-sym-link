@@ -19,10 +19,10 @@ import jdksymlink.info.JdkSymLinkBuildInfo
  */
 object JdkSymLinkApp extends MainIo[JdkSymLinkArgs] {
 
-  val listParser: Parse[JdkSymLinkArgs] = ValueParse(JdkSymLinkArgs.jdkListArgs)
+  val listParser: Parse[JdkSymLinkArgs] = ValueParse(JdkSymLinkArgs.JdkListArgs)
 
   val symLinkJdkParser: Parse[JdkSymLinkArgs] =
-    JdkSymLinkArgs.symLinkArgs _ |*|
+    JdkSymLinkArgs.SymLinkArgs.apply |*|
       argument[Int](
           metavar("<java-version>") |+| description("Java version e.g.) 8, 11, 13")
         ).map(JavaMajorVersion.apply)

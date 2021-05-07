@@ -11,6 +11,8 @@ import scala.util.matching.Regex
  * @since 2015-04-03
  */
 object data {
+  type Eql[A] = CanEqual[A, A]
+  given optionEql[A](using CanEqual[A, A]): Eql[Option[A]] = CanEqual.derived
 
   final val JavaBaseDirPath: String = "/Library/Java/JavaVirtualMachines"
   lazy val javaBaseDirFile: File = new File(JavaBaseDirPath)
@@ -33,12 +35,13 @@ object data {
   
   
   type NameAndVersion = (String, VerStr)
+  given nameAndVersionEq: Eql[NameAndVersion] = CanEqual.derived
 
-  final case class VerStr(major: String, minor: Option[String], patch: Option[String])
+  final case class VerStr(major: String, minor: Option[String], patch: Option[String]) derives Eql
 
   object VerStr {
 
-    given Ordering[VerStr] with {
+    given verStrOrdering: Ordering[VerStr] with {
       def compare(x: VerStr, y: VerStr): Int = (x, y) match {
         case (VerStr(v1, m1, mn1), VerStr(v2, m2, mn2)) =>
           val v = v1.toInt.compare(v2.toInt)
