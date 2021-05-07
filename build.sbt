@@ -142,19 +142,6 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
   Project(id, file)
     .settings(
       name := prefixedProjectName(projectName.projectName),
-      scalacOptions := scalacOptionsPostProcess(
-        SemVer.parseUnsafe(scalaVersion.value),
-        scalacOptions.value,
-      ),
       libraryDependencies ++= libs.hedgehogLibs ++ libs.refined,
       testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework")),
     )
-
-lazy val noPublish: SettingsDefinition = Seq(
-  publish := {},
-  publishLocal := {},
-  publishArtifact := false,
-  sbt.Keys.`package` / skip := true,
-  packagedArtifacts / skip := true,
-  publish / skip := true,
-)

@@ -2,80 +2,39 @@ package jdksymlink.core
 
 import scala.io.AnsiColor
 
+import data.Eql
+
 /** @author Kevin Lee
   * @since 2020-01-01
   */
 object Shell {
 
-  sealed trait Color
+  enum Color derives Eql {
+    case Black
+    case Red
+    case Green
+    case Yellow
+    case Blue
+    case Magenta
+    case Cyan
+    case White
+    case BlackBg
+    case RedBg
+    case GreenBg
+    case YellowBg
+    case BlueBg
+    case MagentaBg
+    case CyanBg
+    case WhiteBg
+    case Reset
+    case Bold
+    case Underlined
+    case Blink
+    case Reversed
+    case Invisible
+  }
 
   object Color {
-    case object Black      extends Color
-    case object Red        extends Color
-    case object Green      extends Color
-    case object Yellow     extends Color
-    case object Blue       extends Color
-    case object Magenta    extends Color
-    case object Cyan       extends Color
-    case object White      extends Color
-    case object BlackBg    extends Color
-    case object RedBg      extends Color
-    case object GreenBg    extends Color
-    case object YellowBg   extends Color
-    case object BlueBg     extends Color
-    case object MagentaBg  extends Color
-    case object CyanBg     extends Color
-    case object WhiteBg    extends Color
-    case object Reset      extends Color
-    case object Bold       extends Color
-    case object Underlined extends Color
-    case object Blink      extends Color
-    case object Reversed   extends Color
-    case object Invisible  extends Color
-
-    def black: Color = Black
-
-    def red: Color = Red
-
-    def green: Color = Green
-
-    def yellow: Color = Yellow
-
-    def blue: Color = Blue
-
-    def magenta: Color = Magenta
-
-    def cyan: Color = Cyan
-
-    def white: Color = White
-
-    def blackB: Color = BlackBg
-
-    def redB: Color = RedBg
-
-    def greenB: Color = GreenBg
-
-    def yellowB: Color = YellowBg
-
-    def blueB: Color = BlueBg
-
-    def magentaB: Color = MagentaBg
-
-    def cyanB: Color = CyanBg
-
-    def whiteB: Color = WhiteBg
-
-    def reset: Color = Reset
-
-    def bold: Color = Bold
-
-    def underlined: Color = Underlined
-
-    def blink: Color = Blink
-
-    def reversed: Color = Reversed
-
-    def invisible: Color = Invisible
 
     def render(color: Color): String = color match {
       case Black =>
@@ -152,10 +111,13 @@ object Shell {
   }
 
   def applyColorAndReset(text: String)(color: Color): String =
-    s"${color.toAnsi}$text${Color.reset.toAnsi}"
+    s"${color.toAnsi}$text${Color.Reset.toAnsi}"
 
-  def bold(text: String): String  = applyColorAndReset(text)(Color.bold)
-  def red(text: String): String   = applyColorAndReset(text)(Color.red)
-  def blue(text: String): String  = applyColorAndReset(text)(Color.blue)
-  def green(text: String): String = applyColorAndReset(text)(Color.green)
+  def bold(text: String): String       = applyColorAndReset(text)(Color.Bold)
+  def underlined(text: String): String = applyColorAndReset(text)(Color.Underlined)
+
+  def red(text: String): String   = applyColorAndReset(text)(Color.Red)
+  def green(text: String): String = applyColorAndReset(text)(Color.Green)
+  def blue(text: String): String  = applyColorAndReset(text)(Color.Blue)
+
 }
