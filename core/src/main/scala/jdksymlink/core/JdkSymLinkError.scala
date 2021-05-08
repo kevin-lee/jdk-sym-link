@@ -28,14 +28,14 @@ object JdkSymLinkError {
     case LsFailure(errorCode, message, commands) =>
       s"""${Shell.red("ErrorCode")}: ${errorCode.toString}
          |${Shell.red("Error")}: $message
-         |  when running ${commands.mkString("[", ", ", "]")}
+         |  when running ${commands.mkString("[", " ", "]")}
          |""".stripMargin
 
     case PathExistsAndNoSymLink(path, message, commands) =>
       s"""${Shell.red(
       s"""Failed to run ${commands.mkString(" ")}
          |Error""".stripMargin)}: $message
-         |  when running ${commands.mkString("[", ", ", "]")}
+         |  when running ${commands.mkString("[", " ", "]")}
          |""".stripMargin
 
     case CommandFailure(throwable, commands) =>
@@ -45,11 +45,11 @@ object JdkSymLinkError {
       val stackTrace = out.toString
       throwable match {
         case ex: IOException =>
-          s"""${Shell.red("Error")} when running ${commands.mkString("[", ", ", "]")}:
+          s"""${Shell.red("Error")} when running ${commands.mkString("[", " ", "]")}:
              |  - ${ex.getMessage}
              |""".stripMargin
         case _ =>
-          s"""${Shell.red("Error")} when running ${commands.mkString("[", ", ", "]")}:
+          s"""${Shell.red("Error")} when running ${commands.mkString("[", " ", "]")}:
              |$stackTrace
              |""".stripMargin
 
