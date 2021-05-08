@@ -15,45 +15,42 @@ enum JdkSymLinkError derives Eql {
 }
 
 object JdkSymLinkError {
-  def lsFailure(errorCode: Int, message: String, commands: List[String]): JdkSymLinkError =
-    LsFailure(errorCode, message, commands)
 
-  def pathExistsAndNoSymLink(path: String, message: String, commands: List[String]): JdkSymLinkError =
-    PathExistsAndNoSymLink(path, message, commands)
+  import Shell.ColoredString._
 
-  def commandFailure(throwable: Throwable, commands: List[String]): JdkSymLinkError =
-    CommandFailure(throwable, commands)
+  extension (jdkSymLinkError: JdkSymLinkError) {
+    def render: String = jdkSymLinkError match {
 
-  def render(jdkSymLinkError: JdkSymLinkError): String = jdkSymLinkError match {
-    case LsFailure(errorCode, message, commands) =>
-      s"""${Shell.red("ErrorCode")}: ${errorCode.toString}
-         |${Shell.red("Error")}: $message
-         |  when running ${commands.mkString("[", " ", "]")}
-         |""".stripMargin
+      case LsFailure(errorCode, message, commands) =>
+        s"""${"ErrorCode".red}: ${errorCode.toString}
+           |${"Error".red}: $message
+           |  when running ${commands.mkString("[", " ", "]")}
+           |""".stripMargin
 
-    case PathExistsAndNoSymLink(path, message, commands) =>
-      s"""${Shell.red(
-      s"""Failed to run ${commands.mkString(" ")}
-         |Error""".stripMargin)}: $message
-         |  when running ${commands.mkString("[", " ", "]")}
-         |""".stripMargin
+      case PathExistsAndNoSymLink(path, message, commands) =>
+        s"""${
+        s"""Failed to run ${commands.mkString(" ")}
+           |Error""".stripMargin.red}: $message
+           |  when running ${commands.mkString("[", " ", "]")}
+           |""".stripMargin
 
-    case CommandFailure(throwable, commands) =>
-      val out         = new StringWriter()
-      val printWriter = new PrintWriter(out)
-      throwable.printStackTrace(printWriter)
-      val stackTrace = out.toString
-      throwable match {
-        case ex: IOException =>
-          s"""${Shell.red("Error")} when running ${commands.mkString("[", " ", "]")}:
-             |  - ${ex.getMessage}
-             |""".stripMargin
-        case _ =>
-          s"""${Shell.red("Error")} when running ${commands.mkString("[", " ", "]")}:
-             |$stackTrace
-             |""".stripMargin
+      case CommandFailure(throwable, commands) =>
+        val out         = new StringWriter()
+        val printWriter = new PrintWriter(out)
+        throwable.printStackTrace(printWriter)
+        val stackTrace = out.toString
+        throwable match {
+          case ex: IOException =>
+            s"""${"Error".red} when running ${commands.mkString("[", " ", "]")}:
+               |  - ${ex.getMessage}
+               |""".stripMargin
+          case _ =>
+            s"""${"Error".red} when running ${commands.mkString("[", " ", "]")}:
+               |$stackTrace
+               |""".stripMargin
 
-      }
+        }
+    }
 
   }
 }

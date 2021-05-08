@@ -58,10 +58,10 @@ object JdkSymLink {
             result.asRight[JdkSymLinkError]
 
           case ProcessResult.Failure(code, error) =>
-            JdkSymLinkError.lsFailure(code, error.mkString("\n"), List("ls", "-l")).asLeft[List[String]]
+            JdkSymLinkError.LsFailure(code, error.mkString("\n"), List("ls", "-l")).asLeft[List[String]]
 
           case ProcessResult.FailureWithNonFatal(nonFatalThrowable) =>
-            JdkSymLinkError.commandFailure(nonFatalThrowable, List("ls", "-l")).asLeft[List[String]]
+            JdkSymLinkError.CommandFailure(nonFatalThrowable, List("ls", "-l")).asLeft[List[String]]
         })
         _          <- eitherTRightF[JdkSymLinkError](putStrLn(s"${list.mkString("\n")}\n"))
       } yield ()).value
@@ -154,7 +154,7 @@ object JdkSymLink {
               if (isNonSymLink) {
                 val path = s"$JavaBaseDirPath/jdk${JavaMajorVersion.render(javaMajorVersion)}"
                 eitherTLeftPure[List[String]](
-                  JdkSymLinkError.pathExistsAndNoSymLink(
+                  JdkSymLinkError.PathExistsAndNoSymLink(
                     path,
                     s"\n'$path' already exists and it's not a symbolic link so nothing will be done.",
                     List(
@@ -192,10 +192,10 @@ object JdkSymLink {
                       result.asRight[JdkSymLinkError]
 
                     case ProcessResult.Failure(code, error) =>
-                      JdkSymLinkError.lsFailure(code, error.mkString("\n"), rmCommandList).asLeft[List[String]]
+                      JdkSymLinkError.LsFailure(code, error.mkString("\n"), rmCommandList).asLeft[List[String]]
 
                     case ProcessResult.FailureWithNonFatal(nonFatalThrowable) =>
-                      JdkSymLinkError.commandFailure(nonFatalThrowable, rmCommandList).asLeft[List[String]]
+                      JdkSymLinkError.CommandFailure(nonFatalThrowable, rmCommandList).asLeft[List[String]]
                   })
 
                   lnCommandList <- eitherTRightPure(
@@ -212,7 +212,7 @@ object JdkSymLink {
 
                     case ProcessResult.Failure(code, error) =>
                       JdkSymLinkError
-                        .lsFailure(
+                        .LsFailure(
                           code,
                           error.mkString("\n"),
                           lnCommandList,
@@ -221,7 +221,7 @@ object JdkSymLink {
 
                     case ProcessResult.FailureWithNonFatal(nonFatalThrowable) =>
                       JdkSymLinkError
-                        .commandFailure(
+                        .CommandFailure(
                           nonFatalThrowable,
                           lnCommandList,
                         )
@@ -255,7 +255,7 @@ object JdkSymLink {
 
               case ProcessResult.Failure(code, error) =>
                 JdkSymLinkError
-                  .lsFailure(
+                  .LsFailure(
                     code,
                     error.mkString("\n"),
                     lnCommandList,
@@ -264,7 +264,7 @@ object JdkSymLink {
 
               case ProcessResult.FailureWithNonFatal(nonFatalThrowable) =>
                 JdkSymLinkError
-                  .commandFailure(
+                  .CommandFailure(
                     nonFatalThrowable,
                     lnCommandList,
                   )
