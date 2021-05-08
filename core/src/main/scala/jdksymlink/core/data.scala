@@ -37,7 +37,11 @@ object data {
   type NameAndVersion = (String, VerStr)
   given nameAndVersionEq: Eql[NameAndVersion] = CanEqual.derived
 
-  final case class VerStr(major: String, minor: Option[String], patch: Option[String]) derives Eql
+  final case class VerStr(
+    major: String,
+    minor: Option[String],
+    patch: Option[String]
+  ) derives Eql
 
   object VerStr {
 
