@@ -27,7 +27,7 @@ lazy val core = projectCommonSettings("core", ProjectName("core"), file("core"))
     buildInfoOptions += BuildInfoOption.ToJson
     /* } Build Info */
     /* publish { */,
-    licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
+    licenses := List("MIT" -> url("http://opensource.org/licenses/MIT")),
     /* } publish */
 
   )
