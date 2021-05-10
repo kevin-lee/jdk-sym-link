@@ -13,6 +13,7 @@ import scala.util.matching.Regex
 object data {
   type Eql[A] = CanEqual[A, A]
   given optionEql[A](using CanEqual[A, A]): Eql[Option[A]] = CanEqual.derived
+  given canEqualOption[T, U](using eq: CanEqual[T, U]): CanEqual[Option[T], Option[U]] = CanEqual.derived
 
   final val JavaBaseDirPath: String = "/Library/Java/JavaVirtualMachines"
   lazy val javaBaseDirFile: File = new File(JavaBaseDirPath)
