@@ -11,9 +11,17 @@ import scala.util.matching.Regex
  * @since 2015-04-03
  */
 object data {
-  type Eql[A] = CanEqual[A, A]
-  given optionEql[A](using CanEqual[A, A]): Eql[Option[A]] = CanEqual.derived
-  given canEqualOption[T, U](using eq: CanEqual[T, U]): CanEqual[Option[T], Option[U]] = CanEqual.derived
+  given canEqualOption[T](using eq: CanEqual[T, T]): CanEqual[Option[T], Option[T]] = CanEqual.derived // for `case None` in pattern matching
+  given canEqualOptions[T, U](using eq: CanEqual[T, U]): CanEqual[Option[T], Option[U]] = CanEqual.derived
+
+  given canEqualEither[L1, R1, L2, R2](
+    using eqL: CanEqual[L1, L2], eqR: CanEqual[R1, R2]
+  ): CanEqual[Either[L1, R1], Either[L2, R2]] = CanEqual.derived
+
+  given canEqualEmptyTuple: CanEqual[EmptyTuple, EmptyTuple] = CanEqual.derived
+  given canEqualTuple[H1, T1 <: Tuple, H2, T2 <: Tuple](
+    using eqHead: CanEqual[H1, H2], eqTail: CanEqual[T1, T2]
+  ): CanEqual[H1 *: T1, H2 *: T2] = CanEqual.derived
 
   final val JavaBaseDirPath: String = "/Library/Java/JavaVirtualMachines"
   lazy val javaBaseDirFile: File = new File(JavaBaseDirPath)
@@ -33,16 +41,14 @@ object data {
     def render(javaMajorVersion: JavaMajorVersion): String =
       javaMajorVersion.value.toString
   }
-  
-  
+
   type NameAndVersion = (String, VerStr)
-  given nameAndVersionEq: Eql[NameAndVersion] = CanEqual.derived
 
   final case class VerStr(
     major: String,
     minor: Option[String],
     patch: Option[String]
-  ) derives Eql
+  ) derives CanEqual
 
   object VerStr {
 

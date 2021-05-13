@@ -1,12 +1,11 @@
 package jdksymlink.core
 
-import data.Eql
 import java.io.{IOException, PrintWriter, StringWriter}
 
 /** @author Kevin Lee
   * @since 2019-12-25
   */
-enum JdkSymLinkError derives Eql {
+enum JdkSymLinkError derives CanEqual {
 
   case LsFailure(errorCode: Int, message: String, commands: List[String])
   case PathExistsAndNoSymLink(path: String, message: String, commands: List[String])
