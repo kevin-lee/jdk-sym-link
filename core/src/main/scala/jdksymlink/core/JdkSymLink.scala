@@ -10,7 +10,7 @@ import effectie.cats.Effectful._
 import effectie.cats.EitherTSupport._
 import effectie.cats.{ConsoleEffect, EffectConstructor}
 import effectie.instances.yesNoCanEqual
-import jdksymlink.core.data._
+import jdksymlink.core.data.{canEqualOption, canEqualEmptyTuple, canEqualTuple, _}
 import just.sysprocess._
 
 import java.io.File

@@ -2,14 +2,12 @@ package jdksymlink.core
 
 import scala.io.AnsiColor
 
-import data.Eql
-
 /** @author Kevin Lee
   * @since 2020-01-01
   */
 object Shell {
 
-  enum Color derives Eql {
+  enum Color derives CanEqual {
     case Black
     case Red
     case Green
