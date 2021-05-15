@@ -68,23 +68,28 @@ lazy val jdkSymLink = (project in file("."))
 
 lazy val props =
   new {
-    val GitHubUsername      = "Kevin-Lee"
-    val RepoName            = "jdk-sym-link"
-    val ProjectNamePrefix   = RepoName
-    val ProjectVersion      = SbtProjectInfo.ProjectVersion
-    val ProjectScalaVersion = "3.0.0-RC3"
+    final val GitHubUsername      = "Kevin-Lee"
+    final val RepoName            = "jdk-sym-link"
+    final val ProjectNamePrefix   = RepoName
+    final val ProjectVersion      = SbtProjectInfo.ProjectVersion
+    final val ProjectScalaVersion = "3.0.0"
 
-    val effectieVersion = "1.10.0"
-    val refinedVersion  = "0.9.24"
+    final val effectieVersion = "1.11.0"
+    final val refinedVersion  = "0.9.25"
 
-    val hedgehogVersion = "0.6.7"
+    final val catsVersion = "2.6.1"
+    final val catsEffectVersion = "2.5.1"
 
-    val pirateVersion = "main"
-    val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
+    final val hedgehogVersion = "0.7.0"
 
-    val IncludeTest: String = "compile->compile;test->test"
+    final val justSysprocessVersion = "0.8.0"
 
-    lazy val scala3cLanguageOptions =
+    final val pirateVersion = "main"
+    final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
+
+    final val IncludeTest = "compile->compile;test->test"
+
+    final  val scala3cLanguageOptions =
       "-language:" + List(
         "dynamics",
         "existentials",
@@ -105,17 +110,15 @@ lazy val libs =
       "qa.hedgehog" %% "hedgehog-sbt"    % props.hedgehogVersion % Test,
     )
 
-    lazy val justSysProcess = "io.kevinlee" %% "just-sysprocess" % "0.7.0"
-
-    lazy val newtype = "io.estatico" %% "newtype" % "0.4.4"
+    lazy val justSysProcess = "io.kevinlee" %% "just-sysprocess" % props.justSysprocessVersion
 
     lazy val refined = List(
       "eu.timepit" %% "refined" % props.refinedVersion
     )
 
     lazy val catsAndCatsEffect = List(
-      "org.typelevel" %% "cats-core"   % "2.6.0",
-      "org.typelevel" %% "cats-effect" % "2.5.0",
+      "org.typelevel" %% "cats-core"   % props.catsVersion,
+      "org.typelevel" %% "cats-effect" % props.catsEffectVersion,
     )
 
     lazy val effectie = List(
