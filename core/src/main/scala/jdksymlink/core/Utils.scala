@@ -1,8 +1,8 @@
 package jdksymlink.core
 
-import cats.syntax.all._
+import cats.syntax.all.*
 
-import data._
+import data.*
 
 import scala.sys.process.Process
 
@@ -17,15 +17,15 @@ object Utils {
 
   def extractVersion(name: String): Option[NameAndVersion] = name match {
     case Before9Pattern(major, minor, patch) =>
-      Some((name, VerStr(major, Option(minor), Option(patch))))
+      (name, VerStr(major, Option(minor), Option(patch))).some
     case From9Pattern(major, minor, patch) =>
-      Some((name, VerStr(major, Option(minor), Option(patch))))
+      (name, VerStr(major, Option(minor), Option(patch))).some
     case From9PatternWithOnlyVersion(major) =>
-      Some((name, VerStr(major, None, None)))
+      (name, VerStr(major, None, None)).some
     case Before9AdoptOpenJdkPattern(major) =>
-      Some((name, VerStr(major, None, None)))
+      (name, VerStr(major, None, None)).some
     case _ =>
-      None
+      none[NameAndVersion]
   }
 
   def names(javaMajorVersion: JavaMajorVersion): Vector[NameAndVersion] =

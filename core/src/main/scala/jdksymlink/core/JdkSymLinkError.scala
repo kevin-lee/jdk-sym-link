@@ -15,7 +15,7 @@ enum JdkSymLinkError derives CanEqual {
 
 object JdkSymLinkError {
 
-  import Shell.ColoredString._
+  import Shell.ColoredString.*
 
   extension (jdkSymLinkError: JdkSymLinkError) {
     def render: String = jdkSymLinkError match {
