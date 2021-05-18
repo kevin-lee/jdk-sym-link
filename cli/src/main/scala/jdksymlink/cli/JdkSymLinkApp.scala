@@ -1,13 +1,13 @@
 package jdksymlink.cli
 
-import pirate._
-import Pirate._
-import piratex._
+import pirate.*
+import Pirate.*
+import piratex.*
 
-import scalaz._
-import Scalaz._
+import scalaz.*
+import Scalaz.*
 
-import cats.effect._
+import cats.effect.*
 
 import jdksymlink.core.{JdkSymLink, JdkSymLinkError}
 import jdksymlink.core.data.{JavaMajorVersion, javaBaseDirFile, JavaBaseDirPath}
@@ -24,7 +24,7 @@ object JdkSymLinkApp extends MainIo[JdkSymLinkArgs] {
   val symLinkJdkParser: Parse[JdkSymLinkArgs] =
     JdkSymLinkArgs.SymLinkArgs.apply |*|
       argument[Int](
-        metavar("<java-version>") |+| description("Java version e.g.) 8, 11, 13")
+        metavar("<java-version>") |+| description("Java version e.g.) 8, 11, 16")
       ).map(JavaMajorVersion.apply)
 
   val rawCmd: Command[JdkSymLinkArgs] = Command(

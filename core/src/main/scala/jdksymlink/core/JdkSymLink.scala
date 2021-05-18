@@ -1,21 +1,23 @@
 package jdksymlink.core
 
 import Utils._
-import cats._
+import cats.*
 import cats.data.EitherT
-import cats.syntax.all._
+import cats.syntax.all.*
 import effectie.YesNo
-import effectie.cats.ConsoleEffectful._
-import effectie.cats.Effectful._
-import effectie.cats.EitherTSupport._
+import effectie.cats.ConsoleEffectful.*
+import effectie.cats.Effectful.*
+import effectie.cats.EitherTSupport.*
 import effectie.cats.{ConsoleEffect, EffectConstructor}
 import effectie.instances.yesNoCanEqual
-import jdksymlink.core.data.{canEqualOption, canEqualEmptyTuple, canEqualTuple, _}
-import just.sysprocess._
+import jdksymlink.core.data.*
+import just.sysprocess.*
+
+import jdksymlink.instances.all.given
 
 import java.io.File
 import scala.language.postfixOps
-import sys.process._
+import sys.process.*
 
 /** #############################################
   * ## Simple Scala script to create           ##
