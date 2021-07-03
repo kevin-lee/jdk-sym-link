@@ -1,15 +1,15 @@
 package jdksymlink.cli
 
-import cats.effect._
-import cats.syntax.all._
+import cats.effect.*
+import cats.syntax.all.*
 
 import effectie.cats.ConsoleEffect
 
 import jdksymlink.core.JdkSymLinkError
 
-import pirate.{ExitCode => PirateExitCode, _}
+import pirate.{ExitCode => PirateExitCode, *}
 
-import scalaz._
+import scalaz.*
 
 
 /**
@@ -20,7 +20,9 @@ trait MainIo[A] {
 
   def command: Command[A]
 
-  def run(a: A): IO[JdkSymLinkError \/ Unit]
+  def run(a: A): IO[Either[JdkSymLinkError, Unit]]
+  private def run0(a: A): IO[JdkSymLinkError \/ Unit] =
+    run(a).map(\/.fromEither(_))
 
   def prefs: Prefs = DefaultPrefs()
 
@@ -35,7 +37,7 @@ trait MainIo[A] {
 
   def main(args: Array[String]): Unit = (for {
     codeOrA <- getArgs(args, command, prefs)
-    errorOrResult <- codeOrA.fold[IO[JdkSymLinkError \/ Unit]](exitWithPirate, run)
+    errorOrResult <- codeOrA.fold[IO[JdkSymLinkError \/ Unit]](exitWithPirate, run0)
     _ <- errorOrResult.fold(
       err => ConsoleEffect[IO].putStrLn(err.render) >>
         exitWith(ExitCode.Error)
