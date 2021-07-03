@@ -74,6 +74,8 @@ lazy val props =
     final val ProjectVersion      = SbtProjectInfo.ProjectVersion
     final val ProjectScalaVersion = "3.0.0"
 
+    final val canEqualVersion = "0.1.0"
+
     final val effectieVersion = "1.11.0"
     final val refinedVersion  = "0.9.25"
 
@@ -112,6 +114,8 @@ lazy val libs =
 
     lazy val justSysProcess = "io.kevinlee" %% "just-sysprocess" % props.justSysprocessVersion
 
+    lazy val canEqual = "io.kevinlee" %% "can-equal" % props.canEqualVersion
+
     lazy val refined = List(
       "eu.timepit" %% "refined" % props.refinedVersion
     )
@@ -145,6 +149,6 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
   Project(id, file)
     .settings(
       name := prefixedProjectName(projectName.projectName),
-      libraryDependencies ++= libs.hedgehogLibs ++ libs.refined,
+      libraryDependencies ++= List(libs.canEqual) ++ libs.hedgehogLibs ++ libs.refined,
       testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework")),
     )

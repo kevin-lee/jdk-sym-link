@@ -5,7 +5,7 @@ import java.io.File
 import cats.syntax.all.*
 
 import scala.util.matching.Regex
-import jdksymlink.instances.all.given
+import canequal.all.given
 
 /**
  * @author Kevin Lee

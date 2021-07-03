@@ -13,7 +13,7 @@ import effectie.instances.yesNoCanEqual
 import jdksymlink.core.data.*
 import just.sysprocess.*
 
-import jdksymlink.instances.all.given
+import canequal.all.given
 
 import java.io.File
 import scala.language.postfixOps
