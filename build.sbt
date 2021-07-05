@@ -137,14 +137,6 @@ def prefixedProjectName(name: String) = s"${props.RepoName}${if (name.isEmpty)
 else
   s"-$name"}"
 
-def scalacOptionsPostProcess(scalaSemVer: SemVer, options: Seq[String]): Seq[String] =
-  scalaSemVer match {
-    case SemVer(SemVer.Major(3), SemVer.Minor(0), SemVer.Patch(_), _, _) =>
-      Seq(props.scala3cLanguageOptions)
-    case _: SemVer                                                       =>
-      options.distinct
-  }
-
 def projectCommonSettings(id: String, projectName: ProjectName, file: File): Project =
   Project(id, file)
     .settings(
