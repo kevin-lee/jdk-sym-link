@@ -19,7 +19,7 @@ lazy val core = projectCommonSettings("core", ProjectName("core"), file("core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
     libraryDependencies ++=
-      List(libs.justSysProcess) ++ libs.catsAndCatsEffect ++ libs.effectie
+      List(libs.justSysProcess) ++ libs.catsAndCatsEffect ++ libs.effectie ++ List(libs.extrasCats)
     /* Build Info { */,
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoObject := "JdkSymLinkBuildInfo",
@@ -76,15 +76,17 @@ lazy val props =
 
     final val canEqualVersion = "0.1.0"
 
-    final val effectieVersion = "1.11.0"
+    final val effectieVersion = "1.15.0"
     final val refinedVersion  = "0.9.25"
 
     final val catsVersion = "2.6.1"
-    final val catsEffectVersion = "2.5.1"
+    final val catsEffectVersion = "2.5.4"
+
+    final val ExtrasVersion = "0.1.0"
 
     final val hedgehogVersion = "0.7.0"
 
-    final val justSysprocessVersion = "0.8.0"
+    final val justSysprocessVersion = "1.0.0"
 
     final val pirateVersion = "main"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
@@ -129,6 +131,8 @@ lazy val libs =
       "io.kevinlee" %% "effectie-cats-effect"   % props.effectieVersion,
       "io.kevinlee" %% "effectie-scalaz-effect" % props.effectieVersion,
     )
+
+    lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion
 
   }
 
