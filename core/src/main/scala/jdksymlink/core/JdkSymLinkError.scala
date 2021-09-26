@@ -1,5 +1,7 @@
 package jdksymlink.core
 
+import cats.data.NonEmptyList
+
 import java.io.{IOException, PrintWriter, StringWriter}
 
 /** @author Kevin Lee
@@ -49,6 +51,7 @@ object JdkSymLinkError {
                |""".stripMargin
 
         }
+
     }
 
   }

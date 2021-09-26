@@ -1,27 +1,24 @@
 package jdksymlink.cli
 
 import cats.effect.*
+import cats.data.NonEmptyList
 import cats.syntax.all.*
-
 import effectie.cats.ConsoleEffect
-
 import jdksymlink.core.JdkSymLinkError
-
-import pirate.{ExitCode => PirateExitCode, *}
-
+import pirate.{ExitCode as PirateExitCode, *}
 import scalaz.*
 
+import scala.io.AnsiColor
 
-/**
- * @author Kevin Lee
- * @since 2019-12-09
- */
+/** @author Kevin Lee
+  * @since 2019-12-09
+  */
 trait MainIo[A] {
 
   def command: Command[A]
 
-  def run(a: A): IO[Either[JdkSymLinkError, Unit]]
-  private def run0(a: A): IO[JdkSymLinkError \/ Unit] =
+  def run(a: A): IO[Either[NonEmptyList[JdkSymLinkError], Unit]]
+  private def run0(a: A): IO[NonEmptyList[JdkSymLinkError] \/ Unit] =
     run(a).map(\/.fromEither(_))
 
   def prefs: Prefs = DefaultPrefs()
@@ -36,13 +33,19 @@ trait MainIo[A] {
     IO(Runners.runWithExit[A](args.toList, command, prefs).unsafePerformIO())
 
   def main(args: Array[String]): Unit = (for {
-    codeOrA <- getArgs(args, command, prefs)
-    errorOrResult <- codeOrA.fold[IO[JdkSymLinkError \/ Unit]](exitWithPirate, run0)
-    _ <- errorOrResult.fold(
-      err => ConsoleEffect[IO].putStrLn(err.render) >>
-        exitWith(ExitCode.Error)
-      , IO(_)
-    )
+    codeOrA       <- getArgs(args, command, prefs)
+    errorOrResult <- codeOrA.fold[IO[NonEmptyList[JdkSymLinkError] \/ Unit]](exitWithPirate, run0)
+    _             <- errorOrResult.fold(
+                       errs =>
+                         ConsoleEffect[IO].putStrLn(
+                           errs
+                             .map(_.render)
+                             .toList
+                             .mkString(s"${AnsiColor.RED}Error:${AnsiColor.RESET}\n- ", "\n- ", "\n")
+                         ) >>
+                           exitWith(ExitCode.Error),
+                       IO(_)
+                     )
   } yield ())
     .unsafeRunSync()
 
