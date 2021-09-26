@@ -27,8 +27,7 @@ object JdkSymLinkError {
            |""".stripMargin
 
       case PathExistsAndNoSymLink(path, message, commands) =>
-        s"""${
-        s"""Failed to run ${commands.mkString(" ")}
+        s"""${s"""Failed to run ${commands.mkString(" ")}
            |Error""".stripMargin.red}: $message
            |  when running ${commands.mkString("[", " ", "]")}
            |""".stripMargin
@@ -37,12 +36,13 @@ object JdkSymLinkError {
         val out         = new StringWriter()
         val printWriter = new PrintWriter(out)
         throwable.printStackTrace(printWriter)
-        val stackTrace = out.toString
+        val stackTrace  = out.toString
         throwable match {
           case ex: IOException =>
             s"""${"Error".red} when running ${commands.mkString("[", " ", "]")}:
                |  - ${ex.getMessage}
                |""".stripMargin
+
           case _ =>
             s"""${"Error".red} when running ${commands.mkString("[", " ", "]")}:
                |$stackTrace
