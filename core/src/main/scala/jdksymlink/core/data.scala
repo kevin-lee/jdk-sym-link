@@ -46,7 +46,7 @@ object data {
       def compare(x: VerStr, y: VerStr): Int = (x, y) match {
         case (VerStr(v1, m1, mn1), VerStr(v2, m2, mn2)) =>
           val v = v1.toInt.compare(v2.toInt)
-          if (v =!= 0) {
+          if (v != 0) {
             v
           } else {
 
@@ -73,7 +73,7 @@ object data {
                 -1
               case ((Some(major1), None), (Some(major2), Some(_))) =>
                 val m = major1.toInt.compareTo(major2.toInt)
-                if (m === 0)
+                if (m == 0)
                   -1
                 else
                   m
@@ -81,7 +81,7 @@ object data {
                 1
               case ((Some(major1), Some(_)), (Some(major2), None)) =>
                 val m = major1.toInt.compareTo(major2.toInt)
-                if (m === 0)
+                if (m == 0)
                   1
                 else
                   m
@@ -95,7 +95,7 @@ object data {
                 val minorInt1 = minor1.toInt
                 val minorInt2 = minor2.toInt
                 val major = majorInt1.compare(majorInt2)
-                if (major =!= 0)
+                if (major != 0)
                   major
                 else
                   minorInt1.compare(minorInt2)
