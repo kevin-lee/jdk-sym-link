@@ -49,26 +49,35 @@ object JdkSymLink {
 
     def listAll(javaBaseDirPath: JvmBaseDirPath, javaBaseDir: File): F[Either[JdkSymLinkError, Unit]] =
       (for {
-        _ <- putStrLn(
-               s"""
-                  |$$ ls -l ${javaBaseDirPath.value}
-                  |""".stripMargin
-             ).rightT
+        dirNotExists <- effectOf(!javaBaseDirPath.toPath.dirExist).rightT
+        _            <- if (dirNotExists) then putStrLn(s"${javaBaseDirPath.value} does not exist.").rightT
+                        else
+                          for {
+                            _ <- putStrLn(
+                                   s"""
+                                      |$$ ls -l ${javaBaseDirPath.value}
+                                      |""".stripMargin
+                                 ).rightT
 
-        sysProcess <- pureOf(SysProcess.singleSysProcess(Option(javaBaseDir), "ls", "-l")).rightT
-        result     <- effectOf(sysProcess.run())
-                        .eitherT
-                        .transform {
-                          case Right(ProcessResult(result)) =>
-                            result.asRight[JdkSymLinkError]
+                            sysProcess <- pureOf(SysProcess.singleSysProcess(Option(javaBaseDir), "ls", "-l")).rightT
+                            result     <- effectOf(sysProcess.run())
+                                            .eitherT
+                                            .transform {
+                                              case Right(ProcessResult(result)) =>
+                                                result.asRight[JdkSymLinkError]
 
-                          case Left(ProcessError.Failure(code, error)) =>
-                            JdkSymLinkError.LsFailure(code, error.mkString("\n"), List("ls", "-l")).asLeft[List[String]]
+                                              case Left(ProcessError.Failure(code, error)) =>
+                                                JdkSymLinkError
+                                                  .LsFailure(code, error.mkString("\n"), List("ls", "-l"))
+                                                  .asLeft[List[String]]
 
-                          case Left(ProcessError.FailureWithNonFatal(nonFatalThrowable)) =>
-                            JdkSymLinkError.CommandFailure(nonFatalThrowable, List("ls", "-l")).asLeft[List[String]]
-                        }
-        _          <- putStrLn(s"${result.mkString("\n")}\n").rightT[JdkSymLinkError]
+                                              case Left(ProcessError.FailureWithNonFatal(nonFatalThrowable)) =>
+                                                JdkSymLinkError
+                                                  .CommandFailure(nonFatalThrowable, List("ls", "-l"))
+                                                  .asLeft[List[String]]
+                                            }
+                            _          <- putStrLn(s"${result.mkString("\n")}\n").rightT[JdkSymLinkError]
+                          } yield ()
       } yield ()).value
 
     def slink(
@@ -79,8 +88,10 @@ object JdkSymLink {
       (for {
         jdkNameVersions  <- jdkSourcePaths
                               .toList
-                              .flatMap {
-                                case (path, extractVersion) =>
+                              .filter { (path, _) =>
+                                path.toPath.dirExist
+                              }
+                              .flatMap { (path, extractVersion) =>
                                   val jdkPathFile     = File(path.value)
                                   val nameAndVersions = names(javaMajorVersion, jdkPathFile, extractVersion)
                                   nameAndVersions.map(a => (path, a))
