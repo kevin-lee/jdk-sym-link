@@ -36,7 +36,7 @@ object data {
   }
 
   object Coursier {
-    val CoursierJavaBaseDirPath    = JvmBaseDirPath(s"${sys.props("user.home")}/Library/Caches/Coursier/jvm")
+    val CoursierJavaBaseDirPath    = JvmBaseDirPath(s"${sys.env("HOME")}/Library/Caches/Coursier/jvm")
     lazy val coursierJavaBaseDirFile: File = new File(CoursierJavaBaseDirPath.value)
     val AdoptOpenJdkPattern                = """adopt@(?:\d+)\.(\d+)\.(\d+)(?:-)([\d]+)?""".r
     val ZuluOpenJdkPattern                 = """zulu@(?:\d+)\.(\d+)\.(\d+)(?:-)([\d]+)?""".r
