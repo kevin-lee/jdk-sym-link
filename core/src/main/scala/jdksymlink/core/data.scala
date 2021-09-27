@@ -12,14 +12,14 @@ import jdksymlink.core.data.Path
   * @since 2015-04-03
   */
 object data {
-  
+
   type Path = Path.Path
   object Path {
     opaque type Path = String
     def apply(path: String): Path = path
-    
+
     given pathCanEqual: CanEqual[Path, Path] = CanEqual.derived
-    
+
     extension (path: Path) {
       def value: String = path
 
@@ -44,13 +44,12 @@ object data {
 
     extension (jvmBaseDirPath: JvmBaseDirPath) {
       def value: String = jvmBaseDirPath
-      def toPath: Path = Path(value)
+      def toPath: Path  = Path(value)
     }
   }
-  
 
   object DefaultJdk {
-    final val JavaBaseDirPath = JvmBaseDirPath("/Library/Java/JavaVirtualMachines")
+    final val JavaBaseDirPath      = JvmBaseDirPath("/Library/Java/JavaVirtualMachines")
     lazy val javaBaseDirFile: File = new File(JavaBaseDirPath.value)
 
     val Before9Pattern: Regex              = """[^-]+1\.(\d)\.(\d)_(\d+)\.jdk$""".r
@@ -60,7 +59,9 @@ object data {
   }
 
   object Coursier {
-    val CoursierJavaBaseDirPath            = JvmBaseDirPath(s"${sys.env("HOME")}/Library/Caches/Coursier/jvm")
+    def homeDir: String = sys.env("HOME")
+
+    lazy val CoursierJavaBaseDirPath       = JvmBaseDirPath(s"$homeDir/Library/Caches/Coursier/jvm")
     lazy val coursierJavaBaseDirFile: File = new File(CoursierJavaBaseDirPath.value)
     val AdoptOpenJdkPattern                = """adopt@(?:\d+)\.(\d+)\.(\d+)(?:-)([\d]+)?""".r
     val ZuluOpenJdkPattern                 = """zulu@(?:\d+)\.(\d+)\.(\d+)(?:-)([\d]+)?""".r
