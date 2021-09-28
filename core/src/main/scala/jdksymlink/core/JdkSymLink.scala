@@ -166,7 +166,6 @@ object JdkSymLink {
       javaBaseDirFile: File
     ): F[Either[JdkSymLinkError, String]] = (for {
       javaBaseDir          <- pureOf(Option(javaBaseDirFile)).rightT
-      _                     = println(s"javaBaseDir: $javaBaseDir")
       before               <- pureOf(s"""${Process(s"ls -l", javaBaseDir) !!}""".stripMargin).rightT
       lsResultLogger       <- pureOf(
                                 ProcessLogger(
