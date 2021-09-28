@@ -89,12 +89,12 @@ object JdkSymLink {
         jdkNameVersions  <- jdkSourcePaths
                               .toList
                               .filter { (path, _) =>
-                                path.toPath.dirExist
+                                path.toPath.dirExist && path.toPath.nonEmptyInside
                               }
                               .flatMap { (path, extractVersion) =>
-                                  val jdkPathFile     = File(path.value)
-                                  val nameAndVersions = names(javaMajorVersion, jdkPathFile, extractVersion)
-                                  nameAndVersions.map(a => (path, a))
+                                val jdkPathFile     = File(path.value)
+                                val nameAndVersions = names(javaMajorVersion, jdkPathFile, extractVersion)
+                                nameAndVersions.map(a => (path, a))
                               }
                               .rightTF
         maybeNameVersion <- askUserToSelectJdk(jdkNameVersions).rightT
