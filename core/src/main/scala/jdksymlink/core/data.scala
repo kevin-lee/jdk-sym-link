@@ -32,6 +32,11 @@ object data {
         import sys.process.*
         List("[", "-f", path.value, "]").! == 0
       }
+
+      def nonEmptyInside: Boolean = {
+        import sys.process.*
+        s"ls -A ${path.value}".lazyLines.nonEmpty
+      }
     }
   }
 
