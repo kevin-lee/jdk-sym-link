@@ -115,12 +115,12 @@ object Shell {
       def colored(color: Color): String =
         s"${color.toAnsi}$text${Color.Reset.toAnsi}"
 
-      def bold: String = colored(Color.Bold)
+      def bold: String       = colored(Color.Bold)
       def underlined: String = colored(Color.Underlined)
 
-      def red: String = colored(Color.Red)
+      def red: String   = colored(Color.Red)
       def green: String = colored(Color.Green)
-      def blue: String = colored(Color.Blue)
+      def blue: String  = colored(Color.Blue)
     }
   }
 
