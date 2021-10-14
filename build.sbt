@@ -1,13 +1,13 @@
 import SbtProjectInfo._
 import just.semver.SemVer
 
-ThisBuild / organization := "io.kevinlee"
-ThisBuild / version := props.ProjectVersion
+ThisBuild / organization := props.Org
+ThisBuild / version      := props.ProjectVersion
 ThisBuild / scalaVersion := props.ProjectScalaVersion
-ThisBuild / developers := List(
+ThisBuild / developers   := List(
   Developer("Kevin-Lee", "Kevin Lee", "kevin.code@kevinlee.io", url("https://github.com/Kevin-Lee"))
 )
-ThisBuild / scmInfo :=
+ThisBuild / scmInfo      :=
   Some(
     ScmInfo(
       url("https://github.com/Kevin-Lee/jdk-symbolic-link"),
@@ -21,13 +21,13 @@ lazy val core = projectCommonSettings("core", ProjectName("core"), file("core"))
     libraryDependencies ++=
       List(libs.justSysProcess) ++ libs.catsAndCatsEffect ++ libs.effectie ++ List(libs.extrasCats)
     /* Build Info { */,
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoObject := "JdkSymLinkBuildInfo",
+    buildInfoKeys    := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoObject  := "JdkSymLinkBuildInfo",
     buildInfoPackage := "jdksymlink.info",
     buildInfoOptions += BuildInfoOption.ToJson
     /* } Build Info */
     /* publish { */,
-    licenses := List("MIT" -> url("http://opensource.org/licenses/MIT")),
+    licenses         := List("MIT" -> url("http://opensource.org/licenses/MIT")),
     /* } publish */
 
   )
@@ -37,9 +37,9 @@ lazy val pirate = ProjectRef(props.pirateUri, "pirate")
 lazy val cli = projectCommonSettings("cli", ProjectName("cli"), file("cli"))
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
-    maintainer := "Kevin Lee <kevin.code@kevinlee.io>",
-    packageSummary := "JdkSymLink",
-    packageDescription := "A tool to create JDK symbolic links",
+    maintainer           := "Kevin Lee <kevin.code@kevinlee.io>",
+    packageSummary       := "JdkSymLink",
+    packageDescription   := "A tool to create JDK symbolic links",
     executableScriptName := props.ProjectNamePrefix,
     nativeImageOptions ++= Seq(
       "--verbose",
@@ -56,7 +56,7 @@ lazy val cli = projectCommonSettings("cli", ProjectName("cli"), file("cli"))
 lazy val jdkSymLink = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin)
   .settings(
-    name := props.ProjectNamePrefix,
+    name                     := props.ProjectNamePrefix,
     /* GitHub Release { */
     devOopsPackagedArtifacts := List(
       "cli/target/native-image/jdk-sym-link-cli"
@@ -68,6 +68,7 @@ lazy val jdkSymLink = (project in file("."))
 
 lazy val props =
   new {
+    final val Org                 = "io.kevinlee"
     final val GitHubUsername      = "Kevin-Lee"
     final val RepoName            = "jdk-sym-link"
     final val ProjectNamePrefix   = RepoName
@@ -79,7 +80,7 @@ lazy val props =
     final val effectieVersion = "1.15.0"
     final val refinedVersion  = "0.9.25"
 
-    final val catsVersion = "2.6.1"
+    final val catsVersion       = "2.6.1"
     final val catsEffectVersion = "2.5.4"
 
     final val ExtrasVersion = "0.1.0"
@@ -93,7 +94,7 @@ lazy val props =
 
     final val IncludeTest = "compile->compile;test->test"
 
-    final  val scala3cLanguageOptions =
+    final val scala3cLanguageOptions =
       "-language:" + List(
         "dynamics",
         "existentials",
