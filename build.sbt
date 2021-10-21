@@ -1,5 +1,4 @@
 import SbtProjectInfo._
-import just.semver.SemVer
 
 ThisBuild / organization := props.Org
 ThisBuild / version      := props.ProjectVersion
@@ -73,7 +72,7 @@ lazy val props =
     final val RepoName            = "jdk-sym-link"
     final val ProjectNamePrefix   = RepoName
     final val ProjectVersion      = SbtProjectInfo.ProjectVersion
-    final val ProjectScalaVersion = "3.0.2"
+    final val ProjectScalaVersion = "3.1.0"
 
     final val canEqualVersion = "0.1.1"
 
@@ -89,20 +88,10 @@ lazy val props =
 
     final val justSysprocessVersion = "1.0.0"
 
-    final val pirateVersion = "main"
+    final val pirateVersion = "deec3408b08a751de9b2df2d17fc1ab7b8daeaaf"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest = "compile->compile;test->test"
-
-    final val scala3cLanguageOptions =
-      "-language:" + List(
-        "dynamics",
-        "existentials",
-        "higherKinds",
-        "reflectiveCalls",
-        "experimental.macros",
-        "implicitConversions",
-      ).mkString(",")
 
   }
 
@@ -146,6 +135,7 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
   Project(id, file)
     .settings(
       name := prefixedProjectName(projectName.projectName),
-      libraryDependencies ++= List(libs.canEqual) ++ libs.hedgehogLibs ++ libs.refined,
+      useAggressiveScalacOptions := true,
+      libraryDependencies ++= libs.hedgehogLibs ++ libs.refined,
       testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework")),
     )
