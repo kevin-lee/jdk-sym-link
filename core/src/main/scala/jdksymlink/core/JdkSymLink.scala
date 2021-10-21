@@ -12,8 +12,6 @@ import effectie.cats.{ConsoleEffect, EffectConstructor}
 import jdksymlink.core.data.*
 import just.sysprocess.*
 
-import canequal.all.given
-
 import java.io.File
 import scala.language.postfixOps
 import sys.process.*

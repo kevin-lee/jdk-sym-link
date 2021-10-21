@@ -5,7 +5,6 @@ import java.io.File
 import cats.syntax.all.*
 
 import scala.util.matching.Regex
-import canequal.all
 import jdksymlink.core.data.Path
 
 /** @author Kevin Lee
