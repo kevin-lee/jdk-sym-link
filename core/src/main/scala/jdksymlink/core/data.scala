@@ -67,6 +67,8 @@ object data {
 
     lazy val CoursierJavaBaseDirPath       = JvmBaseDirPath(s"$homeDir/Library/Caches/Coursier/jvm")
     lazy val coursierJavaBaseDirFile: File = new File(CoursierJavaBaseDirPath.value)
+//    temurin-debugimage:1.8.0-302
+    val TemurinPattern                     = """temurin(-[a-zA-Z]+)?@(?:\d+)\.(\d+)(?:\.(\d+))?(?:[-\.]([\d]+))?""".r
     val AdoptOpenJdkPattern                = """adopt@(?:\d+)\.(\d+)\.(\d+)(?:-)([\d]+)?""".r
     val ZuluOpenJdkPattern                 = """zulu@(?:\d+)\.(\d+)\.(\d+)(?:-)([\d]+)?""".r
     val AmazonCorrettoOpenJdkPattern       = """amazon-corretto@(?:\d+)\.(\d+)\.(\d+)(?:-)((?:[\d]+)(?:\.[\d]+)*)?""".r
