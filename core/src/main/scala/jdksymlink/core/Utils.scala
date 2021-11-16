@@ -28,6 +28,8 @@ object Utils {
   }
 
   def extractCoursierJavaVersion(name: String): Option[NameAndVersion] = name match {
+    case Coursier.TemurinPattern(_, major, minor, patch)            =>
+      (name, VerStr(major, Option(minor), Option(patch))).some
     case Coursier.AdoptOpenJdkPattern(major, minor, patch)          =>
       (name, VerStr(major, Option(minor), Option(patch))).some
     case Coursier.ZuluOpenJdkPattern(major, minor, patch)           =>
