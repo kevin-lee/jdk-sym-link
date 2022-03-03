@@ -6,8 +6,9 @@ app_original_executable_name=jdk-sym-link
 app_executable_name=jdkslink
 app_name=jdk-sym-link-cli
 app_version=${1:-0.8.0}
-app_package_file="${app_name}"
-download_url="https://github.com/Kevin-Lee/jdk-sym-link/releases/download/v${app_version}/${app_package_file}"
+versioned_app_name="${app_name}-${app_version}"
+app_zip_file="${versioned_app_name}.zip"
+download_url="https://github.com/Kevin-Lee/jdk-sym-link/releases/download/v${app_version}/${app_zip_file}"
 
 usr_local_path="/usr/local"
 opt_location="${usr_local_path}/opt"
@@ -19,7 +20,8 @@ app_bin_path="${usr_local_bin_path}/${app_executable_name}"
 echo "app_executable_name=${app_executable_name}"
 echo "app_name=${app_name}"
 echo "app_version=${app_version}"
-echo "app_package_file=${app_package_file}"
+echo "versioned_app_name=${versioned_app_name}"
+echo "app_zip_file=${app_zip_file}"
 echo "download_url=${download_url}"
 
 echo "usr_local_path=${usr_local_path}"
@@ -31,14 +33,13 @@ echo "app_bin_path=${app_bin_path}"
 
 cd /tmp
 
-curl -Lo $app_package_file $download_url
+curl -Lo $app_zip_file $download_url
 
-ls -l $app_package_file || { echo "jdk-sym-link version ${app_version} doesn't seem to exist." && false ; }
-chmod ug+x $app_package_file
+unzip $app_zip_file || { echo "jdk-sym-link version ${app_version} doesn't seem to exist." && rm $app_zip_file && false ; }
 
+mkdir -p $opt_location
 rm -R $app_location || true
-mkdir -p $app_location
-mv $app_package_file $installed_app_bin_path
+mv $versioned_app_name $app_location
 
 echo ""
 { rm $app_bin_path && { echo "The existing $app_bin_path was found so it was removed." ; } } || { echo "No existing $app_bin_path was found. It's OK. Please ignore the 'No such file or directory' message." ; }
