@@ -11,6 +11,7 @@ on:
 
 env:
   GH_JAVA_VERSION: "adopt@1.11"
+  GH_JVM_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=1G -Xmx2G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
   CLI_SCALA_BINARY_VERSION: "3.0.0-RC3"
   GRAALVM_BIN_DIR_NAME: "native-image"
 
@@ -66,6 +67,58 @@ jobs:
           echo "PR #${PR_NUMBER}"
           java -version
           .github/workflows/sbt-build-all.sh
+
+  packager-build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest]
+        run-binary: [jdk-sym-link-cli]
+
+    steps:
+      - uses: actions/checkout@v2.4.0
+        with:
+          fetch-depth: 0
+      - uses: olafurpg/setup-scala@v13
+        with:
+          java-version: ${{ env.GH_JAVA_VERSION }}
+
+      - name: Cache SBT
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.cache/coursier
+            ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-
+
+      - name: "JVM Package Build - ${{ github.run_number }}"
+        env:
+          CURRENT_BRANCH_NAME: ${{ github.ref }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_NUMBER: ${{ github.run_number }}
+          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+        run: |
+            echo "Run]"
+            export SOURCE_DATE_EPOCH=$(date +%s)
+            echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
+            echo "JVM_OPTS=${JVM_OPTS}"
+            echo "SBT_OPTS=${SBT_OPTS}"
+            echo 'sbt sbt clean test universal:packageBin'
+            sbt \
+              clean \
+              test \
+              universal:packageBin
+          
+            cd cli/target/universal
+            ls -l ${{ matrix.run-binary }}-*.zip
+            unzip ${{ matrix.run-binary }}-*.zip
+            rm ${{ matrix.run-binary }}-*.zip
+            mv ${{ matrix.run-binary }}-* ${{ matrix.run-binary }}
+            cd ${{ matrix.run-binary }}/bin
+            ./jdk-sym-link --version
 
   graalvm-build:
     runs-on: ${{ matrix.os }}

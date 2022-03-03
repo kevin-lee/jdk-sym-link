@@ -7,7 +7,8 @@ on:
 
 env:
   GH_JAVA_VERSION: "adopt@1.11"
-  CLI_SCALA_BINARY_VERSION: "3.0.0-RC3"
+  GH_JVM_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=1G -Xmx2G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
+  CLI_SCALA_BINARY_VERSION: "3"
   GRAALVM_BIN_DIR_NAME: "native-image"
 
 jobs:
@@ -41,6 +42,49 @@ jobs:
           sbt \
             -J-Xmx2048m \
             devOopsGitHubRelease
+
+
+  packager-gh-release:
+    needs: gh-release
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2.4.0
+        with:
+          fetch-depth: 0
+      - uses: olafurpg/setup-scala@v13
+        with:
+          java-version: ${{ env.GH_JAVA_VERSION }}
+
+      - name: Cache SBT
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.cache/coursier
+            ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-
+
+      - name: "sbt GitHub Release and Publish tag for ${{ matrix.scala.name }} ${{ matrix.scala.version }} - ${{ github.run_number }}"
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
+          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+        run: |
+          echo "Run] sbt cli package release"
+          export SOURCE_DATE_EPOCH=$(date +%s)
+          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
+          echo "JVM_OPTS=${JVM_OPTS}"
+          echo "SBT_OPTS=${SBT_OPTS}"
+          echo 'sbt -v clean test universal:packageBin devOopsGitHubReleaseUploadArtifacts'
+          sbt \
+            clean \
+            test \
+            universal:packageBin \
+            devOopsGitHubReleaseUploadArtifacts
 
 
   graalvm-gh-release:
