@@ -12,7 +12,7 @@ env:
   GRAALVM_BIN_DIR_NAME: "native-image"
 
 jobs:
-  github-release:
+  gh-release:
 
     runs-on: ubuntu-latest
 
@@ -88,7 +88,7 @@ jobs:
 
 
   graalvm-gh-release:
-    needs: github-release
+    needs: gh-release
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
