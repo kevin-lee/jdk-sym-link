@@ -13,7 +13,7 @@ download_url="https://github.com/Kevin-Lee/jdk-sym-link/releases/download/v${app
 usr_local_path="/usr/local"
 opt_location="${usr_local_path}/opt"
 app_location="${opt_location}/${app_name}"
-installed_app_bin_path="${app_location}/${app_original_executable_name}"
+installed_app_bin_path="${app_location}/bin/${app_original_executable_name}"
 usr_local_bin_path="${usr_local_path}/bin"
 app_bin_path="${usr_local_bin_path}/${app_executable_name}"
 
