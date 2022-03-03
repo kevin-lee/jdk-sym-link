@@ -10,8 +10,9 @@ JDK symbolic link creator for macOS.
 ```
 
 ### For M1 Mac
-> It hasn't been tested since I don't have M1 Mac 
-It requires JVM.
+> It hasn't been tested since I don't have M1 Mac.
+
+**NOTE: It requires JVM**.
 ```shell
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Kevin-Lee/jdk-sym-link/main/.scripts/install-jvm.sh)" 
 ```
