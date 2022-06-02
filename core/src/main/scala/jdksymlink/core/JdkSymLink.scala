@@ -4,11 +4,11 @@ import Utils.*
 import cats.*
 import cats.data.*
 import cats.syntax.all.*
-import effectie.YesNo
-import effectie.cats.ConsoleEffectful.*
-import effectie.cats.Effectful.*
-import extras.cats.syntax.either.*
-import effectie.cats.{ConsoleEffect, EffectConstructor}
+import effectie.cats.console.given
+import effectie.cats.syntax.all.*
+import effectie.core.{Fx, YesNo}
+import effectie.syntax.all.*
+import extras.cats.syntax.all.*
 import jdksymlink.core.data.*
 import just.sysprocess.*
 
@@ -43,12 +43,12 @@ object JdkSymLink {
 
   def apply[F[_]: JdkSymLink]: JdkSymLink[F] = summon[JdkSymLink[F]]
 
-  given jdkSymLinkF[F[_]: Monad: EffectConstructor: ConsoleEffect]: JdkSymLink[F] with {
+  given jdkSymLinkF[F[_]: Monad: Fx]: JdkSymLink[F] with {
 
     def listAll(javaBaseDirPath: JvmBaseDirPath, javaBaseDir: File): F[Either[JdkSymLinkError, Unit]] =
       (for {
         dirNotExists <- effectOf(!javaBaseDirPath.toPath.dirExist).rightT
-        _            <- if (dirNotExists) then putStrLn(s"${javaBaseDirPath.value} does not exist.").rightT
+        _            <- if dirNotExists then putStrLn(s"${javaBaseDirPath.value} does not exist.").rightT
                         else
                           for {
                             _ <- putStrLn(
