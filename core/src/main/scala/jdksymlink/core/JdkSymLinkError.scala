@@ -12,7 +12,7 @@ enum JdkSymLinkError derives CanEqual {
   case LsFailure(errorCode: Int, message: String, commands: List[String])
   case PathExistsAndNoSymLink(path: String, message: String, commands: List[String])
   case CommandFailure(throwable: Throwable, commands: List[String])
-
+//  case ArgParse(argError: ArgParseError)
 }
 
 object JdkSymLinkError {

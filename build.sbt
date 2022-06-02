@@ -18,7 +18,10 @@ lazy val core = projectCommonSettings("core", ProjectName("core"), file("core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
     libraryDependencies ++=
-      List(libs.justSysProcess) ++ libs.catsAndCatsEffect ++ libs.effectie ++ List(libs.extrasCats)
+      List(libs.justSysProcess) ++
+        libs.catsAndCatsEffect ++
+        libs.effectie ++
+        List(libs.extrasCats, libs.extrasScalaIo)
     /* Build Info { */,
     buildInfoKeys    := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoObject  := "JdkSymLinkBuildInfo",
@@ -47,7 +50,7 @@ lazy val cli = projectCommonSettings("cli", ProjectName("cli"), file("cli"))
       "--initialize-at-build-time",
 //      s"-H:ReflectionConfigurationFiles=${ (sourceDirectory.value / "graal" / "reflect-config.json").getCanonicalPath }",
 //      "--allow-incomplete-classpath",
-//      "--report-unsupported-elements-at-runtime",
+      "--report-unsupported-elements-at-runtime",
     ),
   )
   .dependsOn(core, pirate)
@@ -73,19 +76,17 @@ lazy val props =
     final val RepoName            = "jdk-sym-link"
     final val ProjectNamePrefix   = RepoName
     final val ProjectVersion      = SbtProjectInfo.ProjectVersion
-    final val ProjectScalaVersion = "3.1.0"
+    final val ProjectScalaVersion = "3.1.2"
 
-    final val canEqualVersion = "0.1.1"
+    final val effectieVersion = "2.0.0-beta1"
+    final val refinedVersion  = "0.9.27"
 
-    final val effectieVersion = "1.15.0"
-    final val refinedVersion  = "0.9.25"
+    final val catsVersion       = "2.7.0"
+    final val catsEffectVersion = "3.3.12"
 
-    final val catsVersion       = "2.6.1"
-    final val catsEffectVersion = "2.5.4"
+    final val ExtrasVersion = "0.14.0"
 
-    final val ExtrasVersion = "0.1.0"
-
-    final val hedgehogVersion = "0.7.0"
+    final val hedgehogVersion = "0.9.0"
 
     final val justSysprocessVersion = "1.0.0"
 
@@ -107,8 +108,6 @@ lazy val libs =
 
     lazy val justSysProcess = "io.kevinlee" %% "just-sysprocess" % props.justSysprocessVersion
 
-    lazy val canEqual = "io.kevinlee" %% "can-equal" % props.canEqualVersion
-
     lazy val refined = List(
       "eu.timepit" %% "refined" % props.refinedVersion
     )
@@ -119,11 +118,12 @@ lazy val libs =
     )
 
     lazy val effectie = List(
-      "io.kevinlee" %% "effectie-cats-effect"   % props.effectieVersion,
-      "io.kevinlee" %% "effectie-scalaz-effect" % props.effectieVersion,
+      "io.kevinlee" %% "effectie-cats-effect3" % props.effectieVersion,
+//      "io.kevinlee" %% "effectie-scalaz-effect" % props.effectieVersion,
     )
 
-    lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion
+    lazy val extrasCats    = "io.kevinlee" %% "extras-cats"     % props.ExtrasVersion
+    lazy val extrasScalaIo = "io.kevinlee" %% "extras-scala-io" % props.ExtrasVersion
 
   }
 
@@ -135,7 +135,7 @@ else
 def projectCommonSettings(id: String, projectName: ProjectName, file: File): Project =
   Project(id, file)
     .settings(
-      name := prefixedProjectName(projectName.projectName),
+      name                       := prefixedProjectName(projectName.projectName),
       useAggressiveScalacOptions := true,
       libraryDependencies ++= libs.hedgehogLibs ++ libs.refined,
       testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework")),
