@@ -9,19 +9,18 @@ import jdksymlink.core.data.{Coursier, DefaultJdk}
 import jdksymlink.core.{JdkSymLink, Utils}
 import extras.cats.syntax.all.*
 
-/**
- * @author Kevin Lee
- * @since 2022-06-02
- */
+/** @author Kevin Lee
+  * @since 2022-06-02
+  */
 object JdkSymLinkRun {
   def apply[F[_]: Fx: Monad](args: JdkSymLinkArgs): F[Either[JdkSymLinkAppError, Unit]] =
     args match {
       case JdkSymLinkArgs.JdkListArgs =>
         for {
           jdk      <- JdkSymLink[F]
-            .listAll(DefaultJdk.JavaBaseDirPath, DefaultJdk.javaBaseDirFile)
+                        .listAll(DefaultJdk.JavaBaseDirPath, DefaultJdk.javaBaseDirFile)
           coursier <- JdkSymLink[F]
-            .listAll(Coursier.CoursierJavaBaseDirPath, Coursier.coursierJavaBaseDirFile)
+                        .listAll(Coursier.CoursierJavaBaseDirPath, Coursier.coursierJavaBaseDirFile)
         } yield (jdk.toValidatedNel, coursier.toValidatedNel)
           .mapN((_, _) => ())
           .toEither
