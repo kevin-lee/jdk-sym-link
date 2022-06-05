@@ -1,4 +1,3 @@
-
 object SbtProjectInfo {
   final case class ProjectName(projectName: String) extends AnyVal
 

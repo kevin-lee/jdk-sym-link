@@ -24,7 +24,9 @@ trait MainIo[A] extends IOApp {
 
   protected def prefs: Prefs
 
-  private def exitCodeToEither(argParseFailureResult: ArgParseFailureResult): IO[Either[JdkSymLinkAppError, Option[String]]] =
+  private def exitCodeToEither(
+    argParseFailureResult: ArgParseFailureResult
+  ): IO[Either[JdkSymLinkAppError, Option[String]]] =
     argParseFailureResult match {
       case err @ JustMessageOrHelp(_) =>
         IO.pure(err.show.some.asRight[JdkSymLinkAppError])

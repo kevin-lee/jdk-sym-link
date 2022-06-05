@@ -30,5 +30,4 @@ object JdkSymLinkApp extends MainIo[JdkSymLinkArgs] {
     JdkSymLinkRun[IO](args)
       .map(_.map(_ => none[String]))
 
-
 }
