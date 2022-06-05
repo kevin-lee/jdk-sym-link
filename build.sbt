@@ -127,10 +127,12 @@ lazy val libs =
 
   }
 
-def prefixedProjectName(name: String) = s"${props.RepoName}${if (name.isEmpty)
-  ""
-else
-  s"-$name"}"
+def prefixedProjectName(name: String) = s"${props.RepoName}${
+    if (name.isEmpty)
+      ""
+    else
+      s"-$name"
+  }"
 
 def projectCommonSettings(id: String, projectName: ProjectName, file: File): Project =
   Project(id, file)
