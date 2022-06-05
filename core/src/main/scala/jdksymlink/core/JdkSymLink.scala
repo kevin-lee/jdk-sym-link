@@ -181,7 +181,7 @@ object JdkSymLink {
             isNonSymLink <-
               pureOf(
                 (s"find ${javaBaseDirFile.getCanonicalPath} -type l -iname jdk${JavaMajorVersion
-                  .render(javaMajorVersion)}" !!).isEmpty
+                    .render(javaMajorVersion)}" !!).isEmpty
               ).rightT
             r            <-
               if (isNonSymLink) {
@@ -279,8 +279,8 @@ object JdkSymLink {
             _ <- putStrLn(
                    s"""
                       |$javaBaseDirFile $$ sudo ln -s $name jdk${JavaMajorVersion.render(
-                     javaMajorVersion
-                   )} """.stripMargin
+                       javaMajorVersion
+                     )} """.stripMargin
                  ).rightT
 
             lnCommandList              = List(
