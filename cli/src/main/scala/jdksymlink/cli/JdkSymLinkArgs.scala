@@ -56,7 +56,7 @@ object JdkSymLinkArgs {
     given show: Show[JustMessageOrHelp] = _.messages.mkString("\n")
   }
   final case class ArgParseError(errors: List[String])
-  object ArgParseError     {
+  object ArgParseError {
     given show: Show[ArgParseError] = _.errors.mkString("\n")
   }
 

@@ -104,23 +104,23 @@ object data {
           } else {
 
             ((m1, mn1), (m2, mn2)) match {
-              case ((None, None), (None, None))          =>
+              case ((None, None), (None, None)) =>
                 0
-              case ((None, None), (Some(_), Some(_)))    =>
+              case ((None, None), (Some(_), Some(_))) =>
                 -1
-              case ((None, None), (None, Some(_)))       =>
+              case ((None, None), (None, Some(_))) =>
                 -1
-              case ((None, None), (Some(_), None))       =>
+              case ((None, None), (Some(_), None)) =>
                 -1
-              case ((Some(_), Some(_)), (None, None))    =>
+              case ((Some(_), Some(_)), (None, None)) =>
                 1
-              case ((None, Some(_)), (None, None))       =>
+              case ((None, Some(_)), (None, None)) =>
                 1
-              case ((Some(_), None), (None, None))       =>
+              case ((Some(_), None), (None, None)) =>
                 1
-              case ((Some(_), None), (None, Some(_)))    =>
+              case ((Some(_), None), (None, Some(_))) =>
                 1
-              case ((None, Some(_)), (Some(_), None))    =>
+              case ((None, Some(_)), (Some(_), None)) =>
                 -1
               case ((None, Some(_)), (Some(_), Some(_))) =>
                 -1
