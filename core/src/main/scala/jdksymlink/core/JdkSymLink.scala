@@ -110,7 +110,7 @@ object JdkSymLink {
                                   s      <- EitherT(answer match {
                                               case YesNo.Yes =>
                                                 lnSJdk(name, javaMajorVersion, jdkPath, targetPath)
-                                              case YesNo.No  =>
+                                              case YesNo.No =>
                                                 pureOf("\nCancelled.\n".asRight[JdkSymLinkError])
                                             })
                                 } yield s
@@ -130,7 +130,7 @@ object JdkSymLink {
           choice match {
             case "c" | "C" =>
               effectOf(none[Int])
-            case _         =>
+            case _ =>
               if (isNonNegativeNumber(choice) && choice.toInt < length)
                 effectOf(choice.toInt.some)
               else
@@ -210,66 +210,66 @@ object JdkSymLink {
                             |""".stripMargin
                        ).rightT
 
-                  rmCommandList             <- pureOf(
-                                                 List("sudo", "rm", s"jdk${JavaMajorVersion.render(javaMajorVersion)}")
-                                               ).rightT
+                  rmCommandList <- pureOf(
+                                     List("sudo", "rm", s"jdk${JavaMajorVersion.render(javaMajorVersion)}")
+                                   ).rightT
                   rmCommand :: rmCommandRest = rmCommandList
-                  rmCommandProcess          <- pureOf(
-                                                 SysProcess.singleSysProcess(javaBaseDir, rmCommand, rmCommandRest: _*)
-                                               ).rightT
-                  rmResult                  <- effectOf(rmCommandProcess.run())
-                                                 .eitherT
-                                                 .transform {
-                                                   case Right(ProcessResult(result)) =>
-                                                     result.asRight[JdkSymLinkError]
+                  rmCommandProcess <- pureOf(
+                                        SysProcess.singleSysProcess(javaBaseDir, rmCommand, rmCommandRest: _*)
+                                      ).rightT
+                  rmResult         <- effectOf(rmCommandProcess.run())
+                                        .eitherT
+                                        .transform {
+                                          case Right(ProcessResult(result)) =>
+                                            result.asRight[JdkSymLinkError]
 
-                                                   case Left(ProcessError.Failure(code, error)) =>
-                                                     JdkSymLinkError
-                                                       .LsFailure(code, error.mkString("\n"), rmCommandList)
-                                                       .asLeft[List[String]]
+                                          case Left(ProcessError.Failure(code, error)) =>
+                                            JdkSymLinkError
+                                              .LsFailure(code, error.mkString("\n"), rmCommandList)
+                                              .asLeft[List[String]]
 
-                                                   case Left(ProcessError.FailureWithNonFatal(nonFatalThrowable)) =>
-                                                     JdkSymLinkError
-                                                       .CommandFailure(nonFatalThrowable, rmCommandList)
-                                                       .asLeft[List[String]]
-                                                 }
+                                          case Left(ProcessError.FailureWithNonFatal(nonFatalThrowable)) =>
+                                            JdkSymLinkError
+                                              .CommandFailure(nonFatalThrowable, rmCommandList)
+                                              .asLeft[List[String]]
+                                        }
 
-                  lnCommandList             <- pureOf(
-                                                 List(
-                                                   "sudo",
-                                                   "ln",
-                                                   "-s",
-                                                   s"${javaBaseDirPath.value}/$name",
-                                                   s"jdk${JavaMajorVersion.render(javaMajorVersion)}"
-                                                 )
-                                               ).rightT
+                  lnCommandList <- pureOf(
+                                     List(
+                                       "sudo",
+                                       "ln",
+                                       "-s",
+                                       s"${javaBaseDirPath.value}/$name",
+                                       s"jdk${JavaMajorVersion.render(javaMajorVersion)}"
+                                     )
+                                   ).rightT
                   lnCommand :: lnCommandRest = lnCommandList
-                  lnCommandProcess          <- pureOf(
-                                                 SysProcess.singleSysProcess(javaBaseDir, lnCommand, lnCommandRest: _*)
-                                               ).rightT
-                  lnResult                  <- effectOf(lnCommandProcess.run())
-                                                 .eitherT
-                                                 .transform {
-                                                   case Right(ProcessResult(result)) =>
-                                                     result.asRight[JdkSymLinkError]
+                  lnCommandProcess <- pureOf(
+                                        SysProcess.singleSysProcess(javaBaseDir, lnCommand, lnCommandRest: _*)
+                                      ).rightT
+                  lnResult         <- effectOf(lnCommandProcess.run())
+                                        .eitherT
+                                        .transform {
+                                          case Right(ProcessResult(result)) =>
+                                            result.asRight[JdkSymLinkError]
 
-                                                   case Left(ProcessError.Failure(code, error)) =>
-                                                     JdkSymLinkError
-                                                       .LsFailure(
-                                                         code,
-                                                         error.mkString("\n"),
-                                                         lnCommandList,
-                                                       )
-                                                       .asLeft[List[String]]
+                                          case Left(ProcessError.Failure(code, error)) =>
+                                            JdkSymLinkError
+                                              .LsFailure(
+                                                code,
+                                                error.mkString("\n"),
+                                                lnCommandList,
+                                              )
+                                              .asLeft[List[String]]
 
-                                                   case Left(ProcessError.FailureWithNonFatal(nonFatalThrowable)) =>
-                                                     JdkSymLinkError
-                                                       .CommandFailure(
-                                                         nonFatalThrowable,
-                                                         lnCommandList,
-                                                       )
-                                                       .asLeft[List[String]]
-                                                 }
+                                          case Left(ProcessError.FailureWithNonFatal(nonFatalThrowable)) =>
+                                            JdkSymLinkError
+                                              .CommandFailure(
+                                                nonFatalThrowable,
+                                                lnCommandList,
+                                              )
+                                              .asLeft[List[String]]
+                                        }
                 } yield lnResult)
 
               }
@@ -291,36 +291,36 @@ object JdkSymLink {
                                            s"jdk${JavaMajorVersion.render(javaMajorVersion)}"
                                          )
             lnCommand :: lnCommandRest = lnCommandList
-            lnCommandProcess          <- pureOf(
-                                           SysProcess.singleSysProcess(
-                                             javaBaseDir,
-                                             lnCommand,
-                                             lnCommandRest: _*
-                                           )
-                                         ).rightT
-            lnResult                  <- effectOf(lnCommandProcess.run())
-                                           .eitherT
-                                           .transform {
-                                             case Right(ProcessResult(result)) =>
-                                               result.asRight[JdkSymLinkError]
+            lnCommandProcess <- pureOf(
+                                  SysProcess.singleSysProcess(
+                                    javaBaseDir,
+                                    lnCommand,
+                                    lnCommandRest: _*
+                                  )
+                                ).rightT
+            lnResult         <- effectOf(lnCommandProcess.run())
+                                  .eitherT
+                                  .transform {
+                                    case Right(ProcessResult(result)) =>
+                                      result.asRight[JdkSymLinkError]
 
-                                             case Left(ProcessError.Failure(code, error)) =>
-                                               JdkSymLinkError
-                                                 .LsFailure(
-                                                   code,
-                                                   error.mkString("\n"),
-                                                   lnCommandList,
-                                                 )
-                                                 .asLeft[List[String]]
+                                    case Left(ProcessError.Failure(code, error)) =>
+                                      JdkSymLinkError
+                                        .LsFailure(
+                                          code,
+                                          error.mkString("\n"),
+                                          lnCommandList,
+                                        )
+                                        .asLeft[List[String]]
 
-                                             case Left(ProcessError.FailureWithNonFatal(nonFatalThrowable)) =>
-                                               JdkSymLinkError
-                                                 .CommandFailure(
-                                                   nonFatalThrowable,
-                                                   lnCommandList,
-                                                 )
-                                                 .asLeft[List[String]]
-                                           }
+                                    case Left(ProcessError.FailureWithNonFatal(nonFatalThrowable)) =>
+                                      JdkSymLinkError
+                                        .CommandFailure(
+                                          nonFatalThrowable,
+                                          lnCommandList,
+                                        )
+                                        .asLeft[List[String]]
+                                  }
           } yield lnResult)
         }
 

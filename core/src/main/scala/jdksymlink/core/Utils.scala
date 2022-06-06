@@ -17,26 +17,26 @@ object Utils {
   def extractVersion(name: String): Option[NameAndVersion] = name match {
     case DefaultJdk.Before9Pattern(major, minor, patch) =>
       (name, VerStr(major, Option(minor), Option(patch))).some
-    case DefaultJdk.From9Pattern(major, minor, patch)   =>
+    case DefaultJdk.From9Pattern(major, minor, patch) =>
       (name, VerStr(major, Option(minor), Option(patch))).some
-    case DefaultJdk.From9PatternWithOnlyVersion(major)  =>
+    case DefaultJdk.From9PatternWithOnlyVersion(major) =>
       (name, VerStr(major, None, None)).some
-    case DefaultJdk.Before9AdoptOpenJdkPattern(major)   =>
+    case DefaultJdk.Before9AdoptOpenJdkPattern(major) =>
       (name, VerStr(major, None, None)).some
-    case _                                              =>
+    case _ =>
       none[NameAndVersion]
   }
 
   def extractCoursierJavaVersion(name: String): Option[NameAndVersion] = name match {
-    case Coursier.TemurinPattern(_, major, minor, patch)            =>
+    case Coursier.TemurinPattern(_, major, minor, patch) =>
       (name, VerStr(major, Option(minor), Option(patch))).some
-    case Coursier.AdoptOpenJdkPattern(major, minor, patch)          =>
+    case Coursier.AdoptOpenJdkPattern(major, minor, patch) =>
       (name, VerStr(major, Option(minor), Option(patch))).some
-    case Coursier.ZuluOpenJdkPattern(major, minor, patch)           =>
+    case Coursier.ZuluOpenJdkPattern(major, minor, patch) =>
       (name, VerStr(major, Option(minor), Option(patch))).some
     case Coursier.AmazonCorrettoOpenJdkPattern(major, minor, patch) =>
       (name, VerStr(major, Option(minor), none)).some
-    case _                                                          =>
+    case _ =>
       none[NameAndVersion]
   }
 
@@ -52,7 +52,7 @@ object Utils {
       .foldLeft(List.empty[NameAndVersion]) {
         case (acc, Some(x @ (_, VerStr(v, _, _)))) if v === javaMajorVersion.value.toString =>
           acc :+ x
-        case (acc, _)                                                                       =>
+        case (acc, _) =>
           acc
       }
       .sortBy((name, version) => version)
