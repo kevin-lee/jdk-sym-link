@@ -1,6 +1,7 @@
 package jdksymlink.core
 
 import cats.data.NonEmptyList
+import jdksymlink.cs.CoursierCmd.CoursierError
 
 import java.io.{IOException, PrintWriter, StringWriter}
 
@@ -12,6 +13,7 @@ enum JdkSymLinkError derives CanEqual {
   case LsFailure(errorCode: Int, message: String, commands: List[String])
   case PathExistsAndNoSymLink(path: String, message: String, commands: List[String])
   case CommandFailure(throwable: Throwable, commands: List[String])
+  case Coursier(coursierError: CoursierError)
 //  case ArgParse(argError: ArgParseError)
 }
 
@@ -50,6 +52,30 @@ object JdkSymLinkError {
                |$stackTrace
                |""".stripMargin
 
+        }
+
+      case Coursier(coursierError) =>
+        coursierError match {
+          case CoursierError.JavaInstalledCmd(error) =>
+            s"""${"Error".red} when running 'cs java --installed'
+               |Error: ${error.toString}
+               |""".stripMargin
+
+          case CoursierError.InvalidJdkInfo(jdkInfo) =>
+            s"""${"Error".red} when parsing JDK info from the result of 'cs java --installed'
+               |JDK info:
+               |${jdkInfo.mkString(" - ", "\n - ", "")}
+               |""".stripMargin
+
+          case CoursierError.VersionParse(version, errors, nameVersion, path) =>
+            val (error1, error2) = errors
+            s"""${"Error".red} when parsing JDK version from the result of 'cs java --installed'
+               |version: $version
+               |  from
+               |    $nameVersion at $path
+               |  - SemVer ParseError: ${error1.render}
+               |  - DecVer ParseError: ${error2.render}
+               |""".stripMargin
         }
 
     }

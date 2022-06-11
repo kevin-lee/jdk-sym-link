@@ -1,6 +1,6 @@
 package jdksymlink.cli
 
-import cats.data.NonEmptyList
+import cats.data.{NonEmptyChain, NonEmptyList}
 import cats.syntax.all.*
 import extras.scala.io.syntax.color.*
 import jdksymlink.cli.JdkSymLinkArgs.ArgParseError
@@ -11,7 +11,7 @@ import jdksymlink.core.JdkSymLinkError
   */
 enum JdkSymLinkAppError {
   case JdkSymLinkCore(jdkSymLinkError: JdkSymLinkError)
-  case MultipleJdkSymLinkCore(jdkSymLinkErrors: NonEmptyList[JdkSymLinkError])
+  case MultipleJdkSymLinkCore(jdkSymLinkErrors: NonEmptyChain[JdkSymLinkError])
   case ArgParse(argParseError: ArgParseError)
 }
 
