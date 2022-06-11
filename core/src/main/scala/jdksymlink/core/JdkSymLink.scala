@@ -10,6 +10,7 @@ import effectie.core.{Fx, YesNo}
 import effectie.syntax.all.*
 import extras.cats.syntax.all.*
 import jdksymlink.core.data.*
+import jdksymlink.cs.CoursierCmd
 import just.sysprocess.*
 
 import java.io.File
