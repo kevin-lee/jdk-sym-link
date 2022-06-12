@@ -11,11 +11,14 @@ import effectie.syntax.all.*
 import extras.cats.syntax.all.*
 import jdksymlink.core.data.*
 import jdksymlink.cs.CoursierCmd
+import jdksymlink.cs.CoursierCmd.JdkByCs
 import just.sysprocess.*
 
 import java.io.File
 import scala.language.postfixOps
 import sys.process.*
+
+import extras.scala.io.syntax.color.*
 
 /** #############################################
   * ## Simple Scala script to create           ##
@@ -93,58 +96,111 @@ object JdkSymLink {
                               .flatMap { (path, extractVersion) =>
                                 val jdkPathFile     = File(path.value)
                                 val nameAndVersions = names(javaMajorVersion, jdkPathFile, extractVersion)
-                                nameAndVersions.map(a => (path, a))
+                                nameAndVersions.map {
+                                  case a @ (name, _) =>
+                                    (JvmBaseDirPath(s"${path.value}/$name"), a)
+                                }
                               }
                               .rightTF
-        maybeNameVersion <- askUserToSelectJdk(jdkNameVersions).rightT
-        result           <- maybeNameVersion match {
-                              case Some((jdkPath, (name, ver))) =>
-                                for {
-                                  _      <- putStrLn(
-                                              s"""
-                                                 |You chose '$name'.
-                                                 |It will create a symbolic link to '$name' (i.e. jdk${ver.major} -> $name)
-                                                 |and may ask you to enter your password.
-                                                 |""".stripMargin
-                                            ).rightT
-                                  answer <- readYesNo("Would you like to proceed? (y / n) ").rightT
-                                  s      <- EitherT(answer match {
-                                              case YesNo.Yes =>
-                                                lnSJdk(name, javaMajorVersion, jdkPath, targetPath)
-                                              case YesNo.No =>
-                                                pureOf("\nCancelled.\n".asRight[JdkSymLinkError])
-                                            })
-                                } yield s
-
-                              case None =>
-                                pureOf("\nCancelled.\n").rightT
+        coursierJdks     <- effectOf {
+                              import scala.sys.process._
+                              "type cs".! == 0
                             }
-        _                <- EitherT.right[JdkSymLinkError](putStrLn(result))
+                              .handleNonFatal(_ => false)
+                              .rightT[JdkSymLinkError]
+                              .ifM(
+                                (
+                                  putStrLn(
+                                    s">>> Running ${CoursierCmd.CsJavaInstalledCmd.blue} to fetch JDKs installed by Coursier. "
+                                  ) *>
+                                    putStrLn(">>> It may take some time to fetch it.") *>
+                                    putStrLn(s"$$ ${CoursierCmd.CsJavaInstalledCmd.blue}")
+                                )
+                                  .rightT[JdkSymLinkError] >> CoursierCmd
+                                  .javaInstalled[F]
+                                  .t
+                                  .leftMap { err =>
+                                    JdkSymLinkError.Coursier(err)
+                                  }
+                                  .map { jdks =>
+                                    jdks.filter {
+                                      case JdkByCs(_, _, majorVersion, _, _) =>
+                                        majorVersion.value == javaMajorVersion.value
+                                    }
+                                  },
+                                pureOf(List.empty[JdkByCs]).rightT[JdkSymLinkError]
+                              )
+        maybeNameVersion <- askUserToSelectJdk(coursierJdks ++ jdkNameVersions).rightT
+        nameVersionPath = maybeNameVersion.map {
+                            case JdkByCs(_, name, major, version, path) =>
+                              (
+                                s"${name.value}:${major.value.toString} (${version.render})",
+                                major.value.toString,
+                                JvmBaseDirPath(path.value.toString)
+                              )
+                            case (jdkPath, (name, ver)) =>
+                              (name, ver.major, jdkPath)
+                          }
+        result <- nameVersionPath match {
+                    case Some(name, majorVersion, jdkPath) =>
+                      for {
+                        _      <- putStrLn(
+                                    s"""
+                                       |You chose '$name'.
+                                       |It will create a symbolic link to '$name' (i.e. jdk$majorVersion -> $name)
+                                       |and may ask you to enter your password.
+                                       |""".stripMargin
+                                  ).rightT
+                        answer <- readYesNo("Would you like to proceed? (y / n) ").rightT
+                        s      <- (answer match {
+                                    case YesNo.Yes =>
+                                      lnSJdk(name, javaMajorVersion, jdkPath, targetPath)
+                                    case YesNo.No =>
+                                      pureOf("\nCancelled.\n".asRight[JdkSymLinkError])
+                                  }).t
+                      } yield s
+
+                    case None =>
+                      pureOf("\nCancelled.\n").rightT
+                  }
+        _      <- EitherT.right[JdkSymLinkError](putStrLn(result))
       } yield ()).value
 
     def askUserToSelectJdk(
-      names: List[(JvmBaseDirPath, NameAndVersion)]
-    ): F[Option[(JvmBaseDirPath, NameAndVersion)]] = {
+      names: List[JdkByCs | (JvmBaseDirPath, NameAndVersion)]
+    ): F[Option[JdkByCs | (JvmBaseDirPath, NameAndVersion)]] = {
       def getAnswer(length: Int): F[Option[Int]] = for {
         choice <- readLn
-        answer <-
-          choice match {
-            case "c" | "C" =>
-              effectOf(none[Int])
-            case _ =>
-              if (isNonNegativeNumber(choice) && choice.toInt < length)
-                effectOf(choice.toInt.some)
-              else
-                putStrLn("""Please enter a number on the list:
-                           |(or [c] for cancellation)""".stripMargin) *> getAnswer(length)
-          }
+        answer <- choice match {
+                    case "c" | "C" =>
+                      effectOf(none[Int])
+                    case _ =>
+                      if (isNonNegativeNumber(choice) && choice.toInt < length)
+                        effectOf(choice.toInt.some)
+                      else
+                        putStrLn(
+                          """Please enter a number on the list:
+                            |(or [c] for cancellation)""".stripMargin
+                        ) *> getAnswer(length)
+                  }
       } yield answer
 
       for {
-        listOfJdk      <- effectOf(names.zipWithIndex.map {
-                            case ((_, (name, ver)), index) =>
-                              s"[$index] $name"
-                          })
+        listOfJdk      <- effectOf(
+                            names.zipWithIndex.map {
+                              case (JdkByCs(_, name, major, version, jdkPath), index) =>
+                                val nameString =
+                                  s"[$index] ${name.value.blue}:${major.value.toString.green} (${version.render}) "
+                                val pathString = s"at ${jdkPath.value}"
+                                raw"""$nameString
+                                     |  $pathString""".stripMargin
+                              case ((jdkPath, (name, ver)), index) =>
+                                val nameString = s"[$index] ${name.blue} (${ver.render}) "
+                                val pathString = s"at ${jdkPath.value}"
+                                raw"""$nameString
+                                     |  $pathString""".stripMargin
+                            }
+                          )
         length         <- effectOf(listOfJdk.length)
         _              <- putStrLn(
                             s"""
@@ -181,9 +237,15 @@ object JdkSymLink {
           for {
             isNonSymLink <-
               pureOf(
-                (s"find ${javaBaseDirFile.getCanonicalPath} -type l -iname jdk${JavaMajorVersion
-                    .render(javaMajorVersion)}" !!).isEmpty
-              ).rightT
+                s"find ${javaBaseDirFile.getCanonicalPath} -type l -iname jdk${JavaMajorVersion.render(javaMajorVersion)}"
+              )
+                .flatTap(putStrLn(_))
+                .flatMap { cmd =>
+                  effectOf(
+                    (cmd.!!).isEmpty
+                  )
+                }
+                .rightT
             r            <-
               if (isNonSymLink) {
                 val path = s"${javaBaseDirFile.getCanonicalPath}/jdk${JavaMajorVersion.render(javaMajorVersion)}"
@@ -193,7 +255,7 @@ object JdkSymLink {
                     s"\n'$path' already exists and it's not a symbolic link so nothing will be done.",
                     List(
                       "find",
-                      javaBaseDirPath.value,
+                      javaBaseDirFile.getCanonicalPath,
                       "-type",
                       "l",
                       "-iname",
@@ -206,13 +268,13 @@ object JdkSymLink {
                 (for {
                   _ <- putStrLn(
                          s"""
-                            |$javaBaseDirFile $$ sudo rm jdk${JavaMajorVersion.render(javaMajorVersion)}
-                            |$javaBaseDirFile $$ sudo ln -s $name jdk${JavaMajorVersion.render(javaMajorVersion)}
+                            |$javaBaseDirFile $$ sudo rm jdk${javaMajorVersion.render}
+                            |$javaBaseDirFile $$ sudo ln -s ${javaBaseDirPath.value} jdk${javaMajorVersion.render}
                             |""".stripMargin
                        ).rightT
 
                   rmCommandList <- pureOf(
-                                     List("sudo", "rm", s"jdk${JavaMajorVersion.render(javaMajorVersion)}")
+                                     List("sudo", "rm", s"jdk${javaMajorVersion.render}")
                                    ).rightT
                   rmCommand :: rmCommandRest = rmCommandList
                   rmCommandProcess <- pureOf(
@@ -240,8 +302,8 @@ object JdkSymLink {
                                        "sudo",
                                        "ln",
                                        "-s",
-                                       s"${javaBaseDirPath.value}/$name",
-                                       s"jdk${JavaMajorVersion.render(javaMajorVersion)}"
+                                       javaBaseDirPath.value,
+                                       s"jdk${javaMajorVersion.render}"
                                      )
                                    ).rightT
                   lnCommand :: lnCommandRest = lnCommandList
@@ -279,7 +341,7 @@ object JdkSymLink {
           (for {
             _ <- putStrLn(
                    s"""
-                      |$javaBaseDirFile $$ sudo ln -s $name jdk${JavaMajorVersion.render(
+                      |$javaBaseDirFile $$ sudo ln -s ${javaBaseDirPath.value} jdk${JavaMajorVersion.render(
                        javaMajorVersion
                      )} """.stripMargin
                  ).rightT
@@ -288,7 +350,7 @@ object JdkSymLink {
                                            "sudo",
                                            "ln",
                                            "-s",
-                                           s"${javaBaseDirPath.value}/$name",
+                                           javaBaseDirPath.value,
                                            s"jdk${JavaMajorVersion.render(javaMajorVersion)}"
                                          )
             lnCommand :: lnCommandRest = lnCommandList

@@ -53,8 +53,8 @@ object data {
   }
 
   object DefaultJdk {
-    final val JavaBaseDirPath      = JvmBaseDirPath("/Library/Java/JavaVirtualMachines")
-    lazy val javaBaseDirFile: File = new File(JavaBaseDirPath.value)
+    val JavaBaseDirPath: JvmBaseDirPath = JvmBaseDirPath("/Library/Java/JavaVirtualMachines")
+    lazy val javaBaseDirFile: File      = new File(JavaBaseDirPath.value)
 
     val Before9Pattern: Regex              = """[^-]+1\.(\d)\.(\d)_(\d+)\.jdk$""".r
     val Before9AdoptOpenJdkPattern: Regex  = """adoptopenjdk-(\d+)\.jdk$""".r
@@ -94,6 +94,10 @@ object data {
   ) derives CanEqual
 
   object VerStr {
+
+    extension (verStr: VerStr) {
+      def render: String = s"${verStr.major}${verStr.minor.fold("")("." + _)}${verStr.patch.fold("")("." + _)}"
+    }
 
     given verStrOrdering: Ordering[VerStr] with {
       def compare(x: VerStr, y: VerStr): Int = (x, y) match {
