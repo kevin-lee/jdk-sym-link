@@ -23,7 +23,7 @@ import scala.util.matching.Regex
   */
 object CoursierCmd {
 
-  val CsJavaInstalledCmd = "cs java --installed"
+  val CsJavaInstalledCmd: String = "cs java --installed"
 
   def javaInstalled[F[*]: Fx: Monad]: F[Either[CoursierError, List[JdkByCs]]] =
     (for {

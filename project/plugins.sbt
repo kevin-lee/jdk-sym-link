@@ -6,3 +6,5 @@ val sbtDevoopsVersion = "2.21.0"
 addSbtPlugin("io.kevinlee" % "sbt-devoops-scala"     % sbtDevoopsVersion)
 addSbtPlugin("io.kevinlee" % "sbt-devoops-sbt-extra" % sbtDevoopsVersion)
 addSbtPlugin("io.kevinlee" % "sbt-devoops-github"    % sbtDevoopsVersion)
+
+addSbtPlugin("io.kevinlee" % "sbt-devoops-starter" % sbtDevoopsVersion)

@@ -11,7 +11,8 @@ import extras.cats.syntax.all.*
 import effectie.syntax.all.*
 import jdksymlink.cs.CoursierCmd
 import effectie.cats.console.given
-import jdksymlink.cs.CoursierCmd.CoursierError
+import jdksymlink.cs.CoursierCmd.{CoursierError, JdkByCs}
+import scala.util.Try
 
 /** @author Kevin Lee
   * @since 2022-06-02
@@ -31,14 +32,23 @@ object JdkSymLinkRun {
           .transform(_.toEitherNec)
 
         val csJdk =
-          (
-            putStrLn[F]("\n>>> Getting JDKs from 'cs java --installed'. Please wait.") >> CoursierCmd.javaInstalled[F]
-          )
-            .t
-            .leftMap(JdkSymLinkError.Coursier(_))
-            .transform(_.toEitherNec)
-            .flatMap { lines =>
-              putStrLn[F](lines.map(_.render).mkString("\n")).rightT
+          effectOf {
+            import scala.sys.process._
+            "type cs".! == 0
+          }.handleNonFatal(_ => false)
+            .rightT[NonEmptyChain[JdkSymLinkError]]
+            .flatMap { csFound =>
+              (
+                putStrLn[F]("\n>>> Getting JDKs from 'cs java --installed'. Please wait.") >>
+                  CoursierCmd.javaInstalled[F]
+              )
+                .t
+                .leftMap(JdkSymLinkError.Coursier(_))
+                .transform(_.toEitherNec)
+                .flatMap { lines =>
+                  putStrLn[F](lines.map(_.render).mkString("\n")).rightT
+                }
+                .whenA(csFound)
             }
 
         (
