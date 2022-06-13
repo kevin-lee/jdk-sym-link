@@ -121,7 +121,6 @@ lazy val libs =
 
     lazy val effectie = List(
       "io.kevinlee" %% "effectie-cats-effect3" % props.effectieVersion,
-//      "io.kevinlee" %% "effectie-scalaz-effect" % props.effectieVersion,
     )
 
     lazy val extrasCats    = "io.kevinlee" %% "extras-cats"     % props.ExtrasVersion
