@@ -1,11 +1,12 @@
 package jdksymlink.core
 
 import java.io.File
-
 import cats.syntax.all.*
 
 import scala.util.matching.Regex
 import jdksymlink.core.data.Path
+
+import scala.util.Try
 
 /** @author Kevin Lee
   * @since 2015-04-03
@@ -169,4 +170,30 @@ object data {
     }
 
   }
+
+  final case class DotSeparatedVersion(value: String, rest: List[String]) derives CanEqual
+  object DotSeparatedVersion {
+
+    def parse(version: String): Either[DotSeparatedVersion.ParseError, DotSeparatedVersion] =
+      Try(version.split("\\.").toList)
+        .toEither
+        .left
+        .map { err =>
+          DotSeparatedVersion.ParseError(version, err.getMessage)
+        }
+        .flatMap {
+          case v1 :: vs =>
+            Right(DotSeparatedVersion(v1, vs))
+          case Nil =>
+            Left(DotSeparatedVersion.ParseError(version, "No version found"))
+        }
+
+    final case class ParseError(value: String, error: String)
+    object ParseError {
+      extension (parseError: ParseError) {
+        def render: String = s"DotSeparatedVersion.ParseError(value=${parseError.value}, error=${parseError.error})"
+      }
+    }
+  }
+
 }

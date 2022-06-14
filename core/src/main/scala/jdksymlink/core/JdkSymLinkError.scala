@@ -68,13 +68,14 @@ object JdkSymLinkError {
                |""".stripMargin
 
           case CoursierError.VersionParse(version, errors, nameVersion, path) =>
-            val (error1, error2) = errors
+            val (error1, error2, error3) = errors
             s"""${"Error".red} when parsing JDK version from the result of 'cs java --installed'
                |version: $version
                |  from
                |    $nameVersion at $path
                |  - SemVer ParseError: ${error1.render}
                |  - DecVer ParseError: ${error2.render}
+               |  - SingleNumVersion ParseError: ${error3.render}
                |""".stripMargin
         }
 
