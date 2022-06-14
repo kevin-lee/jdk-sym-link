@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3.0.2
-      - uses: olafurpg/setup-scala@v10
+      - uses: olafurpg/setup-scala@v13
         with:
           java-version: ${{ env.GH_JAVA_VERSION }}
 
@@ -129,7 +129,7 @@ jobs:
     steps:
 
       - uses: actions/checkout@v3.0.2
-      - uses: olafurpg/setup-scala@v10
+      - uses: olafurpg/setup-scala@v13
         with:
           java-version: ${{ env.GH_JAVA_VERSION }}
       - name: Cache SBT
