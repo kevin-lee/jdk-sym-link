@@ -18,6 +18,8 @@ import just.decver.DecVer
 
 import scala.util.matching.Regex
 
+import jdksymlink.core.data.DotSeparatedVersion
+
 /** @author Kevin Lee
   * @since 2022-06-06
   */
@@ -42,26 +44,29 @@ object CoursierCmd {
         val jdkPath = JdkByCs.Path(new File(path))
         nameVersion match {
           case JdkByCs.Name.NamePattern(name, version) =>
-            effectOf(SemVer.parse(version))
-              .t
-              .map(JdkByCs.Version(_))
-              .leftFlatMap { err1 =>
-                effectOf(DecVer.parse(version))
-                  .t
-                  .map(JdkByCs.Version(_))
-                  .leftMap { err2 =>
-                    CoursierError.VersionParse(version, (err1, err2), nameVersion, path)
-                  }
-              }
-              .map { ver =>
-                val pathString = jdkPath.value.toString.stripSuffix("/")
-                val theJdkPath = if (pathString.endsWith("/Contents/Home")) {
-                  JdkByCs.Path(new File(pathString.stripSuffix("/Contents/Home")))
-                } else {
-                  jdkPath
-                }
-                List(JdkByCs(id, JdkByCs.Name(name), ver.major, ver, theJdkPath))
-              }
+            for {
+              ver <- effectOf(SemVer.parse(version))
+                       .t
+                       .map(JdkByCs.Version(_))
+                       .leftFlatMap { err1 =>
+                         effectOf(DecVer.parse(version))
+                           .t
+                           .map(JdkByCs.Version(_))
+                           .leftFlatMap { err2 =>
+                             effectOf(DotSeparatedVersion.parse(version))
+                               .t
+                               .map(JdkByCs.Version(_))
+                               .leftMap { err3 =>
+                                 CoursierError.VersionParse(version, (err1, err2, err3), nameVersion, path)
+                               }
+                           }
+                       }
+              pathString = jdkPath.value.toString.stripSuffix("/")
+              theJdkPath = if pathString.endsWith("/Contents/Home")
+                           then JdkByCs.Path(new File(pathString.stripSuffix("/Contents/Home")))
+                           else jdkPath
+            } yield List(JdkByCs(id, JdkByCs.Name(name), ver.major, ver, theJdkPath))
+
         }
 
       case somethingElse => pureOf(CoursierError.InvalidJdkInfo(somethingElse).asLeft).t
@@ -123,24 +128,35 @@ object CoursierCmd {
 
     type Version = Version.Version
     object Version {
-      opaque type Version = SemVer | DecVer
-      def apply(version: SemVer | DecVer): Version = version
+      opaque type Version = SemVer | DecVer | DotSeparatedVersion
+      def apply(version: SemVer | DecVer | DotSeparatedVersion): Version = version
 
       given versionCanEqual: CanEqual[Version, Version] = CanEqual.derived
 
       extension (version: Version) {
-        def value: SemVer | DecVer = version
+        def value: SemVer | DecVer | DotSeparatedVersion = version
 
         def major: MajorVersion = value match {
           case SemVer(m, n, _, _, _) =>
             MajorVersion(if (m.value == 1) n.value else m.value)
           case DecVer(m, n) =>
             MajorVersion(if (m.value == 1) n.value else m.value)
+          case DotSeparatedVersion(v, vs) =>
+            val vNum = v.toInt
+            MajorVersion(
+              if vNum == 1 then
+                vs.take(1)
+                  .headOption
+                  .filter(_.forall(_.isDigit))
+                  .fold(vNum)(_.toInt)
+              else vNum
+            )
         }
 
         def render: String = value match {
           case v: SemVer => SemVer.render(v)
           case v: DecVer => DecVer.render(v)
+          case DotSeparatedVersion(v, vs) => s"$v.${vs.mkString(".")}"
         }
       }
     }
@@ -173,7 +189,12 @@ object CoursierCmd {
   enum CoursierError derives CanEqual {
     case JavaInstalledCmd(error: ProcessError)
     case InvalidJdkInfo(jdkInfo: List[String])
-    case VersionParse(version: String, error: (ParseError, DecVer.ParseError), nameVersion: String, path: String)
+    case VersionParse(
+      version: String,
+      error: (ParseError, DecVer.ParseError, DotSeparatedVersion.ParseError),
+      nameVersion: String,
+      path: String
+    )
   }
 
 }
