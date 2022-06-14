@@ -27,7 +27,7 @@ jobs:
           java-version: ${{ env.GH_JAVA_VERSION }}
 
       - name: Cache SBT
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.ivy2/cache
@@ -84,7 +84,7 @@ jobs:
           java-version: ${{ env.GH_JAVA_VERSION }}
 
       - name: Cache SBT
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.ivy2/cache
@@ -133,7 +133,7 @@ jobs:
         with:
           java-version: ${{ env.GH_JAVA_VERSION }}
       - name: Cache SBT
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.ivy2/cache
