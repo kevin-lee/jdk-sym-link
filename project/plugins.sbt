@@ -1,4 +1,4 @@
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.9")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.11")
 addSbtPlugin("org.scalameta"  % "sbt-native-image"    % "0.3.2")
 addSbtPlugin("com.eed3si9n"   % "sbt-buildinfo"       % "0.11.0")
 
@@ -8,3 +8,5 @@ addSbtPlugin("io.kevinlee" % "sbt-devoops-sbt-extra" % sbtDevoopsVersion)
 addSbtPlugin("io.kevinlee" % "sbt-devoops-github"    % sbtDevoopsVersion)
 
 addSbtPlugin("io.kevinlee" % "sbt-devoops-starter" % sbtDevoopsVersion)
+
+dependencyOverrides += "org.scala-lang.modules" %% "scala-xml" % "2.1.0"
