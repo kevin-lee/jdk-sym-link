@@ -18,7 +18,7 @@ import scala.util.Try
   * @since 2022-06-02
   */
 object JdkSymLinkRun {
-  def apply[F[_]: Fx: Monad](args: JdkSymLinkArgs): F[Either[JdkSymLinkAppError, Unit]] =
+  def apply[F[*]: Fx: Monad](args: JdkSymLinkArgs): F[Either[JdkSymLinkAppError, Unit]] =
     args match {
       case JdkSymLinkArgs.JdkListArgs =>
         val jdk = JdkSymLink[F]

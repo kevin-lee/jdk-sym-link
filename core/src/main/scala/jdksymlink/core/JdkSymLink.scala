@@ -33,7 +33,7 @@ import extras.scala.io.syntax.color.*
   * @author Kevin Lee
   * @since 2019-12-22
   */
-trait JdkSymLink[F[_]] {
+trait JdkSymLink[F[*]] {
   def listAll(javaBaseDirPath: JvmBaseDirPath, javaBaseDir: File): F[Either[JdkSymLinkError, Unit]]
   def slink(
     javaMajorVersion: JavaMajorVersion,
@@ -44,9 +44,9 @@ trait JdkSymLink[F[_]] {
 
 object JdkSymLink {
 
-  def apply[F[_]: JdkSymLink]: JdkSymLink[F] = summon[JdkSymLink[F]]
+  def apply[F[*]: JdkSymLink]: JdkSymLink[F] = summon[JdkSymLink[F]]
 
-  given jdkSymLinkF[F[_]: Monad: Fx]: JdkSymLink[F] with {
+  given jdkSymLinkF[F[*]: Monad: Fx]: JdkSymLink[F] with {
 
     def listAll(javaBaseDirPath: JvmBaseDirPath, javaBaseDir: File): F[Either[JdkSymLinkError, Unit]] =
       (for {
@@ -272,10 +272,8 @@ object JdkSymLink {
                             |""".stripMargin
                        ).rightT
 
-                  rmCommandList <- pureOf(
-                                     List("sudo", "rm", s"jdk${javaMajorVersion.render}")
-                                   ).rightT
-                  rmCommand :: rmCommandRest = rmCommandList
+                  (rmCommand, rmCommandRest) = ("sudo", List("rm", s"jdk${javaMajorVersion.render}"))
+                  rmCommandList              = rmCommand :: rmCommandRest
                   rmCommandProcess <- pureOf(
                                         SysProcess.singleSysProcess(javaBaseDir, rmCommand, rmCommandRest: _*)
                                       ).rightT
@@ -296,16 +294,16 @@ object JdkSymLink {
                                               .asLeft[List[String]]
                                         }
 
-                  lnCommandList <- pureOf(
-                                     List(
-                                       "sudo",
-                                       "ln",
-                                       "-s",
-                                       javaBaseDirPath.value,
-                                       s"jdk${javaMajorVersion.render}"
-                                     )
-                                   ).rightT
-                  lnCommand :: lnCommandRest = lnCommandList
+                  (lnCommand, lnCommandRest) = (
+                                                 "sudo",
+                                                 List(
+                                                   "ln",
+                                                   "-s",
+                                                   javaBaseDirPath.value,
+                                                   s"jdk${javaMajorVersion.render}"
+                                                 )
+                                               )
+                  lnCommandList              = lnCommand :: lnCommandRest
                   lnCommandProcess <- pureOf(
                                         SysProcess.singleSysProcess(javaBaseDir, lnCommand, lnCommandRest: _*)
                                       ).rightT
@@ -344,15 +342,16 @@ object JdkSymLink {
                        javaMajorVersion
                      )} """.stripMargin
                  ).rightT
-
-            lnCommandList              = List(
+            (lnCommand, lnCommandRest) = (
                                            "sudo",
-                                           "ln",
-                                           "-s",
-                                           javaBaseDirPath.value,
-                                           s"jdk${JavaMajorVersion.render(javaMajorVersion)}"
+                                           List(
+                                             "ln",
+                                             "-s",
+                                             javaBaseDirPath.value,
+                                             s"jdk${JavaMajorVersion.render(javaMajorVersion)}"
+                                           )
                                          )
-            lnCommand :: lnCommandRest = lnCommandList
+            lnCommandList              = lnCommand :: lnCommandRest
             lnCommandProcess <- pureOf(
                                   SysProcess.singleSysProcess(
                                     javaBaseDir,
