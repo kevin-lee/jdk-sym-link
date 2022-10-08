@@ -10,7 +10,7 @@ import jdksymlink.core.{JdkSymLink, JdkSymLinkError, Utils}
 import extras.cats.syntax.all.*
 import effectie.syntax.all.*
 import jdksymlink.cs.CoursierCmd
-import effectie.cats.console.given
+import effectie.syntax.console.given
 import jdksymlink.cs.CoursierCmd.{CoursierError, JdkByCs}
 import scala.util.Try
 
