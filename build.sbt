@@ -43,7 +43,7 @@ lazy val cli = projectCommonSettings("cli", ProjectName("cli"), file("cli"))
     packageSummary       := "JdkSymLink",
     packageDescription   := "A tool to create JDK symbolic links",
     executableScriptName := props.ProjectNamePrefix,
-    nativeImageVersion   := "22.1.0",
+    nativeImageVersion   := "22.2.0",
     nativeImageJvm       := "graalvm-java17",
     nativeImageOptions ++= Seq(
       "--verbose",
