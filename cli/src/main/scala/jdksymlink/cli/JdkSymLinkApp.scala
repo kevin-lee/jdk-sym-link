@@ -5,7 +5,7 @@ import Pirate.*
 import cats.data.*
 import cats.effect.*
 import cats.syntax.all.*
-import effectie.ce3.fx.ioFx
+import effectie.instances.ce3.fx.ioFx
 import extras.cats.syntax.all.*
 import jdksymlink.core.data.{Coursier, DefaultJdk, JavaMajorVersion}
 import jdksymlink.core.{JdkSymLink, JdkSymLinkError, Utils}

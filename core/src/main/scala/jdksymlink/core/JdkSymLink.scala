@@ -7,6 +7,7 @@ import cats.syntax.all.*
 import effectie.syntax.console.given
 import effectie.core.{Fx, YesNo}
 import effectie.syntax.all.*
+import effectie.instances.console.*
 import extras.cats.syntax.all.*
 import jdksymlink.core.data.*
 import jdksymlink.cs.CoursierCmd
