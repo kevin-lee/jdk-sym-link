@@ -9,7 +9,6 @@ import jdksymlink.core.data.{Coursier, DefaultJdk}
 import jdksymlink.core.{JdkSymLink, JdkSymLinkError, Utils}
 import extras.cats.syntax.all.*
 import effectie.syntax.all.*
-import effectie.instances.console.*
 import jdksymlink.cs.CoursierCmd
 import effectie.syntax.console.given
 import jdksymlink.cs.CoursierCmd.{CoursierError, JdkByCs}
