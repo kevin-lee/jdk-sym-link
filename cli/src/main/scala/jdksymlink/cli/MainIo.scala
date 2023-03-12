@@ -3,9 +3,7 @@ package jdksymlink.cli
 import cats.data.NonEmptyList
 import cats.effect.{ExitCode, *}
 import cats.syntax.all.*
-import effectie.core.ConsoleEffect
 import effectie.instances.ce3.fx.ioFx
-import effectie.instances.console.*
 import effectie.syntax.all.*
 import effectie.syntax.console.given
 import jdksymlink.cli.JdkSymLinkArgs.{ArgParseError, ArgParseFailureResult, JustMessageOrHelp}
