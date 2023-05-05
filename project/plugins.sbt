@@ -1,5 +1,5 @@
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.16")
-addSbtPlugin("org.scalameta"  % "sbt-native-image"    % "0.3.2")
+addSbtPlugin("org.scalameta"  % "sbt-native-image"    % "0.3.4")
 addSbtPlugin("com.eed3si9n"   % "sbt-buildinfo"       % "0.11.0")
 
 val sbtDevoopsVersion = "2.24.0"
