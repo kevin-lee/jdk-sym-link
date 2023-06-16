@@ -81,7 +81,7 @@ lazy val props =
     final val ProjectScalaVersion = "3.3.0"
 
     final val effectieVersion = "2.0.0-beta9"
-    final val refinedVersion  = "0.10.3"
+    final val refinedVersion  = "0.11.0"
 
     final val catsVersion       = "2.9.0"
     final val catsEffectVersion = "3.5.0"
