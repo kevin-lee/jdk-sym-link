@@ -48,8 +48,8 @@ jobs:
 
           rm -f */target/scala-*/*.jar
 
-          ls -lGh cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
+          ls -lGh modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
+          sh -c "modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
 
           sbt \
             -J-XX:MaxMetaspaceSize=1024m \
