@@ -14,7 +14,7 @@ ThisBuild / scmInfo :=
     )
   )
 
-lazy val core = projectCommonSettings("core", ProjectName("core"), file("core"))
+lazy val core = projectCommonSettings("core")
   .enablePlugins(BuildInfoPlugin)
   .settings(
     libraryDependencies ++=
@@ -36,7 +36,7 @@ lazy val core = projectCommonSettings("core", ProjectName("core"), file("core"))
 
 lazy val pirate = ProjectRef(props.pirateUri, "pirate")
 
-lazy val cli = projectCommonSettings("cli", ProjectName("cli"), file("cli"))
+lazy val cli = projectCommonSettings("cli")
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
     maintainer := "Kevin Lee <kevin.code@kevinlee.io>",
@@ -63,8 +63,8 @@ lazy val jdkSymLink = (project in file("."))
     name := props.ProjectNamePrefix,
     /* GitHub Release { */
     devOopsPackagedArtifacts := List(
-      s"cli/target/native-image/${name.value}-cli",
-      s"cli/target/universal/${name.value}*.zip",
+      s"modules/cli/target/native-image/${name.value}-cli",
+      s"modules/cli/target/universal/${name.value}*.zip",
     ),
     /* } GitHub Release */
   )
@@ -132,18 +132,15 @@ lazy val libs =
 
   }
 
-def prefixedProjectName(name: String) = s"${props.RepoName}${
-    if (name.isEmpty)
-      ""
-    else
-      s"-$name"
-  }"
+def prefixedProjectName(name: String) = s"${props.RepoName}${if (name.isEmpty) "" else s"-$name"}"
 
-def projectCommonSettings(id: String, projectName: ProjectName, file: File): Project =
-  Project(id, file)
+def projectCommonSettings(projectName: String): Project = {
+  val prefixedName = prefixedProjectName(projectName)
+  Project(prefixedName, file(s"modules/$prefixedName"))
     .settings(
-      name := prefixedProjectName(projectName.projectName),
+      name := prefixedName,
       useAggressiveScalacOptions := true,
       libraryDependencies ++= libs.hedgehogLibs ++ libs.refined,
       testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework")),
     )
+}
