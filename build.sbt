@@ -1,12 +1,12 @@
 import SbtProjectInfo._
 
 ThisBuild / organization := props.Org
-ThisBuild / version      := props.ProjectVersion
+ThisBuild / version := props.ProjectVersion
 ThisBuild / scalaVersion := props.ProjectScalaVersion
-ThisBuild / developers   := List(
+ThisBuild / developers := List(
   Developer("Kevin-Lee", "Kevin Lee", "kevin.code@kevinlee.io", url("https://github.com/Kevin-Lee"))
 )
-ThisBuild / scmInfo      :=
+ThisBuild / scmInfo :=
   Some(
     ScmInfo(
       url("https://github.com/Kevin-Lee/jdk-symbolic-link"),
@@ -23,13 +23,13 @@ lazy val core = projectCommonSettings("core", ProjectName("core"), file("core"))
         libs.effectie ++
         List(libs.extrasCats, libs.extrasScalaIo, libs.justSemVer)
     /* Build Info { */,
-    buildInfoKeys    := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoObject  := "JdkSymLinkBuildInfo",
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoObject := "JdkSymLinkBuildInfo",
     buildInfoPackage := "jdksymlink.info",
     buildInfoOptions += BuildInfoOption.ToJson
     /* } Build Info */
     /* publish { */,
-    licenses         := List("MIT" -> url("http://opensource.org/licenses/MIT")),
+    licenses := List("MIT" -> url("http://opensource.org/licenses/MIT")),
     /* } publish */
 
   )
@@ -39,12 +39,12 @@ lazy val pirate = ProjectRef(props.pirateUri, "pirate")
 lazy val cli = projectCommonSettings("cli", ProjectName("cli"), file("cli"))
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
-    maintainer           := "Kevin Lee <kevin.code@kevinlee.io>",
-    packageSummary       := "JdkSymLink",
-    packageDescription   := "A tool to create JDK symbolic links",
+    maintainer := "Kevin Lee <kevin.code@kevinlee.io>",
+    packageSummary := "JdkSymLink",
+    packageDescription := "A tool to create JDK symbolic links",
     executableScriptName := props.ProjectNamePrefix,
-    nativeImageVersion   := "22.2.0",
-    nativeImageJvm       := "graalvm-java17",
+    nativeImageVersion := "22.2.0",
+    nativeImageJvm := "graalvm-java17",
     nativeImageOptions ++= Seq(
       "--verbose",
       "--no-fallback",
@@ -60,7 +60,7 @@ lazy val cli = projectCommonSettings("cli", ProjectName("cli"), file("cli"))
 lazy val jdkSymLink = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin)
   .settings(
-    name                     := props.ProjectNamePrefix,
+    name := props.ProjectNamePrefix,
     /* GitHub Release { */
     devOopsPackagedArtifacts := List(
       s"cli/target/native-image/${name.value}-cli",
@@ -142,7 +142,7 @@ def prefixedProjectName(name: String) = s"${props.RepoName}${
 def projectCommonSettings(id: String, projectName: ProjectName, file: File): Project =
   Project(id, file)
     .settings(
-      name                       := prefixedProjectName(projectName.projectName),
+      name := prefixedProjectName(projectName.projectName),
       useAggressiveScalacOptions := true,
       libraryDependencies ++= libs.hedgehogLibs ++ libs.refined,
       testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework")),
