@@ -4,13 +4,13 @@ ThisBuild / organization := props.Org
 ThisBuild / version := props.ProjectVersion
 ThisBuild / scalaVersion := props.ProjectScalaVersion
 ThisBuild / developers := List(
-  Developer("Kevin-Lee", "Kevin Lee", "kevin.code@kevinlee.io", url("https://github.com/Kevin-Lee"))
+  Developer("kevin-lee", "Kevin Lee", "kevin.code@kevinlee.io", url("https://github.com/kevin-lee"))
 )
 ThisBuild / scmInfo :=
   Some(
     ScmInfo(
-      url("https://github.com/Kevin-Lee/jdk-symbolic-link"),
-      "https://github.com/Kevin-Lee/jdk-symbolic-link.git",
+      url("https://github.com/kevin-lee/jdk-symbolic-link"),
+      "https://github.com/kevin-lee/jdk-symbolic-link.git",
     )
   )
 
@@ -74,7 +74,7 @@ lazy val jdkSymLink = (project in file("."))
 lazy val props =
   new {
     final val Org                 = "io.kevinlee"
-    final val GitHubUsername      = "Kevin-Lee"
+    final val GitHubUsername      = "kevin-lee"
     final val RepoName            = "jdk-sym-link"
     final val ProjectNamePrefix   = RepoName
     final val ProjectVersion      = SbtProjectInfo.ProjectVersion
