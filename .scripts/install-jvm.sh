@@ -8,7 +8,7 @@ app_name=jdk-sym-link-cli
 app_version=${1:-0.9.1}
 versioned_app_name="${app_name}-${app_version}"
 app_zip_file="${versioned_app_name}.zip"
-download_url="https://github.com/Kevin-Lee/jdk-sym-link/releases/download/v${app_version}/${app_zip_file}"
+download_url="https://github.com/kevin-lee/jdk-sym-link/releases/download/v${app_version}/${app_zip_file}"
 
 usr_local_path="/usr/local"
 opt_location="${usr_local_path}/opt"
