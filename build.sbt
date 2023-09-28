@@ -84,7 +84,7 @@ lazy val props =
     final val refinedVersion  = "0.11.0"
 
     final val catsVersion       = "2.10.0"
-    final val catsEffectVersion = "3.5.1"
+    final val catsEffectVersion = "3.5.2"
 
     final val ExtrasVersion = "0.42.0"
 
