@@ -80,7 +80,7 @@ lazy val props =
     final val ProjectVersion      = SbtProjectInfo.ProjectVersion
     final val ProjectScalaVersion = "3.3.1"
 
-    final val effectieVersion = "2.0.0-beta12"
+    final val effectieVersion = "2.0.0-beta13"
     final val refinedVersion  = "0.11.0"
 
     final val catsVersion       = "2.10.0"
