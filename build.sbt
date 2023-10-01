@@ -88,7 +88,7 @@ lazy val props =
 
     final val ExtrasVersion = "0.42.0"
 
-    final val JustSemVerVersion = "0.6.0"
+    final val JustSemVerVersion = "0.7.0"
 
     final val hedgehogVersion = "0.10.1"
 
