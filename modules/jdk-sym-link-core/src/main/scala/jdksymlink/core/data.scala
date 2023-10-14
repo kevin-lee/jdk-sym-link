@@ -63,6 +63,15 @@ object data {
     val From9PatternWithOnlyVersion: Regex = """^jdk-(\d+)\.jdk$""".r
   }
 
+  object SdkMan {
+    def homeDir: String = sys.env("HOME")
+
+    val JavaBaseDirPath: JvmBaseDirPath = JvmBaseDirPath(s"$homeDir/.sdkman/candidates/java")
+    lazy val javaBaseDirFile: File      = new File(JavaBaseDirPath.value)
+
+    val SdkManJdkPattern = """([\w]+)(?:\.([\w]+))?(?:\.([\w]+))?(?:\.([\w]+))?-([\w]+)""".r
+  }
+
   object Coursier {
     def homeDir: String = sys.env("HOME")
 
