@@ -1,5 +1,5 @@
 object SbtProjectInfo {
 
-  val ProjectVersion: String = "0.9.1"
+  val ProjectVersion: String = "0.10.0"
 
 }
