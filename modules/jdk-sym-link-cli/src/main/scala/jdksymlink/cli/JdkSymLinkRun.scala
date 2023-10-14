@@ -5,20 +5,23 @@ import cats.syntax.all.*
 import cats.data.{NonEmptyChain, NonEmptyList}
 import cats.effect.IO
 import effectie.core.Fx
-import jdksymlink.core.data.{Coursier, DefaultJdk}
+import jdksymlink.core.data.{Coursier, DefaultJdk, SdkMan}
 import jdksymlink.core.{JdkSymLink, JdkSymLinkError, Utils}
 import extras.cats.syntax.all.*
 import effectie.syntax.all.*
 import jdksymlink.cs.CoursierCmd
 import effectie.syntax.console.given
 import jdksymlink.cs.CoursierCmd.{CoursierError, JdkByCs}
+
 import scala.util.Try
 
 /** @author Kevin Lee
   * @since 2022-06-02
   */
 object JdkSymLinkRun {
-  def apply[F[*]: Fx: Monad](args: JdkSymLinkArgs): F[Either[JdkSymLinkAppError, Unit]] =
+  def apply[F[*]: Fx: Monad](
+    args: JdkSymLinkArgs
+  ): F[Either[JdkSymLinkAppError, Unit]] =
     args match {
       case JdkSymLinkArgs.JdkListArgs =>
         val jdk = JdkSymLink[F]
@@ -26,8 +29,16 @@ object JdkSymLinkRun {
           .t
           .transform(_.toEitherNec)
 
+        val sdkMan = JdkSymLink[F]
+          .listAll(SdkMan.JavaBaseDirPath, SdkMan.javaBaseDirFile)
+          .t
+          .transform(_.toEitherNec)
+
         val coursier = JdkSymLink[F]
-          .listAll(Coursier.CoursierJavaBaseDirPath, Coursier.coursierJavaBaseDirFile)
+          .listAll(
+            Coursier.CoursierJavaBaseDirPath,
+            Coursier.coursierJavaBaseDirFile
+          )
           .t
           .transform(_.toEitherNec)
 
@@ -39,10 +50,11 @@ object JdkSymLinkRun {
             .rightT[NonEmptyChain[JdkSymLinkError]]
             .flatMap { csFound =>
               (
-                putStrLn[F]("\n>>> Getting JDKs from 'cs java --installed'. Please wait.") >>
+                putStrLn[F](
+                  "\n>>> Getting JDKs from 'cs java --installed'. Please wait."
+                ) >>
                   CoursierCmd.javaInstalled[F]
-              )
-                .t
+              ).t
                 .leftMap(JdkSymLinkError.Coursier(_))
                 .transform(_.toEitherNec)
                 .flatMap { lines =>
@@ -51,12 +63,8 @@ object JdkSymLinkRun {
                 .whenA(csFound)
             }
 
-        (
-          jdk,
-          coursier,
-          csJdk
-        )
-          .mapN((_, _, _) => ())
+        (jdk, coursier, csJdk, sdkMan)
+          .mapN((_, _, _, _) => ())
           .leftMap(JdkSymLinkAppError.MultipleJdkSymLinkCore(_))
           .value
 
@@ -66,7 +74,11 @@ object JdkSymLinkRun {
             javaVersion,
             NonEmptyList.of(
               (DefaultJdk.JavaBaseDirPath, Utils.extractVersion),
-              (Coursier.CoursierJavaBaseDirPath, Utils.extractCoursierJavaVersion)
+              (
+                Coursier.CoursierJavaBaseDirPath,
+                Utils.extractCoursierJavaVersion
+              ),
+              (SdkMan.JavaBaseDirPath, Utils.extractSdkManJavaVersion)
             ),
             DefaultJdk.javaBaseDirFile
           )
