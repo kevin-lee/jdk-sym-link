@@ -44,42 +44,43 @@ trait JdkSymLink[F[*]] {
 
 object JdkSymLink {
 
-  def apply[F[*]: JdkSymLink]: JdkSymLink[F] = summon[JdkSymLink[F]]
+  def apply[F[*]: Monad: Fx]: JdkSymLink[F] = new JdkSymLinkF[F]
 
-  given jdkSymLinkF[F[*]: Monad: Fx]: JdkSymLink[F] with {
+  private final class JdkSymLinkF[F[*]: Monad: Fx] extends JdkSymLink[F] {
 
     def listAll(javaBaseDirPath: JvmBaseDirPath, javaBaseDir: File): F[Either[JdkSymLinkError, Unit]] =
       (for {
-        dirNotExists <- effectOf(!javaBaseDirPath.toPath.dirExist).rightT
-        _            <- if dirNotExists then putStrLn(s"${javaBaseDirPath.value} does not exist.").rightT
-                        else
-                          for {
-                            _ <- putStrLn(
-                                   s"""
-                                      |$$ ls -l ${javaBaseDirPath.value}
-                                      |""".stripMargin
-                                 ).rightT
+        _ <- effectOf(!javaBaseDirPath.toPath.dirExist).rightT.ifM(
+          putStrLn(s"${javaBaseDirPath.value} does not exist.").rightT,
+          for {
+            _ <- putStrLn(
+              s"""
+                 |$$ ls -l ${javaBaseDirPath.value}
+                 |""".stripMargin
+            ).rightT
 
-                            sysProcess <- pureOf(SysProcess.singleSysProcess(Option(javaBaseDir), "ls", "-l")).rightT
-                            result     <- effectOf(sysProcess.run())
-                                            .eitherT
-                                            .transform {
-                                              case Right(ProcessResult(result)) =>
-                                                result.asRight[JdkSymLinkError]
+            sysProcess <- pureOrError(SysProcess.singleSysProcess(Option(javaBaseDir), "ls", "-l")).rightT
+            result <- effectOf(sysProcess.run())
+              .eitherT
+              .transform {
+                case Right(ProcessResult(result)) =>
+                  result.asRight[JdkSymLinkError]
 
-                                              case Left(ProcessError.Failure(code, error)) =>
-                                                JdkSymLinkError
-                                                  .LsFailure(code, error.mkString("\n"), List("ls", "-l"))
-                                                  .asLeft[List[String]]
+                case Left(ProcessError.Failure(code, error)) =>
+                  JdkSymLinkError
+                    .LsFailure(code, error.mkString("\n"), List("ls", "-l"))
+                    .asLeft[List[String]]
 
-                                              case Left(ProcessError.FailureWithNonFatal(nonFatalThrowable)) =>
-                                                JdkSymLinkError
-                                                  .CommandFailure(nonFatalThrowable, List("ls", "-l"))
-                                                  .asLeft[List[String]]
-                                            }
-                            _          <- putStrLn(s"${result.mkString("\n")}\n").rightT[JdkSymLinkError]
-                          } yield ()
+                case Left(ProcessError.FailureWithNonFatal(nonFatalThrowable)) =>
+                  JdkSymLinkError
+                    .CommandFailure(nonFatalThrowable, List("ls", "-l"))
+                    .asLeft[List[String]]
+              }
+            _ <- putStrLn(s"${result.mkString("\n")}\n").rightT[JdkSymLinkError]
+          } yield ()
+        )
       } yield ()).value
+
 
     def slink(
       javaMajorVersion: JavaMajorVersion,
@@ -101,35 +102,7 @@ object JdkSymLink {
                                 }
                               }
                               .rightTF
-        coursierJdks     <- effectOf {
-                              import scala.sys.process._
-                              "type cs".! == 0
-                            }
-                              .handleNonFatal(_ => false)
-                              .rightT[JdkSymLinkError]
-                              .ifM(
-                                (
-                                  putStrLn(
-                                    s">>> Running ${CoursierCmd.CsJavaInstalledCmd.blue} to fetch JDKs installed by Coursier. "
-                                  ) *>
-                                    putStrLn(">>> It may take some time to fetch it.") *>
-                                    putStrLn(s"$$ ${CoursierCmd.CsJavaInstalledCmd.blue}")
-                                )
-                                  .rightT[JdkSymLinkError] >> CoursierCmd
-                                  .javaInstalled[F]
-                                  .t
-                                  .leftMap { err =>
-                                    JdkSymLinkError.Coursier(err)
-                                  }
-                                  .map { jdks =>
-                                    jdks.filter {
-                                      case JdkByCs(_, _, majorVersion, _, _) =>
-                                        majorVersion.value == javaMajorVersion.value
-                                    }
-                                  },
-                                pureOf(List.empty[JdkByCs]).rightT[JdkSymLinkError]
-                              )
-        maybeNameVersion <- askUserToSelectJdk(coursierJdks ++ jdkNameVersions).rightT
+        maybeNameVersion <- askUserToSelectJdk(jdkNameVersions).rightT
         nameVersionPath = maybeNameVersion.map {
                             case JdkByCs(_, name, major, version, path) =>
                               (
