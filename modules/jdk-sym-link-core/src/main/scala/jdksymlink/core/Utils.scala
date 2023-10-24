@@ -11,7 +11,7 @@ import scala.sys.process.Process
   */
 object Utils {
 
-  def isPositiveNumber(text: String): Boolean = text.matches("""[1-9][\d]*""")
+  def isPositiveNumber(text: String): Boolean    = text.matches("""[1-9][\d]*""")
   def isNonNegativeNumber(text: String): Boolean = text.matches("""[\d]+""")
 
   def extractVersion(name: String): Option[NameAndVersion] = name match {
@@ -62,12 +62,12 @@ object Utils {
     javaBaseDirFile: File,
     versionExtractor: String => Option[NameAndVersion]
   ): List[NameAndVersion] =
-    (Process(Seq("bash", "-c", "ls -d */"), Option(javaBaseDirFile)).lazyLines)
+    (Process(Seq("bash", "-c", "ls -d */"), Option(javaBaseDirFile))
+      .lazyLines)
       .map(line => if (line.endsWith("/")) line.dropRight(1) else line)
       .map(versionExtractor)
       .foldLeft(List.empty[NameAndVersion]) {
-        case (acc, Some(x @ (_, VerStr(v, _, _))))
-            if v === javaMajorVersion.value.toString =>
+        case (acc, Some(x @ (_, VerStr(v, _, _)))) if v === javaMajorVersion.value.toString =>
           acc :+ x
         case (acc, _) =>
           acc

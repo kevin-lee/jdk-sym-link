@@ -69,7 +69,7 @@ object data {
 
     /* Do not change it to val. If it's val, the native build uses the HOME of the build environment. */
     lazy val JavaBaseDirPath: JvmBaseDirPath = JvmBaseDirPath(s"$homeDir/.sdkman/candidates/java")
-    lazy val javaBaseDirFile: File      = new File(JavaBaseDirPath.value)
+    lazy val javaBaseDirFile: File           = new File(JavaBaseDirPath.value)
 
     val SdkManJdkPattern = """([\w]+)(?:\.([\w]+))?(?:\.([\w]+))?(?:\.([\w]+))?-([\w]+)""".r
   }
