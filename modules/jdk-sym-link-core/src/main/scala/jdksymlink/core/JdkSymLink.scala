@@ -50,37 +50,38 @@ object JdkSymLink {
 
     def listAll(javaBaseDirPath: JvmBaseDirPath, javaBaseDir: File): F[Either[JdkSymLinkError, Unit]] =
       (for {
-        _ <- effectOf(!javaBaseDirPath.toPath.dirExist).rightT.ifM(
-          putStrLn(s"${javaBaseDirPath.value} does not exist.").rightT,
-          for {
-            _ <- putStrLn(
-              s"""
+        _ <- effectOf(!javaBaseDirPath.toPath.dirExist)
+               .rightT
+               .ifM(
+                 putStrLn(s"${javaBaseDirPath.value} does not exist.").rightT,
+                 for {
+                   _ <- putStrLn(
+                          s"""
                  |$$ ls -l ${javaBaseDirPath.value}
                  |""".stripMargin
-            ).rightT
+                        ).rightT
 
-            sysProcess <- pureOrError(SysProcess.singleSysProcess(Option(javaBaseDir), "ls", "-l")).rightT
-            result <- effectOf(sysProcess.run())
-              .eitherT
-              .transform {
-                case Right(ProcessResult(result)) =>
-                  result.asRight[JdkSymLinkError]
+                   sysProcess <- pureOrError(SysProcess.singleSysProcess(Option(javaBaseDir), "ls", "-l")).rightT
+                   result     <- effectOf(sysProcess.run())
+                                   .eitherT
+                                   .transform {
+                                     case Right(ProcessResult(result)) =>
+                                       result.asRight[JdkSymLinkError]
 
-                case Left(ProcessError.Failure(code, error)) =>
-                  JdkSymLinkError
-                    .LsFailure(code, error.mkString("\n"), List("ls", "-l"))
-                    .asLeft[List[String]]
+                                     case Left(ProcessError.Failure(code, error)) =>
+                                       JdkSymLinkError
+                                         .LsFailure(code, error.mkString("\n"), List("ls", "-l"))
+                                         .asLeft[List[String]]
 
-                case Left(ProcessError.FailureWithNonFatal(nonFatalThrowable)) =>
-                  JdkSymLinkError
-                    .CommandFailure(nonFatalThrowable, List("ls", "-l"))
-                    .asLeft[List[String]]
-              }
-            _ <- putStrLn(s"${result.mkString("\n")}\n").rightT[JdkSymLinkError]
-          } yield ()
-        )
+                                     case Left(ProcessError.FailureWithNonFatal(nonFatalThrowable)) =>
+                                       JdkSymLinkError
+                                         .CommandFailure(nonFatalThrowable, List("ls", "-l"))
+                                         .asLeft[List[String]]
+                                   }
+                   _          <- putStrLn(s"${result.mkString("\n")}\n").rightT[JdkSymLinkError]
+                 } yield ()
+               )
       } yield ()).value
-
 
     def slink(
       javaMajorVersion: JavaMajorVersion,
