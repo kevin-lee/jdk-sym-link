@@ -1,6 +1,5 @@
 package jdksymlink.core
 
-import cats.data.NonEmptyList
 import jdksymlink.cs.CoursierCmd.CoursierError
 
 import java.io.{IOException, PrintWriter, StringWriter}

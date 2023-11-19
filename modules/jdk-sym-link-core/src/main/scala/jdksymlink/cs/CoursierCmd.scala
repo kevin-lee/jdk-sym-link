@@ -3,8 +3,6 @@ package jdksymlink.cs
 import cats.Monad
 import cats.data.EitherT
 import cats.syntax.all.*
-import cats.effect.*
-import cats.effect.syntax.all.*
 import just.sysprocess.SysProcess
 
 import java.io.File

@@ -1,6 +1,6 @@
 package jdksymlink.cli
 
-import cats.data.{NonEmptyChain, NonEmptyList}
+import cats.data.NonEmptyChain
 import cats.syntax.all.*
 import extras.scala.io.syntax.color.*
 import jdksymlink.cli.JdkSymLinkArgs.ArgParseError

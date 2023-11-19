@@ -4,7 +4,6 @@ import Utils.*
 import cats.*
 import cats.data.*
 import cats.syntax.all.*
-import effectie.syntax.console.given
 import effectie.core.{Fx, YesNo}
 import effectie.syntax.all.*
 import extras.cats.syntax.all.*

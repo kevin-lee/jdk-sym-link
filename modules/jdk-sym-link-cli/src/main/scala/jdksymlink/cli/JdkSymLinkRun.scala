@@ -7,7 +7,6 @@ import effectie.core.Fx
 import extras.cats.syntax.all.*
 import jdksymlink.core.data.{DefaultJdk, SdkMan}
 import jdksymlink.core.{JdkSymLink, JdkSymLinkError, Utils}
-import jdksymlink.cs.CoursierCmd
 
 /** @author Kevin Lee
   * @since 2022-06-02
