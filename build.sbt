@@ -36,7 +36,7 @@ lazy val core = projectCommonSettings("core")
 
   )
 
-lazy val pirate = ProjectRef(props.pirateUri, "pirate")
+lazy val pirate = ProjectRef(props.pirateUri, "pirate-scalaz")
 
 lazy val cli = projectCommonSettings("cli")
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
@@ -75,16 +75,16 @@ lazy val jdkSymLink = (project in file("."))
 
 lazy val props =
   new {
-    final val Org                 = "io.kevinlee"
-    final val GitHubUsername      = "kevin-lee"
-    final val RepoName            = "jdk-sym-link"
-    final val ProjectNamePrefix   = RepoName
+    final val Org = "io.kevinlee"
+    final val GitHubUsername = "kevin-lee"
+    final val RepoName = "jdk-sym-link"
+    final val ProjectNamePrefix = RepoName
     final val ProjectScalaVersion = "3.3.1"
 
     final val effectieVersion = "2.0.0-beta13"
-    final val refinedVersion  = "0.11.0"
+    final val refinedVersion = "0.11.0"
 
-    final val catsVersion       = "2.10.0"
+    final val catsVersion = "2.10.0"
     final val catsEffectVersion = "3.5.2"
 
     final val ExtrasVersion = "0.44.0"
@@ -95,8 +95,8 @@ lazy val props =
 
     final val justSysprocessVersion = "1.0.0"
 
-    final val pirateVersion = "deec3408b08a751de9b2df2d17fc1ab7b8daeaaf"
-    final val pirateUri     = uri(
+    final val pirateVersion = "3ea3878205d7c57414f6b88810549be844880193"
+    final val pirateUri = uri(
       s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion"
     )
 
@@ -108,9 +108,9 @@ lazy val libs =
   new {
 
     lazy val hedgehogLibs = List(
-      "qa.hedgehog" %% "hedgehog-core"   % props.hedgehogVersion % Test,
+      "qa.hedgehog" %% "hedgehog-core" % props.hedgehogVersion % Test,
       "qa.hedgehog" %% "hedgehog-runner" % props.hedgehogVersion % Test,
-      "qa.hedgehog" %% "hedgehog-sbt"    % props.hedgehogVersion % Test,
+      "qa.hedgehog" %% "hedgehog-sbt" % props.hedgehogVersion % Test,
     )
 
     lazy val justSysProcess = "io.kevinlee" %% "just-sysprocess" % props.justSysprocessVersion
@@ -118,7 +118,7 @@ lazy val libs =
     lazy val refined = List("eu.timepit" %% "refined" % props.refinedVersion)
 
     lazy val catsAndCatsEffect = List(
-      "org.typelevel" %% "cats-core"   % props.catsVersion,
+      "org.typelevel" %% "cats-core" % props.catsVersion,
       "org.typelevel" %% "cats-effect" % props.catsEffectVersion,
     )
 
@@ -126,7 +126,7 @@ lazy val libs =
       "io.kevinlee" %% "effectie-cats-effect3" % props.effectieVersion,
     )
 
-    lazy val extrasCats    = "io.kevinlee" %% "extras-cats"     % props.ExtrasVersion
+    lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion
     lazy val extrasScalaIo = "io.kevinlee" %% "extras-scala-io" % props.ExtrasVersion
 
     lazy val justSemVer = "io.kevinlee" %% "just-semver" % props.JustSemVerVersion
@@ -141,7 +141,7 @@ def projectCommonSettings(projectName: String): Project = {
   Project(prefixedName, file(s"modules/$prefixedName"))
     .settings(
       name := prefixedName,
-      useAggressiveScalacOptions := true,
+      scalacOptions += "strictEquality",
       libraryDependencies ++= libs.hedgehogLibs ++ libs.refined,
       testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework")),
     )

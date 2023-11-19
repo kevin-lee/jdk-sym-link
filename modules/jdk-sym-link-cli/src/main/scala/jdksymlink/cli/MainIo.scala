@@ -1,16 +1,11 @@
 package jdksymlink.cli
 
-import cats.data.NonEmptyList
 import cats.effect.{ExitCode, *}
 import cats.syntax.all.*
 import effectie.instances.ce3.fx.ioFx
 import effectie.syntax.all.*
-import effectie.syntax.console.given
 import jdksymlink.cli.JdkSymLinkArgs.{ArgParseError, ArgParseFailureResult, JustMessageOrHelp}
-import jdksymlink.core.JdkSymLinkError
-import pirate.{ExitCode as PirateExitCode, *}
-
-import scala.io.AnsiColor
+import pirate.*
 
 /** @author Kevin Lee
   * @since 2019-12-09
