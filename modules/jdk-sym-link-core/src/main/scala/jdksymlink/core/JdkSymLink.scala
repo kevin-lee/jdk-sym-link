@@ -7,6 +7,8 @@ import cats.syntax.all.*
 import effectie.core.{Fx, YesNo}
 import effectie.syntax.all.*
 import extras.cats.syntax.all.*
+import extras.render.*
+import extras.render.syntax.*
 import jdksymlink.core.data.*
 import jdksymlink.cs.CoursierCmd
 import jdksymlink.cs.CoursierCmd.JdkByCs
@@ -202,14 +204,14 @@ object JdkSymLink {
                               ).rightT
       jdkLinkAlreadyExists <-
         pureOf(
-          (s"ls -d ${javaBaseDirFile.getCanonicalPath}/jdk${JavaMajorVersion.render(javaMajorVersion)}" ! (lsResultLogger)) === 0
+          (s"ls -d ${javaBaseDirFile.getCanonicalPath}/jdk${javaMajorVersion.render}" ! (lsResultLogger)) === 0
         ).rightT
       result               <-
         if (jdkLinkAlreadyExists) {
           for {
             isNonSymLink <-
               pureOf(
-                s"find ${javaBaseDirFile.getCanonicalPath} -type l -iname jdk${JavaMajorVersion.render(javaMajorVersion)}"
+                s"find ${javaBaseDirFile.getCanonicalPath} -type l -iname jdk${javaMajorVersion.render}"
               )
                 .flatTap(putStrLn(_))
                 .flatMap { cmd =>
@@ -220,7 +222,7 @@ object JdkSymLink {
                 .rightT
             r            <-
               if (isNonSymLink) {
-                val path = s"${javaBaseDirFile.getCanonicalPath}/jdk${JavaMajorVersion.render(javaMajorVersion)}"
+                val path = s"${javaBaseDirFile.getCanonicalPath}/jdk${javaMajorVersion.render}"
                 pureOf(
                   JdkSymLinkError.PathExistsAndNoSymLink(
                     path,
@@ -231,7 +233,7 @@ object JdkSymLink {
                       "-type",
                       "l",
                       "-iname",
-                      s"jdk${JavaMajorVersion.render(javaMajorVersion)}",
+                      s"jdk${javaMajorVersion.render}",
                     ),
                   )
                 ).leftT[List[String]]
@@ -311,9 +313,7 @@ object JdkSymLink {
           (for {
             _ <- putStrLn(
                    s"""
-                      |$javaBaseDirFile $$ sudo ln -s ${javaBaseDirPath.value} jdk${JavaMajorVersion.render(
-                       javaMajorVersion
-                     )} """.stripMargin
+                      |$javaBaseDirFile $$ sudo ln -s ${javaBaseDirPath.value} jdk${javaMajorVersion.render} """.stripMargin
                  ).rightT
             (lnCommand, lnCommandRest) = (
                                            "sudo",
@@ -321,7 +321,7 @@ object JdkSymLink {
                                              "ln",
                                              "-s",
                                              javaBaseDirPath.value,
-                                             s"jdk${JavaMajorVersion.render(javaMajorVersion)}"
+                                             s"jdk${javaMajorVersion.render}"
                                            )
                                          )
             lnCommandList              = lnCommand :: lnCommandRest

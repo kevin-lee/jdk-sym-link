@@ -4,6 +4,7 @@ import cats.effect.{ExitCode, *}
 import cats.syntax.all.*
 import effectie.instances.ce3.fx.ioFx
 import effectie.syntax.all.*
+import extras.render.syntax.*
 import jdksymlink.cli.JdkSymLinkArgs.{ArgParseError, ArgParseFailureResult, JustMessageOrHelp}
 import pirate.*
 

@@ -2,26 +2,22 @@ package jdksymlink.core
 
 import java.io.File
 import cats.syntax.all.*
+import extras.render.Render
 
 import scala.util.matching.Regex
-import jdksymlink.core.data.Path
 
 import scala.util.Try
+import refined4s.Newtype
 
 /** @author Kevin Lee
   * @since 2015-04-03
   */
 object data {
 
-  type Path = Path.Path
-  object Path {
-    opaque type Path = String
-    def apply(path: String): Path = path
-
-    given pathCanEqual: CanEqual[Path, Path] = CanEqual.derived
+  type Path = Path.Type
+  object Path extends Newtype[String] {
 
     extension (path: Path) {
-      def value: String = path
 
       def dirExist: Boolean = {
         import sys.process.*
@@ -40,16 +36,11 @@ object data {
     }
   }
 
-  type JvmBaseDirPath = JvmBaseDirPath.JvmBaseDirPath
-  object JvmBaseDirPath {
-    opaque type JvmBaseDirPath = String
-    def apply(jvmBaseDirPath: String): JvmBaseDirPath = jvmBaseDirPath
-
-    given jvmBaseDirPathCanEqual: CanEqual[JvmBaseDirPath, JvmBaseDirPath] = CanEqual.derived
+  type JvmBaseDirPath = JvmBaseDirPath.Type
+  object JvmBaseDirPath extends Newtype[String] {
 
     extension (jvmBaseDirPath: JvmBaseDirPath) {
-      def value: String = jvmBaseDirPath
-      def toPath: Path  = Path(value)
+      def toPath: Path = Path(jvmBaseDirPath.value)
     }
   }
 
@@ -86,15 +77,11 @@ object data {
     val AmazonCorrettoOpenJdkPattern       = """amazon-corretto@(?:\d+)\.(\d+)\.(\d+)(?:-)((?:[\d]+)(?:\.[\d]+)*)?""".r
   }
 
-  opaque type JavaMajorVersion = Int
-  object JavaMajorVersion {
-    def apply(javaMajorVersion: Int): JavaMajorVersion = javaMajorVersion
+  type JavaMajorVersion = JavaMajorVersion.Type
+  object JavaMajorVersion extends Newtype[Int] {
 
-    extension (javaMajorVersion: JavaMajorVersion) {
-      def value: Int     = javaMajorVersion
-      def render: String =
-        javaMajorVersion.value.toString
-    }
+    given renderJavaMajorVersion: Render[Type] = deriving
+
   }
 
   type NameAndVersion = (String, VerStr)
@@ -107,8 +94,9 @@ object data {
 
   object VerStr {
 
-    extension (verStr: VerStr) {
-      def render: String = s"${verStr.major}${verStr.minor.fold("")("." + _)}${verStr.patch.fold("")("." + _)}"
+    given renderVerStr: Render[VerStr] with {
+      def render(verStr: VerStr): String =
+        s"${verStr.major}${verStr.minor.fold("")("." + _)}${verStr.patch.fold("")("." + _)}"
     }
 
     given verStrOrdering: Ordering[VerStr] with {

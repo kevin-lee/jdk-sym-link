@@ -10,9 +10,13 @@ import effectie.core.Fx
 import effectie.syntax.all.*
 import extras.cats.syntax.all.*
 import extras.scala.io.syntax.color.*
+import extras.render.Render
+import extras.render.syntax.*
 import just.sysprocess.ProcessError
 import just.semver.{ParseError, SemVer}
 import just.decver.DecVer
+
+import refined4s.Newtype
 
 import scala.util.matching.Regex
 
@@ -86,59 +90,28 @@ object CoursierCmd {
            |---""".stripMargin
     }
 
-    type Id = Id.Id
-    object Id {
-      opaque type Id = String
-      def apply(id: String): Id = id
+    type Id = Id.Type
+    object Id extends Newtype[String]
 
-      given idCanEqual: CanEqual[Id, Id] = CanEqual.derived
-
-      extension (id: Id) {
-        def value: String = id
-      }
-    }
-
-    type Name = Name.Name
-    object Name {
-      opaque type Name = String
-      def apply(name: String): Name = name
-
-      given nameCanEqual: CanEqual[Name, Name] = CanEqual.derived
-
-      extension (name: Name) {
-        def value: String = name
-      }
-
+    type Name = Name.Type
+    object Name extends Newtype[String] {
       val NamePattern: Regex = "^([^:]+):(.+)$".r
     }
 
-    type MajorVersion = MajorVersion.MajorVersion
-    object MajorVersion {
-      opaque type MajorVersion = Int
-      def apply(majorVersion: Int): MajorVersion = majorVersion
+    type MajorVersion = MajorVersion.Type
+    object MajorVersion extends Newtype[Int]
 
-      given majorVersionCanEqual: CanEqual[MajorVersion, MajorVersion] = CanEqual.derived
-
-      extension (majorVersion: MajorVersion) {
-        def value: Int = majorVersion
-      }
-    }
-
-    type Version = Version.Version
-    object Version {
-      opaque type Version = SemVer | DecVer | DotSeparatedVersion
-      def apply(version: SemVer | DecVer | DotSeparatedVersion): Version = version
-
-      given versionCanEqual: CanEqual[Version, Version] = CanEqual.derived
+    type Version = Version.Type
+    object Version extends Newtype[SemVer | DecVer | DotSeparatedVersion] {
 
       extension (version: Version) {
-        def value: SemVer | DecVer | DotSeparatedVersion = version
-
-        def major: MajorVersion = value match {
+        def major: MajorVersion = version.value match {
           case SemVer(m, n, _, _, _) =>
             MajorVersion(if (m.value == 1) n.value else m.value)
+
           case DecVer(m, n) =>
             MajorVersion(if (m.value == 1) n.value else m.value)
+
           case DotSeparatedVersion(v, vs) =>
             val vNum = v.toInt
             MajorVersion(
@@ -151,7 +124,11 @@ object CoursierCmd {
             )
         }
 
-        def render: String = value match {
+      }
+
+      given renderVersion: Render[Version] with {
+
+        def render(a: Version): String = a.value match {
           case v: SemVer => SemVer.render(v)
           case v: DecVer => DecVer.render(v)
           case DotSeparatedVersion(v, vs) => s"$v.${vs.mkString(".")}"
@@ -159,27 +136,20 @@ object CoursierCmd {
       }
     }
 
-    type Path = Path.Path
-    object Path {
-      opaque type Path = File
-      def apply(path: File): Path = path
+    type Path = Path.Type
+    object Path extends Newtype[File] {
 
-      given pathCanEqual: CanEqual[Path, Path] = CanEqual.derived
-
-      extension (path: Path) {
-        def value: File = path
-
-        def render: String = {
-          val pathValue = value.toString
-          sys
-            .env
-            .get("HOME")
-            .filter(home => pathValue.startsWith(home))
-            .fold(pathValue) { home =>
-              s"$$HOME${pathValue.drop(home.length)}"
-            }
-        }
+      given renderPath: Render[Path] = { path =>
+        val pathValue = path.value.toString
+        sys
+          .env
+          .get("HOME")
+          .filter(home => pathValue.startsWith(home))
+          .fold(pathValue) { home =>
+            s"$$HOME${pathValue.drop(home.length)}"
+          }
       }
+
     }
 
   }

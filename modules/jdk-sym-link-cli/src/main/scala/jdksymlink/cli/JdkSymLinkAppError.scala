@@ -3,6 +3,8 @@ package jdksymlink.cli
 import cats.data.NonEmptyChain
 import cats.syntax.all.*
 import extras.scala.io.syntax.color.*
+import extras.render.Render
+import extras.render.syntax.*
 import jdksymlink.cli.JdkSymLinkArgs.ArgParseError
 import jdksymlink.core.JdkSymLinkError
 
@@ -14,10 +16,9 @@ enum JdkSymLinkAppError {
   case MultipleJdkSymLinkCore(jdkSymLinkErrors: NonEmptyChain[JdkSymLinkError])
   case ArgParse(argParseError: ArgParseError)
 }
-
 object JdkSymLinkAppError {
-  extension (jdkSymLinkAppError: JdkSymLinkAppError) {
-    def render: String = jdkSymLinkAppError match {
+  given renderJdkSymLinkAppError: Render[JdkSymLinkAppError] with {
+    def render(jdkSymLinkAppError: JdkSymLinkAppError): String = jdkSymLinkAppError match {
       case JdkSymLinkAppError.JdkSymLinkCore(err) =>
         err.render
 

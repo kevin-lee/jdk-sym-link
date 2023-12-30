@@ -2,6 +2,8 @@ package jdksymlink.core
 
 import jdksymlink.cs.CoursierCmd.CoursierError
 
+import extras.render.Render
+
 import java.io.{IOException, PrintWriter, StringWriter}
 
 /** @author Kevin Lee
@@ -20,8 +22,8 @@ object JdkSymLinkError {
 
   import Shell.ColoredString.*
 
-  extension (jdkSymLinkError: JdkSymLinkError) {
-    def render: String = jdkSymLinkError match {
+  given renderJdkSymLinkError: Render[JdkSymLinkError] with {
+    def render(jdkSymLinkError: JdkSymLinkError): String = jdkSymLinkError match {
 
       case LsFailure(errorCode, message, commands) =>
         s"""${"ErrorCode".red}: ${errorCode.toString}
