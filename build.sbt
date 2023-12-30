@@ -23,7 +23,7 @@ lazy val core = projectCommonSettings("core")
       List(libs.justSysProcess) ++
         libs.catsAndCatsEffect ++
         libs.effectie ++
-        List(libs.extrasCats, libs.extrasScalaIo, libs.justSemVer)
+        List(libs.extrasCats, libs.extrasScalaIo, libs.extrasRender, libs.justSemVer)
     /* Build Info { */,
     buildInfoKeys    := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoObject  := "JdkSymLinkBuildInfo",
@@ -130,6 +130,7 @@ lazy val libs =
     )
 
     lazy val extrasCats    = "io.kevinlee" %% "extras-cats"     % props.ExtrasVersion
+    lazy val extrasRender  = "io.kevinlee" %% "extras-render"   % props.ExtrasVersion
     lazy val extrasScalaIo = "io.kevinlee" %% "extras-scala-io" % props.ExtrasVersion
 
     lazy val justSemVer = "io.kevinlee" %% "just-semver" % props.JustSemVerVersion
