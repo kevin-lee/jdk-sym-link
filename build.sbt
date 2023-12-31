@@ -95,7 +95,7 @@ lazy val props =
 
     final val justSysprocessVersion = "1.0.0"
 
-    final val pirateVersion = "3ea3878205d7c57414f6b88810549be844880193"
+    final val pirateVersion = "faff703b67fd10199098e806a3f6858982823461"
     final val pirateUri     = uri(
       s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion"
     )
