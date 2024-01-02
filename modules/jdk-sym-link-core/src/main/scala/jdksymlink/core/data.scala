@@ -8,6 +8,7 @@ import scala.util.matching.Regex
 
 import scala.util.Try
 import refined4s.Newtype
+import refined4s.modules.extras.derivation.*
 
 /** @author Kevin Lee
   * @since 2015-04-03
@@ -78,11 +79,7 @@ object data {
   }
 
   type JavaMajorVersion = JavaMajorVersion.Type
-  object JavaMajorVersion extends Newtype[Int] {
-
-    given renderJavaMajorVersion: Render[Type] = deriving
-
-  }
+  object JavaMajorVersion extends Newtype[Int], ExtrasRender[Int]
 
   type NameAndVersion = (String, VerStr)
 
