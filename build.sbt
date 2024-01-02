@@ -82,7 +82,7 @@ lazy val props =
     final val ProjectScalaVersion = "3.3.1"
 
     final val effectieVersion  = "2.0.0-beta13"
-    final val refined4sVersion = "0.8.0"
+    final val refined4sVersion = "0.10.0"
 
     final val catsVersion       = "2.10.0"
     final val catsEffectVersion = "3.5.2"
@@ -116,8 +116,9 @@ lazy val libs =
     lazy val justSysProcess = "io.kevinlee" %% "just-sysprocess" % props.justSysprocessVersion
 
     lazy val refined4s = List(
-      "io.kevinlee" %% "refined4s-core" % props.refined4sVersion,
-      "io.kevinlee" %% "refined4s-cats" % props.refined4sVersion
+      "io.kevinlee" %% "refined4s-core"          % props.refined4sVersion,
+      "io.kevinlee" %% "refined4s-cats"          % props.refined4sVersion,
+      "io.kevinlee" %% "refined4s-extras-render" % props.refined4sVersion,
     )
 
     lazy val catsAndCatsEffect = List(
