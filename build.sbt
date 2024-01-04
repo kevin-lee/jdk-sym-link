@@ -82,7 +82,7 @@ lazy val props =
     final val ProjectScalaVersion = "3.3.1"
 
     final val effectieVersion  = "2.0.0-beta13"
-    final val refined4sVersion = "0.10.0"
+    final val refined4sVersion = "0.11.0"
 
     final val catsVersion       = "2.10.0"
     final val catsEffectVersion = "3.5.2"
@@ -95,7 +95,7 @@ lazy val props =
 
     final val justSysprocessVersion = "1.0.0"
 
-    final val pirateVersion = "faff703b67fd10199098e806a3f6858982823461"
+    final val pirateVersion = "574d85a36919280dc802009b581df9019811c27e"
     final val pirateUri     = uri(
       s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion"
     )
