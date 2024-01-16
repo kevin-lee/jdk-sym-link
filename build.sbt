@@ -1,6 +1,6 @@
 ThisBuild / organization := props.Org
 ThisBuild / scalaVersion := props.ProjectScalaVersion
-ThisBuild / developers   := List(
+ThisBuild / developers := List(
   Developer(
     "kevin-lee",
     "Kevin Lee",
@@ -8,7 +8,7 @@ ThisBuild / developers   := List(
     url("https://github.com/kevin-lee")
   )
 )
-ThisBuild / scmInfo      :=
+ThisBuild / scmInfo :=
   Some(
     ScmInfo(
       url("https://github.com/kevin-lee/jdk-symbolic-link"),
@@ -25,13 +25,13 @@ lazy val core = projectCommonSettings("core")
         libs.effectie ++
         List(libs.extrasCats, libs.extrasScalaIo, libs.extrasRender, libs.justSemVer)
     /* Build Info { */,
-    buildInfoKeys    := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoObject  := "JdkSymLinkBuildInfo",
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoObject := "JdkSymLinkBuildInfo",
     buildInfoPackage := "jdksymlink.info",
     buildInfoOptions += BuildInfoOption.ToJson
     /* } Build Info */
     /* publish { */,
-    licenses         := List("MIT" -> url("http://opensource.org/licenses/MIT")),
+    licenses := List("MIT" -> url("http://opensource.org/licenses/MIT")),
     /* } publish */
 
   )
@@ -41,12 +41,12 @@ lazy val pirate = ProjectRef(props.pirateUri, "pirate-scalaz")
 lazy val cli = projectCommonSettings("cli")
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
-    maintainer           := "Kevin Lee <kevin.code@kevinlee.io>",
-    packageSummary       := "JdkSymLink",
-    packageDescription   := "A tool to create JDK symbolic links",
+    maintainer := "Kevin Lee <kevin.code@kevinlee.io>",
+    packageSummary := "JdkSymLink",
+    packageDescription := "A tool to create JDK symbolic links",
     executableScriptName := props.ProjectNamePrefix,
-    nativeImageVersion   := "22.2.0",
-    nativeImageJvm       := "graalvm-java17",
+    nativeImageVersion := "22.2.0",
+    nativeImageJvm := "graalvm-java17",
     nativeImageOptions ++= Seq(
       "--verbose",
       "--no-fallback",
@@ -62,7 +62,7 @@ lazy val cli = projectCommonSettings("cli")
 lazy val jdkSymLink = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin)
   .settings(
-    name                     := props.ProjectNamePrefix,
+    name := props.ProjectNamePrefix,
     /* GitHub Release { */
     devOopsPackagedArtifacts := List(
       s"modules/${props.RepoName}-cli/target/native-image/${name.value}-cli",
@@ -85,7 +85,7 @@ lazy val props =
     final val refined4sVersion = "0.11.0"
 
     final val catsVersion       = "2.10.0"
-    final val catsEffectVersion = "3.5.2"
+    final val catsEffectVersion = "3.5.3"
 
     final val ExtrasVersion = "0.44.0"
 
