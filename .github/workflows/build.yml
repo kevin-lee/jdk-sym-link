@@ -12,7 +12,7 @@ on:
 env:
   GH_JAVA_VERSION: "17"
   GH_JVM_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=1G -Xmx2G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
-  CLI_SCALA_BINARY_VERSION: "3.3.3"
+  CLI_SCALA_BINARY_VERSION: "3.4.0"
   GRAALVM_BIN_DIR_NAME: "native-image"
 
 jobs:
