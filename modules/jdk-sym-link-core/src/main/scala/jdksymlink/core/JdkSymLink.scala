@@ -250,7 +250,7 @@ object JdkSymLink {
                   (rmCommand, rmCommandRest) = ("sudo", List("rm", s"jdk${javaMajorVersion.render}"))
                   rmCommandList              = rmCommand :: rmCommandRest
                   rmCommandProcess <- pureOf(
-                                        SysProcess.singleSysProcess(javaBaseDir, rmCommand, rmCommandRest: _*)
+                                        SysProcess.singleSysProcess(javaBaseDir, rmCommand, rmCommandRest*)
                                       ).rightT
                   rmResult         <- effectOf(rmCommandProcess.run())
                                         .eitherT
@@ -280,7 +280,7 @@ object JdkSymLink {
                                                )
                   lnCommandList              = lnCommand :: lnCommandRest
                   lnCommandProcess <- pureOf(
-                                        SysProcess.singleSysProcess(javaBaseDir, lnCommand, lnCommandRest: _*)
+                                        SysProcess.singleSysProcess(javaBaseDir, lnCommand, lnCommandRest*)
                                       ).rightT
                   lnResult         <- effectOf(lnCommandProcess.run())
                                         .eitherT
@@ -329,7 +329,7 @@ object JdkSymLink {
                                   SysProcess.singleSysProcess(
                                     javaBaseDir,
                                     lnCommand,
-                                    lnCommandRest: _*
+                                    lnCommandRest*
                                   )
                                 ).rightT
             lnResult         <- effectOf(lnCommandProcess.run())
