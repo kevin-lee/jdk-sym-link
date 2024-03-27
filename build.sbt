@@ -79,7 +79,7 @@ lazy val props =
     final val GitHubUsername      = "kevin-lee"
     final val RepoName            = "jdk-sym-link"
     final val ProjectNamePrefix   = RepoName
-    final val ProjectScalaVersion = "3.3.3"
+    final val ProjectScalaVersion = "3.4.1"
 
     final val effectieVersion  = "2.0.0-beta14"
     final val refined4sVersion = "0.13.0"
