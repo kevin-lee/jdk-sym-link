@@ -23,7 +23,7 @@ lazy val core = projectCommonSettings("core")
       List(libs.justSysProcess) ++
         libs.catsAndCatsEffect ++
         libs.effectie ++
-        List(libs.extrasCats, libs.extrasScalaIo, libs.extrasRender, libs.justSemVer)
+        List(libs.kittens, libs.extrasCats, libs.extrasScalaIo, libs.extrasRender, libs.justSemVer)
     /* Build Info { */,
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoObject := "JdkSymLinkBuildInfo",
@@ -87,6 +87,8 @@ lazy val props =
     final val catsVersion       = "2.12.0"
     final val catsEffectVersion = "3.5.4"
 
+    val KittensVersion = "3.3.0"
+
     final val ExtrasVersion = "0.44.0"
 
     final val JustSemVerVersion = "0.13.0"
@@ -122,9 +124,11 @@ lazy val libs =
     )
 
     lazy val catsAndCatsEffect = List(
-      "org.typelevel" %% "cats-core"   % props.catsVersion,
-      "org.typelevel" %% "cats-effect" % props.catsEffectVersion,
+      "org.typelevel" %% "cats-core" % props.catsVersion,
+      "org.typelevel" %% "cats-core" % props.catsVersion,
     )
+
+    lazy val kittens = "org.typelevel" %% "kittens" % props.KittensVersion
 
     lazy val effectie = List(
       "io.kevinlee" %% "effectie-cats-effect3" % props.effectieVersion,
