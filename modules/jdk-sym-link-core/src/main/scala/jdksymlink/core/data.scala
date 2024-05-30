@@ -1,13 +1,16 @@
 package jdksymlink.core
 
+import cats.*
+import cats.derived.*
+
 import java.io.File
 import cats.syntax.all.*
 import extras.render.Render
 
 import scala.util.matching.Regex
-
 import scala.util.Try
 import refined4s.Newtype
+import refined4s.modules.cats.derivation.CatsEqShow
 import refined4s.modules.extras.derivation.*
 
 /** @author Kevin Lee
@@ -16,7 +19,7 @@ import refined4s.modules.extras.derivation.*
 object data {
 
   type Path = Path.Type
-  object Path extends Newtype[String] {
+  object Path extends Newtype[String], CatsEqShow[String] {
 
     extension (path: Path) {
 
@@ -38,7 +41,7 @@ object data {
   }
 
   type JvmBaseDirPath = JvmBaseDirPath.Type
-  object JvmBaseDirPath extends Newtype[String] {
+  object JvmBaseDirPath extends Newtype[String], CatsEqShow[String] {
 
     extension (jvmBaseDirPath: JvmBaseDirPath) {
       def toPath: Path = Path(jvmBaseDirPath.value)
@@ -79,7 +82,7 @@ object data {
   }
 
   type JavaMajorVersion = JavaMajorVersion.Type
-  object JavaMajorVersion extends Newtype[Int], ExtrasRender[Int]
+  object JavaMajorVersion extends Newtype[Int], CatsEqShow[Int], ExtrasRender[Int]
 
   type NameAndVersion = (String, VerStr)
 
@@ -87,7 +90,9 @@ object data {
     major: String,
     minor: Option[String],
     patch: Option[String]
-  ) derives CanEqual
+  ) derives CanEqual,
+        Eq,
+        Show
 
   object VerStr {
 
@@ -167,7 +172,7 @@ object data {
 
   }
 
-  final case class DotSeparatedVersion(value: String, rest: List[String]) derives CanEqual
+  final case class DotSeparatedVersion(value: String, rest: List[String]) derives CanEqual, Eq, Show
   object DotSeparatedVersion {
 
     def parse(version: String): Either[DotSeparatedVersion.ParseError, DotSeparatedVersion] =
@@ -184,7 +189,7 @@ object data {
             Left(DotSeparatedVersion.ParseError(version, "No version found"))
         }
 
-    final case class ParseError(value: String, error: String)
+    final case class ParseError(value: String, error: String) derives CanEqual, Eq, Show
     object ParseError {
       extension (parseError: ParseError) {
         def render: String = s"DotSeparatedVersion.ParseError(value=${parseError.value}, error=${parseError.error})"
