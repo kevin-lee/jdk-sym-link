@@ -1,6 +1,7 @@
 package jdksymlink.cs
 
-import cats.Monad
+import cats.*
+import cats.derived.*
 import cats.data.EitherT
 import cats.syntax.all.*
 import just.sysprocess.SysProcess
@@ -15,12 +16,11 @@ import extras.render.syntax.*
 import just.sysprocess.ProcessError
 import just.semver.{ParseError, SemVer}
 import just.decver.DecVer
-
 import refined4s.Newtype
 
 import scala.util.matching.Regex
-
 import jdksymlink.core.data.DotSeparatedVersion
+import refined4s.modules.cats.derivation.CatsEqShow
 
 /** @author Kevin Lee
   * @since 2022-06-06
@@ -80,7 +80,9 @@ object CoursierCmd {
     majorVersion: JdkByCs.MajorVersion,
     version: JdkByCs.Version,
     path: JdkByCs.Path
-  )
+  ) derives CanEqual,
+        Eq,
+        Show
   object JdkByCs {
 
     extension (jdkByCs: JdkByCs) {
@@ -91,15 +93,15 @@ object CoursierCmd {
     }
 
     type Id = Id.Type
-    object Id extends Newtype[String]
+    object Id extends Newtype[String], CatsEqShow[String]
 
     type Name = Name.Type
-    object Name extends Newtype[String] {
+    object Name extends Newtype[String], CatsEqShow[String] {
       val NamePattern: Regex = "^([^:]+):(.+)$".r
     }
 
     type MajorVersion = MajorVersion.Type
-    object MajorVersion extends Newtype[Int]
+    object MajorVersion extends Newtype[Int], CatsEqShow[Int]
 
     type Version = Version.Type
     object Version extends Newtype[SemVer | DecVer | DotSeparatedVersion] {
@@ -126,6 +128,10 @@ object CoursierCmd {
 
       }
 
+      given eqVersion: Eq[Version] = Eq.fromUniversalEquals
+
+      given versionShow: Show[Version] = Show.fromToString
+
       given renderVersion: Render[Version] with {
 
         def render(a: Version): String = a.value match {
@@ -138,6 +144,10 @@ object CoursierCmd {
 
     type Path = Path.Type
     object Path extends Newtype[File] {
+
+      given pathEq: Eq[Path] = Eq.fromUniversalEquals
+
+      given pathShow: Show[Path] = Show.fromToString
 
       given renderPath: Render[Path] = { path =>
         val pathValue = path.value.toString
