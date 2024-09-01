@@ -111,7 +111,7 @@ object CoursierCmd {
           case SemVer(m, n, _, _, _) =>
             MajorVersion(if (m.value == 1) n.value else m.value)
 
-          case DecVer(m, n) =>
+          case DecVer(m, n, _, _) =>
             MajorVersion(if (m.value == 1) n.value else m.value)
 
           case DotSeparatedVersion(v, vs) =>
