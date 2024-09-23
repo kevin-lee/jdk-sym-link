@@ -5,14 +5,14 @@ ThisBuild / developers := List(
     "kevin-lee",
     "Kevin Lee",
     "kevin.code@kevinlee.io",
-    url("https://github.com/kevin-lee")
+    url(props.GitHubUrl)
   )
 )
 ThisBuild / scmInfo :=
   Some(
     ScmInfo(
-      url("https://github.com/kevin-lee/jdk-symbolic-link"),
-      "https://github.com/kevin-lee/jdk-symbolic-link.git",
+      url(s"${props.GitHubUrl}/jdk-symbolic-link"),
+      s"${props.GitHubUrl}/jdk-symbolic-link.git",
     )
   )
 
@@ -31,7 +31,7 @@ lazy val core = projectCommonSettings("core")
     buildInfoOptions += BuildInfoOption.ToJson
     /* } Build Info */
     /* publish { */,
-    licenses := List("MIT" -> url("http://opensource.org/licenses/MIT")),
+    licenses := List(License.MIT),
     /* } publish */
 
   )
@@ -75,9 +75,12 @@ lazy val jdkSymLink = (project in file("."))
 
 lazy val props =
   new {
-    final val Org                 = "io.kevinlee"
-    final val GitHubUsername      = "kevin-lee"
-    final val RepoName            = "jdk-sym-link"
+    final val Org            = "io.kevinlee"
+    final val GitHubUsername = "kevin-lee"
+    final val RepoName       = "jdk-sym-link"
+
+    val GitHubUrl = "https://github.com/kevin-lee"
+
     final val ProjectNamePrefix   = RepoName
     final val ProjectScalaVersion = "3.3.3"
 
