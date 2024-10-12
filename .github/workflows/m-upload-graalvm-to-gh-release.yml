@@ -5,6 +5,7 @@ on:
 
 env:
   GH_JAVA_VERSION: "17"
+  GH_JAVA_DISTRIBUTION: "temurin"
   CLI_SCALA_BINARY_VERSION: "3.4.0"
   GRAALVM_BIN_DIR_NAME: "native-image"
 
@@ -13,14 +14,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-12]
         run-binary: [jdk-sym-link-cli]
     steps:
 
       - uses: actions/checkout@v4.1.7
-      - uses: olafurpg/setup-scala@v14
+      - uses: actions/setup-java@v4
         with:
           java-version: ${{ env.GH_JAVA_VERSION }}
+          distribution: ${{ env.GH_JAVA_DISTRIBUTION }}
+          cache: 'sbt'
+
       - name: Cache SBT
         uses: actions/cache@v4
         with:
