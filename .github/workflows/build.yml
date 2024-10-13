@@ -139,10 +139,24 @@ jobs:
 
           rm -f */target/scala-*/*.jar
 
+          echo "-----"
+          echo "List target:"
           ls -lGh modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
           
+          echo "-----"
+          echo "Rename ${{ matrix.run-binary }} to $APP_BIN_NAME"
           mv modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME
+          
+          echo "-----"
+          echo "List target:"
+          ls -lGh modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
 
+          echo "-----"
+          echo "$APP_BIN_NAME --help"
           sh -c "modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME --help"
+          
+          echo "$APP_BIN_NAME list --help"
           sh -c "modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME list --help"
+          
+          echo "$APP_BIN_NAME slink --help"
           sh -c "modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME slink --help"
