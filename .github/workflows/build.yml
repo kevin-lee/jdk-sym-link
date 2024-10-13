@@ -28,6 +28,7 @@ jobs:
           java-version: ${{ env.GH_JAVA_VERSION }}
           distribution: ${{ env.GH_JAVA_DISTRIBUTION }}
           cache: 'sbt'
+      - uses: sbt/setup-sbt@v1
 
       - name: "[Push] Build - ${{ github.run_number }}"
         if: github.event_name == 'push'
@@ -64,8 +65,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-12]
-        run-binary: [jdk-sym-link-cli]
+        os: [ ubuntu-latest, macos-13 ]
+        run-binary: [ jdk-sym-link-cli ]
 
     steps:
       - uses: actions/checkout@v4.1.7
@@ -74,6 +75,7 @@ jobs:
           java-version: ${{ env.GH_JAVA_VERSION }}
           distribution: ${{ env.GH_JAVA_DISTRIBUTION }}
           cache: 'sbt'
+      - uses: sbt/setup-sbt@v1
 
       - name: "JVM Package Build - ${{ github.run_number }}"
         env:
@@ -82,31 +84,35 @@ jobs:
           RUN_NUMBER: ${{ github.run_number }}
           JVM_OPTS: ${{ env.GH_JVM_OPTS }}
         run: |
-            echo "Run]"
-            export SOURCE_DATE_EPOCH=$(date +%s)
-            echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
-            echo "JVM_OPTS=${JVM_OPTS}"
-            echo "SBT_OPTS=${SBT_OPTS}"
-            echo 'sbt clean test universal:packageBin'
-            sbt \
-              clean \
-              test \
-              universal:packageBin
+          echo "Run]"
+          export SOURCE_DATE_EPOCH=$(date +%s)
+          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
+          echo "JVM_OPTS=${JVM_OPTS}"
+          echo "SBT_OPTS=${SBT_OPTS}"
+          echo 'sbt clean test universal:packageBin'
+          sbt \
+            clean \
+            test \
+            universal:packageBin
           
-            cd modules/jdk-sym-link-cli/target/universal
-            ls -l ${{ matrix.run-binary }}-*.zip
-            unzip ${{ matrix.run-binary }}-*.zip
-            rm ${{ matrix.run-binary }}-*.zip
-            mv ${{ matrix.run-binary }}-* ${{ matrix.run-binary }}
-            cd ${{ matrix.run-binary }}/bin
-            ./jdk-sym-link --version
+          cd modules/jdk-sym-link-cli/target/universal
+          ls -l ${{ matrix.run-binary }}-*.zip
+          unzip ${{ matrix.run-binary }}-*.zip
+          rm ${{ matrix.run-binary }}-*.zip
+          mv ${{ matrix.run-binary }}-* ${{ matrix.run-binary }}
+          cd ${{ matrix.run-binary }}/bin
+          ./jdk-sym-link --version
 
   graalvm-build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os.value }}
     strategy:
       matrix:
-        os: [macos-12]
-        run-binary: [jdk-sym-link-cli]
+        # https://github.com/actions/runner-images?tab=readme-ov-file#available-images
+        os:
+          - { name: "macOS 12",               value: "macos-12", bin-suffix: "macos-12" }
+          - { name: "macOS 13",               value: "macos-13", bin-suffix: "macos-13" }
+          - { name: "macOS 14 Apple Silicon", value: "macos-14", bin-suffix: "macos-14-arm64" }
+        run-binary: [ jdk-sym-link-cli ]
     steps:
 
       - uses: actions/checkout@v4.1.7
@@ -115,12 +121,14 @@ jobs:
           java-version: ${{ env.GH_JAVA_VERSION }}
           distribution: ${{ env.GH_JAVA_DISTRIBUTION }}
           cache: 'sbt'
+      - uses: sbt/setup-sbt@v1
 
       - name: "GraalVM Build - ${{ github.run_number }}"
         env:
           CURRENT_BRANCH_NAME: ${{ github.ref }}
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
+          APP_BIN_NAME: ${{ matrix.run-binary }}-${{ matrix.os.bin-suffix }}
         run: |
           sbt \
             -J-XX:MaxMetaspaceSize=1024m \
@@ -132,7 +140,9 @@ jobs:
           rm -f */target/scala-*/*.jar
 
           ls -lGh modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
+          
+          mv modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME
 
-          sh -c "modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
-          sh -c "modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} list --help"
-          sh -c "modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} slink --help"
+          sh -c "modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME --help"
+          sh -c "modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME list --help"
+          sh -c "modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME slink --help"
