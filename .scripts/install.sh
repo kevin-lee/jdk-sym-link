@@ -2,12 +2,49 @@
 
 set -eu
 
+# Get the macOS version
+macos_version=$(sw_vers -productVersion)
+
+# Extract the major version (e.g., 12, 13, 14)
+major_version=$(echo "$macos_version" | cut -d '.' -f 1)
+
+echo ">>> macOS.major_version=$major_version"
+
+# Set the app_bin_suffix based on the macOS major version using case
+case "$major_version" in
+  12)
+    app_bin_suffix="macos12"
+    ;;
+  13)
+    app_bin_suffix="macos-13"
+    ;;
+  14 | 15)
+    # Get the system architecture
+    arch=$(uname -m)
+
+    echo ">>> macOS.arch=${arch}"
+
+    # Set the app_bin_suffix based on the architecture
+    if [ "$arch" == "x86_64" ]; then
+      app_bin_suffix="macos-13"
+    elif [ "$arch" == "arm64" ]; then
+      app_bin_suffix="macos-14-arm64"
+    else
+      app_bin_suffix="macos-13"
+    fi
+    ;;
+  *)
+    app_bin_suffix="macos-13"
+    echo "Unsupported macOS version: $macos_version so it will use $app_bin_suffix "
+    ;;
+esac
+
 app_original_executable_name=jdk-sym-link
 app_executable_name=jdkslink
 app_name=jdk-sym-link-cli
-app_version=${1:-1.1.0}
+app_version=${1:-1.2.0}
 app_package_file="${app_name}"
-download_url="https://github.com/kevin-lee/jdk-sym-link/releases/download/v${app_version}/${app_package_file}"
+download_url="https://github.com/kevin-lee/jdk-sym-link/releases/download/v${app_version}/${app_package_file}-${app_bin_suffix}"
 
 usr_local_path="/usr/local"
 opt_location="${usr_local_path}/opt"
@@ -16,18 +53,21 @@ installed_app_bin_path="${app_location}/${app_original_executable_name}"
 usr_local_bin_path="${usr_local_path}/bin"
 app_bin_path="${usr_local_bin_path}/${app_executable_name}"
 
-echo "app_executable_name=${app_executable_name}"
-echo "app_name=${app_name}"
-echo "app_version=${app_version}"
-echo "app_package_file=${app_package_file}"
-echo "download_url=${download_url}"
-
-echo "usr_local_path=${usr_local_path}"
-echo "opt_location=${opt_location}"
-echo "app_location=${app_location}"
-echo "installed_app_bin_path=${installed_app_bin_path}"
-echo "usr_local_bin_path=${usr_local_bin_path}"
-echo "app_bin_path=${app_bin_path}"
+echo "--------------------------------------------------------------------------------"
+echo "app_executable_name = ${app_executable_name}"
+echo "           app_name = ${app_name}"
+echo "     app_bin_suffix = ${app_bin_suffix}"
+echo "        app_version = ${app_version}"
+echo "   app_package_file = ${app_package_file}"
+echo "       download_url = ${download_url}"
+echo "--------------------------------------------------------------------------------"
+echo "        usr_local_path = ${usr_local_path}"
+echo "          opt_location = ${opt_location}"
+echo "          app_location = ${app_location}"
+echo "installed_app_bin_path = ${installed_app_bin_path}"
+echo "    usr_local_bin_path = ${usr_local_bin_path}"
+echo "          app_bin_path = ${app_bin_path}"
+echo "--------------------------------------------------------------------------------"
 
 cd /tmp
 
