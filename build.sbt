@@ -84,7 +84,7 @@ lazy val props =
     final val ProjectNamePrefix   = RepoName
     final val ProjectScalaVersion = "3.3.4"
 
-    final val effectieVersion  = "2.0.0-beta14"
+    final val effectieVersion  = "2.0.0"
     final val refined4sVersion = "1.1.0"
 
     final val catsVersion       = "2.12.0"
