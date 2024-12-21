@@ -46,7 +46,7 @@ app_version=${1:-1.2.0}
 app_package_file="${app_name}"
 download_url="https://github.com/kevin-lee/jdk-sym-link/releases/download/v${app_version}/${app_package_file}-${app_bin_suffix}"
 
-usr_local_path="/usr/local"
+usr_local_path=$HOME
 opt_location="${usr_local_path}/opt"
 app_location="${opt_location}/${app_name}"
 installed_app_bin_path="${app_location}/${app_original_executable_name}"
@@ -75,6 +75,9 @@ curl -Lo $app_package_file $download_url
 
 ls -l $app_package_file || { echo "jdk-sym-link version ${app_version} doesn't seem to exist." && false ; }
 chmod ug+x $app_package_file
+
+mkdir -p $opt_location
+mkdir -p $usr_local_bin_path
 
 rm -R $app_location || true
 mkdir -p $app_location
