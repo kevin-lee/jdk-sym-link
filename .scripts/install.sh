@@ -28,7 +28,7 @@ case "$major_version" in
     if [ "$arch" == "x86_64" ]; then
       app_bin_suffix="macos-13"
     elif [ "$arch" == "arm64" ]; then
-      app_bin_suffix="macos-14-arm64"
+      app_bin_suffix="macos-${major_version}-arm64"
     else
       app_bin_suffix="macos-13"
     fi
@@ -42,7 +42,7 @@ esac
 app_original_executable_name=jdk-sym-link
 app_executable_name=jdkslink
 app_name=jdk-sym-link-cli
-app_version=${1:-1.2.0}
+app_version=${1:-1.3.0}
 app_package_file="${app_name}"
 download_url="https://github.com/kevin-lee/jdk-sym-link/releases/download/v${app_version}/${app_package_file}-${app_bin_suffix}"
 
