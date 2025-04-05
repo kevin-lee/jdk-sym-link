@@ -96,7 +96,7 @@ lazy val props =
 
     final val JustSemVerVersion = "1.1.1"
 
-    final val hedgehogVersion = "0.11.0"
+    final val hedgehogVersion = "0.12.0"
 
     final val justSysprocessVersion = "1.0.0"
 
