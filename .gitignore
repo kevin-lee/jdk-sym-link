@@ -6,6 +6,9 @@ target/
 .idea_modules/
 bin/
 
+.bloop/
+project/**/metals.sbt
+
 .history
 .cache
 .lib/
