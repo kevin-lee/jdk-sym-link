@@ -92,7 +92,7 @@ lazy val props =
 
     val KittensVersion = "3.5.0"
 
-    final val ExtrasVersion = "0.47.0"
+    final val ExtrasVersion = "0.48.0"
 
     final val JustSemVerVersion = "1.1.1"
 
