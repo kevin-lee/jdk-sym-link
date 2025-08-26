@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5.0.0
-      - uses: actions/setup-java@v4.4.0
+      - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.GH_JAVA_VERSION }}
           distribution: ${{ env.GH_JAVA_DISTRIBUTION }}
@@ -70,7 +70,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5.0.0
-      - uses: actions/setup-java@v4.4.0
+      - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.GH_JAVA_VERSION }}
           distribution: ${{ env.GH_JAVA_DISTRIBUTION }}
@@ -116,7 +116,7 @@ jobs:
     steps:
 
       - uses: actions/checkout@v5.0.0
-      - uses: actions/setup-java@v4.4.0
+      - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.GH_JAVA_VERSION }}
           distribution: ${{ env.GH_JAVA_DISTRIBUTION }}
