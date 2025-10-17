@@ -72,6 +72,6 @@ object Utils {
         case (acc, _) =>
           acc
       }
-      .sortBy((name, version) => version)
+      .sortBy((_, version) => version)
 
 }
