@@ -194,6 +194,12 @@ object JdkSymLink {
       javaBaseDirPath: JvmBaseDirPath,
       javaBaseDirFile: File
     ): F[Either[JdkSymLinkError, String]] = (for {
+      _                    <- putStrLn(
+                                s"""===================${"=" * name.length}
+                                   |Create symlink for $name
+                                   |===================${"=" * name.length}
+                                   |""".stripMargin
+                              ).rightT
       javaBaseDir          <- pureOf(Option(javaBaseDirFile)).rightT
       before               <- pureOf(s"""${Process(s"ls -l", javaBaseDir) !!}""".stripMargin).rightT
       lsResultLogger       <- pureOf(
@@ -243,7 +249,6 @@ object JdkSymLink {
                   _ <- putStrLn(
                          s"""
                             |$javaBaseDirFile $$ sudo rm jdk${javaMajorVersion.render}
-                            |$javaBaseDirFile $$ sudo ln -s ${javaBaseDirPath.value} jdk${javaMajorVersion.render}
                             |""".stripMargin
                        ).rightT
 
@@ -268,6 +273,12 @@ object JdkSymLink {
                                               .CommandFailure(nonFatalThrowable, rmCommandList)
                                               .asLeft[List[String]]
                                         }
+
+                  _ <- putStrLn(
+                         s"""
+                            |$javaBaseDirFile $$ sudo ln -s ${javaBaseDirPath.value} jdk${javaMajorVersion.render}
+                            |""".stripMargin
+                       ).rightT
 
                   (lnCommand, lnCommandRest) = (
                                                  "sudo",
