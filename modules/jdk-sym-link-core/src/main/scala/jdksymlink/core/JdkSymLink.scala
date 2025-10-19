@@ -194,23 +194,25 @@ object JdkSymLink {
       javaBaseDirPath: JvmBaseDirPath,
       javaBaseDirFile: File
     ): F[Either[JdkSymLinkError, String]] = (for {
-      _                    <- putStrLn(
-                                s"""===================${"=" * name.length}
+      _              <- putStrLn(
+                          s"""
+                                   |===================${"=" * name.length}
                                    |Create symlink for $name
                                    |===================${"=" * name.length}
                                    |""".stripMargin
-                              ).rightT
-      javaBaseDir          <- pureOf(Option(javaBaseDirFile)).rightT
-      before               <- pureOf(s"""${Process(s"ls -l", javaBaseDir) !!}""".stripMargin).rightT
-      lsResultLogger       <- pureOf(
-                                ProcessLogger(
-                                  line => println(s"\n$line: It is found so will be removed and recreated."),
-                                  line => println(s"\n$line: It is not found so it will be created."),
-                                )
-                              ).rightT
+                        ).rightT
+      javaBaseDir    <- pureOf(Option(javaBaseDirFile)).rightT
+      before         <- pureOf(s"""${Process(s"ls -l", javaBaseDir) !!}""".stripMargin).rightT
+      lsResultLogger <- pureOf(
+                          ProcessLogger(
+                            line => println(s"\n$line: It is found so will be removed and recreated."),
+                            line => println(s"\n$line: It is not found so it will be created."),
+                          )
+                        ).rightT
+      jdkSymlinkName = s"jdk${javaMajorVersion.render}"
       jdkLinkAlreadyExists <-
         pureOf(
-          (s"ls -d ${javaBaseDirFile.getCanonicalPath}/jdk${javaMajorVersion.render}" ! (lsResultLogger)) === 0
+          (s"ls -d ${javaBaseDirFile.getCanonicalPath}/$jdkSymlinkName" ! (lsResultLogger)) === 0
         ).rightT
       result               <-
         if (jdkLinkAlreadyExists) {
@@ -239,7 +241,7 @@ object JdkSymLink {
                       "-type",
                       "l",
                       "-iname",
-                      s"jdk${javaMajorVersion.render}",
+                      jdkSymlinkName,
                     ),
                   )
                 ).leftT[List[String]]
@@ -252,7 +254,7 @@ object JdkSymLink {
                             |""".stripMargin
                        ).rightT
 
-                  (rmCommand, rmCommandRest) = ("sudo", List("rm", s"jdk${javaMajorVersion.render}"))
+                  (rmCommand, rmCommandRest) = ("sudo", List("rm", jdkSymlinkName))
                   rmCommandList              = rmCommand :: rmCommandRest
                   rmCommandProcess <- pureOf(
                                         SysProcess.singleSysProcess(javaBaseDir, rmCommand, rmCommandRest*)
@@ -286,7 +288,7 @@ object JdkSymLink {
                                                    "ln",
                                                    "-s",
                                                    javaBaseDirPath.value,
-                                                   s"jdk${javaMajorVersion.render}"
+                                                   jdkSymlinkName
                                                  )
                                                )
                   lnCommandList              = lnCommand :: lnCommandRest
@@ -332,7 +334,7 @@ object JdkSymLink {
                                              "ln",
                                              "-s",
                                              javaBaseDirPath.value,
-                                             s"jdk${javaMajorVersion.render}"
+                                             jdkSymlinkName
                                            )
                                          )
             lnCommandList              = lnCommand :: lnCommandRest
@@ -370,26 +372,55 @@ object JdkSymLink {
         }
 
       r <- effectOf(Process(s"ls -l", javaBaseDir) !!)
-             .flatMap(after => toResultString(before, after))
+             .flatMap(after => toResultString(jdkSymlinkName, before, after))
              .rightT[JdkSymLinkError]
     } yield r).value
 
-    def toResultString(before: String, after: String): F[String] =
-      effectOf(
-        s"""
-           |Done!
-           |
-           |# Before
-           |--------------------------------------
-           |$before
-           |======================================
-           |
-           |# After
-           |--------------------------------------
-           |$after
-           |======================================
-           |""".stripMargin
-      )
+    def toResultString(jdkSymlinkName: String, before: String, after: String): F[String] = {
+      for {
+        beforeLines        <- pureOrError(before.split("\n"))
+        coloredBeforeLines <- effectOf(
+                                beforeLines.map(line =>
+                                  if line.contains(s" $jdkSymlinkName ") then line.yellow.bold
+                                  else line
+                                )
+                              )
+
+        longestBeforeLineLength <- pureOrError(beforeLines.foldLeft(10)((max, s) => math.max(max, s.trim.length)))
+
+        afterLines         <- pureOrError(
+                                after
+                                  .split("\n")
+                              )
+        colouredAfterLines <- effectOf(
+                                afterLines.map(line =>
+                                  if line.contains(s" $jdkSymlinkName ") then line.blue.bold
+                                  else line
+                                )
+                              )
+
+        longestAfterLinesLength <- pureOrError(afterLines.foldLeft(10)((max, s) => math.max(max, s.trim.length)))
+
+        result <-
+          effectOf(
+            s"""
+               |✅ Done!
+               |
+               |${"=" * longestBeforeLineLength}
+               |# ${"Before".yellow.bold.underlined}
+               |${"-" * longestBeforeLineLength}
+               |${coloredBeforeLines.mkString("\n")}
+               |${"=" * longestBeforeLineLength}
+               |
+               |${"=" * longestAfterLinesLength}
+               |# ${"After".blue.bold.underlined}
+               |${"-" * longestAfterLinesLength}
+               |${colouredAfterLines.mkString("\n")}
+               |${"=" * longestAfterLinesLength}
+               |""".stripMargin
+          )
+      } yield result
+    }
   }
 
 }
