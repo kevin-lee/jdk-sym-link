@@ -64,9 +64,10 @@ object CoursierCmd {
                            }
                        }
               pathString = jdkPath.value.toString.stripSuffix("/")
-              theJdkPath = if pathString.endsWith("/Contents/Home")
-                           then JdkByCs.Path(new File(pathString.stripSuffix("/Contents/Home")))
-                           else jdkPath
+              theJdkPath =
+                if pathString.endsWith("/Contents/Home")
+                then JdkByCs.Path(new File(pathString.stripSuffix("/Contents/Home")))
+                else jdkPath
             } yield List(JdkByCs(id, JdkByCs.Name(name), ver.major, ver, theJdkPath))
 
         }
