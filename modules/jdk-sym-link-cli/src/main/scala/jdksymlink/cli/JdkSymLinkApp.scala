@@ -1,27 +1,36 @@
 package jdksymlink.cli
 
-import pirate.*
 import cats.effect.*
 import cats.syntax.all.*
+import com.monovore.decline.*
 import effectie.instances.ce3.fx.ioFx
-import piratex.*
+import effectie.syntax.all.*
+import extras.render.syntax.*
 
 /** @author Kevin Lee
   * @since 2019-12-24
   */
-object JdkSymLinkApp extends MainIo[JdkSymLinkArgs] {
+object JdkSymLinkApp
+    extends MainIo(
+      name = "jdk-sym-link",
+      header = "JDK symbolic link creator",
+      version = jdksymlink.info.JdkSymLinkBuildInfo.version,
+    ) {
 
-  val cmd: Command[JdkSymLinkArgs] =
-    Metavar.rewriteCommand(
-      Help.rewriteCommand(JdkSymLinkArgs.rawCmd),
-    )
+  override def main: Opts[IO[ExitCode]] =
+    JdkSymLinkArgs.opts.map { args =>
+      JdkSymLinkRun[IO](args)
+        .map(_.map(_ => none[String]))
+        .flatMap {
+          case Right(Some(msg)) =>
+            putStrLn[IO](msg) *> IO.pure(ExitCode.Success)
 
-  override def command: Command[JdkSymLinkArgs] = cmd
+          case Right(None) =>
+            IO.pure(ExitCode.Success)
 
-  override def prefs: Prefs = DefaultPrefs().copy(width = 100)
-
-  override def runApp(args: JdkSymLinkArgs): IO[Either[JdkSymLinkAppError, Option[String]]] =
-    JdkSymLinkRun[IO](args)
-      .map(_.map(_ => none[String]))
+          case Left(err) =>
+            putErrStrLn[IO](err.render) *> IO.pure(ExitCode.Error)
+        }
+    }
 
 }
