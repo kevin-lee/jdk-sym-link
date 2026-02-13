@@ -1,10 +1,7 @@
 package jdksymlink.cli
 
-import cats.Show
+import com.monovore.decline.*
 import jdksymlink.core.data.JavaMajorVersion
-import jdksymlink.info.JdkSymLinkBuildInfo
-import pirate.*
-import Pirate.*
 
 /** @author Kevin Lee
   * @since 2019-12-24
@@ -18,49 +15,25 @@ enum JdkSymLinkArgs derives CanEqual {
 
 object JdkSymLinkArgs {
 
-  val listParser: Parse[JdkSymLinkArgs] = ValueParse(JdkSymLinkArgs.JdkListArgs)
+  private val listOpts: Opts[JdkSymLinkArgs] =
+    Opts.subcommand("list", "List all JDKs") {
+      Opts(JdkSymLinkArgs.JdkListArgs)
+    }
 
-  val symLinkJdkParser: Parse[JdkSymLinkArgs] = {
-    import scalaz.*
-    import Scalaz.*
-    JdkSymLinkArgs.SymLinkArgs.apply |*|
-      argument[Int](
-        metavar("<java-version>") |+| description("Java version e.g.) 8, 11, 17")
-      ).map(JavaMajorVersion.apply)
-  }
+  private val symLinkOpts: Opts[JdkSymLinkArgs] =
+    Opts.subcommand(
+      "slink",
+      """Create JDK symbolic link.
+        |<java-version>: Major version like 11, 17, 21, etc.
+        |  e.g)
+        |  jdk-sym-link slink 21""".stripMargin
+    ) {
+      Opts
+        .argument[Int](metavar = "java-version")
+        .map(JavaMajorVersion(_))
+        .map(JdkSymLinkArgs.SymLinkArgs(_))
+    }
 
-  val rawCmd: Command[JdkSymLinkArgs] = {
-    import scalaz.*
-    import Scalaz.*
-    Command(
-      "jdk-sym-link",
-      "JDK symbolic link creator".some,
-      (subcommand(
-        Command(
-          "list",
-          "List all JDKs".some,
-          listParser
-        )
-      ) ||| subcommand(
-        Command(
-          "slink",
-          "Create JDK symbolic link".some,
-          symLinkJdkParser
-        )
-      )) <* version(JdkSymLinkBuildInfo.version)
-    )
-  }
-
-  final case class JustMessageOrHelp(messages: List[String])
-  object JustMessageOrHelp {
-    given show: Show[JustMessageOrHelp] = _.messages.mkString("\n")
-  }
-  final case class ArgParseError(errors: List[String])
-  object ArgParseError {
-    given show: Show[ArgParseError] = _.errors.mkString("\n")
-  }
-
-  type ArgParseFailureResult =
-    JustMessageOrHelp | ArgParseError
+  val opts: Opts[JdkSymLinkArgs] = listOpts orElse symLinkOpts
 
 }

@@ -36,11 +36,12 @@ lazy val core = projectCommonSettings("core")
 
   )
 
-lazy val pirate = ProjectRef(props.pirateUri, "pirate-scalaz")
+//lazy val pirate = ProjectRef(props.pirateUri, "pirate-scalaz")
 
 lazy val cli = projectCommonSettings("cli")
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
+    libraryDependencies ++= libs.decline,
     maintainer := "Kevin Lee <kevin.code@kevinlee.io>",
     packageSummary := "JdkSymLink",
     packageDescription := "A tool to create JDK symbolic links",
@@ -57,7 +58,8 @@ lazy val cli = projectCommonSettings("cli")
       "--report-unsupported-elements-at-runtime",
     ),
   )
-  .dependsOn(core, pirate)
+  .dependsOn(core)
+//  .dependsOn(core, pirate)
 
 lazy val jdkSymLink = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin)
@@ -99,6 +101,8 @@ lazy val props =
     final val hedgehogVersion = "0.13.0"
 
     final val justSysprocessVersion = "1.0.0"
+
+    val DeclineVersion = "2.6.0"
 
     final val pirateVersion = "574d85a36919280dc802009b581df9019811c27e"
     final val pirateUri     = uri(
@@ -142,6 +146,11 @@ lazy val libs =
     lazy val extrasScalaIo = "io.kevinlee" %% "extras-scala-io" % props.ExtrasVersion
 
     lazy val justSemVer = "io.kevinlee" %% "just-semver" % props.JustSemVerVersion
+
+    lazy val decline = List(
+      "com.monovore" %% "decline"        % props.DeclineVersion,
+      "com.monovore" %% "decline-effect" % props.DeclineVersion,
+    )
 
   }
 
