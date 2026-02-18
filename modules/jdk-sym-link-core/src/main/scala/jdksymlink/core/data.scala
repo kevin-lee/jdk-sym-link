@@ -25,12 +25,12 @@ object data {
 
       def dirExist: Boolean = {
         import sys.process.*
-        List("[", "-d", path.value, "]").! == 0
+        List("[", "-d", path.value, "]").! === 0
       }
 
       def fileExist: Boolean = {
         import sys.process.*
-        List("[", "-f", path.value, "]").! == 0
+        List("[", "-f", path.value, "]").! === 0
       }
 
       def nonEmptyInside: Boolean = {
@@ -133,7 +133,7 @@ object data {
 
               case ((Some(major1), None), (Some(major2), Some(_))) =>
                 val m = major1.toInt.compareTo(major2.toInt)
-                if (m == 0)
+                if (m === 0)
                   -1
                 else
                   m
@@ -143,7 +143,7 @@ object data {
 
               case ((Some(major1), Some(_)), (Some(major2), None)) =>
                 val m = major1.toInt.compareTo(major2.toInt)
-                if (m == 0)
+                if (m === 0)
                   1
                 else
                   m

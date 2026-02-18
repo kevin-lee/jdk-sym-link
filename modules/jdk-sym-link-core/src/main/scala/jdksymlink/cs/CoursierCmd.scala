@@ -110,15 +110,15 @@ object CoursierCmd {
       extension (version: Version) {
         def major: MajorVersion = version.value match {
           case SemVer(m, n, _, _, _) =>
-            MajorVersion(if (m.value == 1) n.value else m.value)
+            MajorVersion(if (m.value === 1) n.value else m.value)
 
           case DecVer(m, n, _, _) =>
-            MajorVersion(if (m.value == 1) n.value else m.value)
+            MajorVersion(if (m.value === 1) n.value else m.value)
 
           case DotSeparatedVersion(v, vs) =>
             val vNum = v.toInt
             MajorVersion(
-              if vNum == 1 then
+              if vNum === 1 then
                 vs.take(1)
                   .headOption
                   .filter(_.forall(_.isDigit))

@@ -16,14 +16,14 @@ abstract class MainIo[A](
   protected val name: String,
   protected val header: String,
   protected val helpFlag: Boolean = true,
-//  protected val helpFormat: HelpFormat = HelpFormat.autoColors(sys.env),
-  protected val helpFormat: HelpFormat =
-    if (sys.env.get("NO_COLOR").fold("")(_.trim) == "")
-      HelpFormat.Colors
-    else
-      HelpFormat.Plain,
   protected val version: String = ""
 ) extends IOApp {
+
+  //  val helpFormat: HelpFormat = HelpFormat.autoColors(sys.env)
+  val helpFormat: HelpFormat =
+    if sys.env.get("NO_COLOR").fold("")(_.trim).isEmpty
+    then HelpFormat.Colors
+    else HelpFormat.Plain
 
   def main: Opts[IO[ExitCode]]
 
@@ -53,8 +53,8 @@ object MainIo {
     for {
       parseResult <- effectOf(
                        command.parse(
-                         PlatformApp.ambientArgs getOrElse args,
-                         PlatformApp.ambientEnvs getOrElse sys.env
+                         PlatformApp.ambientArgs.getOrElse(args),
+                         PlatformApp.ambientEnvs.getOrElse(sys.env)
                        )
                      )
       exitCode    <- parseResult.fold(printHelp[F](helpRender), identity)
