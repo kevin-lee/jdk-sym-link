@@ -23,7 +23,7 @@ lazy val core = projectCommonSettings("core")
       List(libs.justSysProcess) ++
         libs.catsAndCatsEffect ++
         libs.effectie ++
-        List(libs.kittens, libs.extrasCats, libs.extrasScalaIo, libs.extrasRender, libs.justSemVer)
+        List(libs.kittens, libs.extrasCats, libs.extrasScalaIo, libs.extrasRender) ++ libs.justSemVer
     /* Build Info { */,
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoObject := "JdkSymLinkBuildInfo",
@@ -84,7 +84,7 @@ lazy val props =
     val GitHubUrl = "https://github.com/kevin-lee"
 
     final val ProjectNamePrefix   = RepoName
-    final val ProjectScalaVersion = "3.3.7"
+    final val ProjectScalaVersion = "3.7.4"
 
     final val effectieVersion  = "2.3.0"
     final val refined4sVersion = "1.16.0"
@@ -145,7 +145,10 @@ lazy val libs =
     lazy val extrasRender  = "io.kevinlee" %% "extras-render"   % props.ExtrasVersion
     lazy val extrasScalaIo = "io.kevinlee" %% "extras-scala-io" % props.ExtrasVersion
 
-    lazy val justSemVer = "io.kevinlee" %% "just-semver" % props.JustSemVerVersion
+    lazy val justSemVer = List(
+      "io.kevinlee" %% "just-semver-core"   % props.JustSemVerVersion,
+      "io.kevinlee" %% "just-semver-decver" % props.JustSemVerVersion,
+    )
 
     lazy val decline = List(
       "com.monovore" %% "decline"        % props.DeclineVersion,
