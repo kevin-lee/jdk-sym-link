@@ -6,9 +6,9 @@ on:
       - '*'
 
 env:
-  GH_JAVA_VERSION: "17"
+  GH_JAVA_VERSION: "21"
   GH_JAVA_DISTRIBUTION: "temurin"
-  GH_JVM_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=1G -Xmx2G -XX:MaxInlineLevel=18 -XX:+UseJVMCICompiler"
+  GH_JVM_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=1G -Xmx4G -XX:MaxInlineLevel=18"
   CLI_SCALA_BINARY_VERSION: "3"
   GRAALVM_BIN_DIR_NAME: "native-image"
 
@@ -29,9 +29,14 @@ jobs:
       - name: sbt GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
+          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+          SBT_OPTS: ${{ env.GH_JVM_OPTS }}
         run: |
           echo "Run] sbt GitHub release"
+          echo "JVM_OPTS=${JVM_OPTS}"
+          echo "SBT_OPTS=${SBT_OPTS}"
           echo 'sbt -J-Xmx2048m devOopsGitHubRelease'
+          
           sbt \
             -J-Xmx2048m \
             devOopsGitHubRelease
@@ -55,14 +60,22 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
+          CURRENT_BRANCH_NAME: ${{ github.ref }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_NUMBER: ${{ github.run_number }}
           JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+          SBT_OPTS: ${{ env.GH_JVM_OPTS }}
         run: |
           echo "Run] sbt cli package release"
+          echo "CURRENT_BRANCH_NAME=${CURRENT_BRANCH_NAME}"
+          echo "RUN_ID=${RUN_ID}"
+          echo "RUN_NUMBER=${RUN_NUMBER}"
           export SOURCE_DATE_EPOCH=$(date +%s)
           echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
           echo "JVM_OPTS=${JVM_OPTS}"
           echo "SBT_OPTS=${SBT_OPTS}"
           echo 'sbt -v clean test universal:packageBin devOopsGitHubReleaseUploadArtifacts'
+          
           sbt \
             clean \
             test \
@@ -97,10 +110,17 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
           APP_BIN_NAME: ${{ matrix.run-binary }}-${{ matrix.os.bin-suffix }}
+          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+          SBT_OPTS: ${{ env.GH_JVM_OPTS }}
         run: |
+          echo "CURRENT_BRANCH_NAME=${CURRENT_BRANCH_NAME}"
+          echo "RUN_ID=${RUN_ID}"
+          echo "RUN_NUMBER=${RUN_NUMBER}"
+          echo "APP_BIN_NAME=${APP_BIN_NAME}"
+          echo "JVM_OPTS=${JVM_OPTS}"
+          echo "SBT_OPTS=${SBT_OPTS}"
+          
           sbt \
-            -J-XX:MaxMetaspaceSize=1024m \
-            -J-Xmx2048m \
             clean \
             test \
             nativeImage
@@ -130,6 +150,4 @@ jobs:
           sh -c "modules/jdk-sym-link-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME slink --help"
 
           sbt \
-            -J-XX:MaxMetaspaceSize=1024m \
-            -J-Xmx2048m \
             devOopsGitHubReleaseUploadArtifacts

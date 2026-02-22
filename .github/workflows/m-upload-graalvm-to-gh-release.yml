@@ -4,10 +4,11 @@ on:
   workflow_dispatch:
 
 env:
-  GH_JAVA_VERSION: "17"
+  GH_JAVA_VERSION: "21"
   GH_JAVA_DISTRIBUTION: "temurin"
-  CLI_SCALA_BINARY_VERSION: "3.4.0"
+  CLI_SCALA_BINARY_VERSION: "3"
   GRAALVM_BIN_DIR_NAME: "native-image"
+  GH_JVM_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=1G -Xmx4G -XX:MaxInlineLevel=18"
 
 jobs:
   graalvm-gh-release:
@@ -24,17 +25,7 @@ jobs:
           java-version: ${{ env.GH_JAVA_VERSION }}
           distribution: ${{ env.GH_JAVA_DISTRIBUTION }}
           cache: 'sbt'
-
-      - name: Cache SBT
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.cache/coursier
-            ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-
+      - uses: sbt/setup-sbt@v1
 
       - name: "GraalVM Build - ${{ github.run_number }}"
         env:
@@ -42,10 +33,16 @@ jobs:
           CURRENT_BRANCH_NAME: ${{ github.ref }}
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
+          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+          SBT_OPTS: ${{ env.GH_JVM_OPTS }}
         run: |
+          echo "CURRENT_BRANCH_NAME=${CURRENT_BRANCH_NAME}"
+          echo "RUN_ID=${RUN_ID}"
+          echo "RUN_NUMBER=${RUN_NUMBER}"
+          echo "JVM_OPTS=${JVM_OPTS}"
+          echo "SBT_OPTS=${SBT_OPTS}"
+          
           sbt \
-            -J-XX:MaxMetaspaceSize=1024m \
-            -J-Xmx2048m \
             clean \
             test \
             nativeImage
