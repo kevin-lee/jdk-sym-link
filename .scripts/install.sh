@@ -10,39 +10,52 @@ major_version=$(echo "$macos_version" | cut -d '.' -f 1)
 
 echo ">>> macOS.major_version=$major_version"
 
-# Set the app_bin_suffix based on the macOS major version using case
+# Determine which macOS binary version to use
 case "$major_version" in
-  12)
-    app_bin_suffix="macos12"
+  14)
+    app_bin_suffix_version="14"
     ;;
-  13)
-    app_bin_suffix="macos-13"
+  15)
+    app_bin_suffix_version="15"
     ;;
-  14 | 15)
-    # Get the system architecture
-    arch=$(uname -m)
-
-    echo ">>> macOS.arch=${arch}"
-
-    # Set the app_bin_suffix based on the architecture
-    if [ "$arch" == "x86_64" ]; then
-      app_bin_suffix="macos-13"
-    elif [ "$arch" == "arm64" ]; then
-      app_bin_suffix="macos-${major_version}-arm64"
-    else
-      app_bin_suffix="macos-13"
-    fi
+  1[6-9] | 2[0-5])
+    # macOS 16-25 don't exist (Apple skipped from 15 to 26), but defensively fall back to macOS 15 binary
+    echo ">>> macOS ${major_version} has no dedicated binary. Falling back to macOS 15 binary."
+    app_bin_suffix_version="15"
+    ;;
+  26)
+    app_bin_suffix_version="26"
     ;;
   *)
-    app_bin_suffix="macos-13"
-    echo "Unsupported macOS version: $macos_version so it will use $app_bin_suffix "
+    if [ "$major_version" -ge 27 ] 2>/dev/null; then
+      # Future macOS versions: fall back to macOS 26 binary
+      echo ">>> macOS ${major_version} has no dedicated binary. Falling back to macOS 26 binary."
+      app_bin_suffix_version="26"
+    else
+      echo "Unsupported macOS version: $major_version. This app requires macOS 14 or later."
+      echo "You can use the JVM version instead by running .scripts/install-jvm.sh"
+      exit 1
+    fi
     ;;
 esac
+
+# Get the system architecture
+arch=$(uname -m)
+
+echo ">>> macOS.arch=${arch}"
+
+# Set the app_bin_suffix based on the architecture
+if [ "$arch" == "arm64" ]; then
+  app_bin_suffix="macos-${app_bin_suffix_version}-arm64"
+else
+  echo "Unsupported macOS architecture: $arch. It supports only arm64 (Apple Silicon)."
+  exit 1
+fi
 
 app_original_executable_name=jdk-sym-link
 app_executable_name=jdkslink
 app_name=jdk-sym-link-cli
-app_version=${1:-1.3.0}
+app_version=${1:-1.4.0}
 app_package_file="${app_name}"
 download_url="https://github.com/kevin-lee/jdk-sym-link/releases/download/v${app_version}/${app_package_file}-${app_bin_suffix}"
 
