@@ -102,7 +102,7 @@ lazy val props =
 
     final val justSysprocessVersion = "1.0.0"
 
-    val DeclineVersion = "2.6.1"
+    val DeclineVersion = "2.6.2"
 
     final val pirateVersion = "574d85a36919280dc802009b581df9019811c27e"
     final val pirateUri     = uri(
