@@ -120,11 +120,11 @@ object CoursierCmd {
           case DotSeparatedVersion(v, vs) =>
             val vNum = v.toInt
             MajorVersion(
-              if vNum === 1 then
-                vs.take(1)
-                  .headOption
-                  .filter(_.forall(_.isDigit))
-                  .fold(vNum)(_.toInt)
+              if vNum === 1 then vs
+                .take(1)
+                .headOption
+                .filter(_.forall(_.isDigit))
+                .fold(vNum)(_.toInt)
               else vNum
             )
         }

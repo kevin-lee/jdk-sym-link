@@ -29,7 +29,7 @@ abstract class MainIo[A](
 
   val renderHelp: Help => String = MainIo.renderHelp(helpFormat)
 
-  override final def run(args: List[String]): IO[ExitCode] = {
+  final override def run(args: List[String]): IO[ExitCode] = {
     MainIo
       .run[IO](name, header, helpFlag, renderHelp, Option(version).filter(_.nonEmpty))(main, args)
   }
@@ -82,7 +82,7 @@ object MainIo {
       visibility = Visibility.Partial
     )
 
-    flag.as(Console[F].println(version).as(ExitCode.Success)) orElse opts
+    flag.as(Console[F].println(version).as(ExitCode.Success)).orElse(opts)
   }
 
 }

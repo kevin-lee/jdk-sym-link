@@ -34,6 +34,6 @@ object JdkSymLinkArgs {
         .map(JdkSymLinkArgs.SymLinkArgs(_))
     }
 
-  val opts: Opts[JdkSymLinkArgs] = listOpts orElse symLinkOpts
+  val opts: Opts[JdkSymLinkArgs] = listOpts.orElse(symLinkOpts)
 
 }
