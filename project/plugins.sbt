@@ -1,4 +1,4 @@
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.11.7")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.12.0")
 addSbtPlugin("org.scalameta"  % "sbt-native-image"    % "0.5.0")
 addSbtPlugin("com.eed3si9n"   % "sbt-buildinfo"       % "0.13.2")
 
