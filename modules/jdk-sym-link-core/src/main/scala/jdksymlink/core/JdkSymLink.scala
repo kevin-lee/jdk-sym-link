@@ -45,9 +45,9 @@ trait JdkSymLink[F[*]] {
 
 object JdkSymLink {
 
-  def apply[F[*]: Monad: Fx]: JdkSymLink[F] = new JdkSymLinkF[F]
+  def apply[F[*]: {Monad, Fx}]: JdkSymLink[F] = new JdkSymLinkF[F]
 
-  private final class JdkSymLinkF[F[*]: Monad: Fx] extends JdkSymLink[F] {
+  final private class JdkSymLinkF[F[*]: {Monad, Fx}] extends JdkSymLink[F] {
 
     def listAll(javaBaseDirPath: JvmBaseDirPath, javaBaseDir: File): F[Either[JdkSymLinkError, Unit]] =
       (for {
@@ -277,6 +277,12 @@ object JdkSymLink {
                                         }
 
                   _ <- putStrLn(
+                         s"""rm result:
+                            |${rmResult.mkString("  ", "\n  ", "\n")}
+                            |""".stripMargin
+                       ).whenA(rmResult.nonEmpty).rightT
+
+                  _ <- putStrLn(
                          s"""
                             |$javaBaseDirFile $$ sudo ln -s ${javaBaseDirPath.value} jdk${javaMajorVersion.render}
                             |""".stripMargin
@@ -370,6 +376,12 @@ object JdkSymLink {
                                   }
           } yield lnResult)
         }
+
+      _ <- putStrLn(
+             s"""result:
+                |${result.mkString("  ", "\n  ", "\n")}
+                |""".stripMargin
+           ).whenA(result.nonEmpty).rightT
 
       r <- effectOf(Process(s"ls -l", javaBaseDir) !!)
              .flatMap(after => toResultString(jdkSymlinkName, before, after))

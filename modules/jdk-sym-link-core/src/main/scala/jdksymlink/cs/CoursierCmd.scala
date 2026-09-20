@@ -70,6 +70,8 @@ object CoursierCmd {
                 else jdkPath
             } yield List(JdkByCs(id, JdkByCs.Name(name), ver.major, ver, theJdkPath))
 
+          case somethingElse =>
+            pureOf(CoursierError.InvalidJdkInfo(somethingElse :: path :: Nil).asLeft).t
         }
 
       case somethingElse => pureOf(CoursierError.InvalidJdkInfo(somethingElse).asLeft).t
