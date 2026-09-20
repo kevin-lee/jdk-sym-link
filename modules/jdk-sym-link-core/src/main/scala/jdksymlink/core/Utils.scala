@@ -35,7 +35,11 @@ object Utils {
         (name, VerStr(major, Option(minor), Option(patch))).some
       case Coursier.ZuluOpenJdkPattern(major, minor, patch) =>
         (name, VerStr(major, Option(minor), Option(patch))).some
-      case Coursier.AmazonCorrettoOpenJdkPattern(major, minor, patch) =>
+      case Coursier.AmazonCorrettoOpenJdkPattern(
+             major,
+             minor,
+             _ // patch
+           ) =>
         (name, VerStr(major, Option(minor), none)).some
       case _ =>
         none[NameAndVersion]
